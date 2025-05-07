@@ -1,99 +1,51 @@
 <?php
-// auth/register.php
+include_once '../config/Koneksi.php';
 
-// Mulai session (tidak wajib jika register tidak memakai session)
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nama = $_POST['nama'];
+    $email = $_POST['email'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $no_hp = $_POST['no_hp'];
+    $alamat = $_POST['alamat'];
 
-// Muat konfigurasi & koneksi
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/Koneksi.php';
+    $query = "INSERT INTO users (nama, email, password, no_hp, alamat, role) 
+              VALUES ('$nama', '$email', '$password', '$no_hp', '$alamat', 'user')";
 
-// Jika sudah login, redirect saja
-if (isset($_SESSION['role'])) {
-    if ($_SESSION['role'] === 'admin') {
-        header('Location: ' . BASE_URL . 'admin/dashboard.php');
+    if (mysqli_query($conn, $query)) {
+        echo "<div class='alert alert-success'>Registrasi berhasil. Silakan login.</div>";
     } else {
-        header('Location: ' . BASE_URL . 'user/dashboard.php');
-    }
-    exit;
-}
-
-$error = '';
-$success = '';
-
-// Proses form register
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Ambil data
-    $nama     = trim($_POST['nama_lengkap'] ?? '');
-    $email    = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-
-    // Validasi sederhana
-    if (empty($nama) || empty($email) || empty($password)) {
-        $error = 'Semua field wajib diisi.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Format email tidak valid.';
-    } else {
-        // Hash password
-        $hash = password_hash($password, PASSWORD_DEFAULT);
-
-        // Koneksi DB
-        $conn = Koneksi::getInstance();
-
-        // Cek email sudah terdaftar?
-        $stmt = $conn->prepare("SELECT id FROM user WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $stmt->store_result();
-        if ($stmt->num_rows > 0) {
-            $error = 'Email sudah terdaftar.';
-        } else {
-            // Insert user baru
-            $stmt = $conn->prepare("INSERT INTO user (nama_lengkap, email, password) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $nama, $email, $hash);
-            if ($stmt->execute()) {
-                $success = 'Registrasi berhasil! <a href="' . BASE_URL . 'auth/login.php">Login di sini</a>.';
-            } else {
-                $error = 'Gagal registrasi, silakan coba lagi.';
-            }
-        }
-        $stmt->close();
+        echo "<div class='alert alert-danger'>Registrasi gagal.</div>";
     }
 }
 ?>
-<?php
-// Judul halaman
-$title = 'Register - Cilengkrang Wisata';
-include __DIR__ . '/../template/header.php';
-?>
 
-<div class="auth-form">
-    <h2>Registrasi Akun Pengguna</h2>
+<?php include_once '../template/header.php'; ?>
 
-    <?php if ($error): ?>
-        <p class="error"><?php echo htmlspecialchars($error); ?></p>
-    <?php elseif ($success): ?>
-        <p class="success"><?php echo $success; ?></p>
-    <?php endif; ?>
-
-    <?php if (!$success): ?>
-        <form action="" method="POST">
-            <label for="nama_lengkap">Nama Lengkap:</label>
-            <input type="text" name="nama_lengkap" id="nama_lengkap" required value="<?php echo htmlspecialchars($nama ?? ''); ?>">
-
-            <label for="email">Email:</label>
-            <input type="email" name="email" id="email" required value="<?php echo htmlspecialchars($email ?? ''); ?>">
-
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password" required>
-
-            <button type="submit">Daftar</button>
-        </form>
-
-        <p>Sudah punya akun? <a href="<?php echo BASE_URL; ?>auth/login.php">Login di sini</a>.</p>
-    <?php endif; ?>
+<div class="container mt-5">
+    <h2>Registrasi</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label>Nama</label>
+            <input type="text" name="nama" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Password</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>No HP</label>
+            <input type="text" name="no_hp" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Alamat</label>
+            <input type="text" name="alamat" class="form-control" required>
+        </div>
+        <button class="btn btn-success">Daftar</button>
+    </form>
 </div>
 
-<?php include __DIR__ . '/../template/footer.php'; ?>
+<?php include_once '../template/footer.php'; ?>

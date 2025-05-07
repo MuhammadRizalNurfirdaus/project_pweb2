@@ -1,6 +1,7 @@
 <?php
-require_once '../../config/database.php';
-require_once '../../template/header.php';
+require_once '../../config/Koneksi.php';
+include '../template/header_admin.php';
+
 
 $query = "SELECT * FROM contact ORDER BY created_at DESC";
 $result = mysqli_query($conn, $query);

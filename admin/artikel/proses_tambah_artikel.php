@@ -1,5 +1,5 @@
 <?php
-include_once '../../config/database.php';
+include_once '../../config/Koneksi.php';
 include_once '../../models/Artikel.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

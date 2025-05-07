@@ -1,28 +1,27 @@
 <?php
 require_once __DIR__ . '/../config/Koneksi.php';
 
-class Contact
+class Artikel
 {
     public static function getAll()
     {
         global $conn;
-        $result = mysqli_query($conn, "SELECT * FROM contact ORDER BY id DESC");
+        $result = mysqli_query($conn, "SELECT * FROM artikel ORDER BY id DESC");
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 
     public static function insert($data)
     {
         global $conn;
-        $nama = $data['nama'];
-        $email = $data['email'];
-        $pesan = $data['pesan'];
-        $query = "INSERT INTO contact (nama, email, pesan) VALUES ('$nama', '$email', '$pesan')";
+        $judul = $data['judul'];
+        $konten = $data['konten'];
+        $query = "INSERT INTO artikel (judul, konten) VALUES ('$judul', '$konten')";
         return mysqli_query($conn, $query);
     }
 
     public static function delete($id)
     {
         global $conn;
-        return mysqli_query($conn, "DELETE FROM contact WHERE id = $id");
+        return mysqli_query($conn, "DELETE FROM artikel WHERE id = $id");
     }
 }

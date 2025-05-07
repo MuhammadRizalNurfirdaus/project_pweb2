@@ -1,0 +1,66 @@
+/* Cilengkrang Web Wisata - Custom Style */
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.navbar {
+  background-color: #2E8B57;
+}
+
+.navbar-brand,
+.nav-link {
+  color: #fff !important;
+}
+
+.hero {
+  background: url('../public/img/air_panas.jpg') no-repeat center center;
+  background-size: cover;
+  padding: 100px 0;
+  color: white;
+  text-shadow: 1px 1px 4px #000;
+}
+
+.footer {
+  background-color: #2E8B57;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+.card {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.form-control,
+.btn {
+  border-radius: 10px;
+}
+
+.btn-primary {
+  background-color: #2E8B57;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #256e48;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f5f5f5;
+}
+
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+}

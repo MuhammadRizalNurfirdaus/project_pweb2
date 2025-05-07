@@ -1,12 +1,12 @@
 <?php
 require_once __DIR__ . '/../config/Koneksi.php';
 
-class Contact
+class Feedback
 {
     public static function getAll()
     {
         global $conn;
-        $result = mysqli_query($conn, "SELECT * FROM contact ORDER BY id DESC");
+        $result = mysqli_query($conn, "SELECT * FROM feedback ORDER BY id DESC");
         return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 
@@ -14,15 +14,15 @@ class Contact
     {
         global $conn;
         $nama = $data['nama'];
-        $email = $data['email'];
-        $pesan = $data['pesan'];
-        $query = "INSERT INTO contact (nama, email, pesan) VALUES ('$nama', '$email', '$pesan')";
+        $rating = $data['rating'];
+        $komentar = $data['komentar'];
+        $query = "INSERT INTO feedback (nama, rating, komentar) VALUES ('$nama', '$rating', '$komentar')";
         return mysqli_query($conn, $query);
     }
 
     public static function delete($id)
     {
         global $conn;
-        return mysqli_query($conn, "DELETE FROM contact WHERE id = $id");
+        return mysqli_query($conn, "DELETE FROM feedback WHERE id = $id");
     }
 }

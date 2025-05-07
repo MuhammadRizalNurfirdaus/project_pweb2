@@ -1,6 +1,7 @@
 <?php
 include "../../config/Koneksi.php";
-include "../../template/header.php";
+include '../template/header_admin.php';
+
 ?>
 
 <div class="container mt-5">

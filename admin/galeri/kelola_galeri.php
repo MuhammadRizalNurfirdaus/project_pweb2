@@ -1,6 +1,7 @@
 <?php
 include "../../config/Koneksi.php";
-include "../../template/header.php";
+include '../template/header_admin.php';
+
 
 $query = mysqli_query($conn, "SELECT * FROM galeri");
 

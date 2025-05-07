@@ -1,10 +1,12 @@
 <?php
-// config/config.php
+// Mulai session
+session_start();
 
-// BASE_URL absolut
-define('BASE_URL', 'http://localhost/Cilengkrang-Web-Wisata/');
+// Base URL proyek kamu (ubah jika dipindah folder)
+$base_url = "http://localhost/Cilengkrang-Web-Wisata/";
 
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'cilengkrang_db');
+// Waktu default
+date_default_timezone_set("Asia/Jakarta");
+
+// Include koneksi database
+include_once "Koneksi.php";

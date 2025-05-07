@@ -1,7 +1,9 @@
 <?php
 session_start();
 include "../config/Koneksi.php";
-include "../template/header.php";
+include '../template/header_admin.php';
+
+
 
 if (!isset($_SESSION['admin'])) {
     header("Location: ../auth/login.php");
@@ -18,6 +20,15 @@ if (!isset($_SESSION['admin'])) {
         <li><a href="artikel/kelola_artikel.php">Kelola Artikel</a></li>
         <li><a href="feedback/kelola_feedback.php">Kelola Feedback</a></li>
     </ul>
+</div>
+<div class="col-md-4">
+    <div class="card mb-4">
+        <img src="public/img/air_panas.jpg" class="card-img-top" alt="Air Panas">
+        <div class="card-body">
+            <h5 class="card-title">Air Panas</h5>
+            <p class="card-text">Nikmati kehangatan air panas alami di pegunungan.</p>
+        </div>
+    </div>
 </div>
 
 <?php include "../template/footer.php"; ?>

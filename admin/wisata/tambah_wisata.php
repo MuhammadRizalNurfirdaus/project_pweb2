@@ -1,4 +1,5 @@
-<?php include "../../template/header.php"; ?>
+<?php include '../template/header_admin.php';
+?>
 
 <div class="container mt-5">
     <h2>Tambah Wisata Baru</h2>

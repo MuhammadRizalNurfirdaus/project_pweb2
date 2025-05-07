@@ -1,28 +1,29 @@
 <?php
-// models/Booking.php
+require_once __DIR__ . '/../config/Koneksi.php';
 
 class Booking
 {
-    private $conn;
-    private $table = "booking";
-
-    public function __construct($db)
+    public static function getAll()
     {
-        $this->conn = $db;
+        global $conn;
+        $result = mysqli_query($conn, "SELECT * FROM booking ORDER BY tanggal DESC");
+        return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 
-    public function create($data)
+    public static function insert($data)
     {
-        $query = "INSERT INTO " . $this->table . " (nama, email, no_hp, tanggal, jumlah, catatan) VALUES (:nama, :email, :no_hp, :tanggal, :jumlah, :catatan)";
-        $stmt = $this->conn->prepare($query);
+        global $conn;
+        $nama = $data['nama'];
+        $email = $data['email'];
+        $tanggal = $data['tanggal'];
+        $jumlah_orang = $data['jumlah_orang'];
+        $query = "INSERT INTO booking (nama, email, tanggal, jumlah_orang) VALUES ('$nama', '$email', '$tanggal', '$jumlah_orang')";
+        return mysqli_query($conn, $query);
+    }
 
-        $stmt->bindParam(':nama', $data['nama']);
-        $stmt->bindParam(':email', $data['email']);
-        $stmt->bindParam(':no_hp', $data['no_hp']);
-        $stmt->bindParam(':tanggal', $data['tanggal']);
-        $stmt->bindParam(':jumlah', $data['jumlah']);
-        $stmt->bindParam(':catatan', $data['catatan']);
-
-        return $stmt->execute();
+    public static function delete($id)
+    {
+        global $conn;
+        return mysqli_query($conn, "DELETE FROM booking WHERE id = $id");
     }
 }
