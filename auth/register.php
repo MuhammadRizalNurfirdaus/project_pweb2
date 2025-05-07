@@ -12,7 +12,11 @@ require_once __DIR__ . '/../config/Koneksi.php';
 
 // Jika sudah login, redirect saja
 if (isset($_SESSION['role'])) {
-    header('Location: ' . BASE_URL . 'index.php');
+    if ($_SESSION['role'] === 'admin') {
+        header('Location: ' . BASE_URL . 'admin/dashboard.php');
+    } else {
+        header('Location: ' . BASE_URL . 'user/dashboard.php');
+    }
     exit;
 }
 
@@ -29,6 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validasi sederhana
     if (empty($nama) || empty($email) || empty($password)) {
         $error = 'Semua field wajib diisi.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Format email tidak valid.';
     } else {
         // Hash password
         $hash = password_hash($password, PASSWORD_DEFAULT);
@@ -53,25 +59,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Gagal registrasi, silakan coba lagi.';
             }
         }
+        $stmt->close();
     }
 }
 ?>
 <?php
 // Judul halaman
-$title = 'Register - Cilengkrang';
+$title = 'Register - Cilengkrang Wisata';
 include __DIR__ . '/../template/header.php';
 ?>
 
 <div class="auth-form">
-    <h2>Registrasi Akun</h2>
+    <h2>Registrasi Akun Pengguna</h2>
+
     <?php if ($error): ?>
         <p class="error"><?php echo htmlspecialchars($error); ?></p>
     <?php elseif ($success): ?>
         <p class="success"><?php echo $success; ?></p>
     <?php endif; ?>
 
-    <?php if (!$success): // Tampilkan form kalau belum sukses 
-    ?>
+    <?php if (!$success): ?>
         <form action="" method="POST">
             <label for="nama_lengkap">Nama Lengkap:</label>
             <input type="text" name="nama_lengkap" id="nama_lengkap" required value="<?php echo htmlspecialchars($nama ?? ''); ?>">
@@ -84,6 +91,7 @@ include __DIR__ . '/../template/header.php';
 
             <button type="submit">Daftar</button>
         </form>
+
         <p>Sudah punya akun? <a href="<?php echo BASE_URL; ?>auth/login.php">Login di sini</a>.</p>
     <?php endif; ?>
 </div>
