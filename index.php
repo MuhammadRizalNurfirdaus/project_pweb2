@@ -25,8 +25,8 @@ session_start();
     <hr class="my-5">
 
 <section class="px-4 py-5">
-  <h1 class="display-5 fw-bold text-success mb-3">Cilengkrang</h1>
-  <p class="fs-5 fw-semibold text-secondary">Mari Berwisata Di cilengkrang</p>
+    <h1 class="display-5 fw-bold text-success mb-3">Cilengkrang</h1>
+    <p class="fs-5 fw-semibold text-secondary">Mari Berwisata Di cilengkrang</p>
 
   <div class="row g-4 mt-4">
     <!-- Card 1 -->
