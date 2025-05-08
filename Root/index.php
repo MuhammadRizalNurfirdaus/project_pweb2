@@ -1,11 +1,11 @@
-<?php include 'template/header.php'; ?>
+<?php include 'template/header_admin.php'; ?>
 
 <div class="container mt-5">
     <div class="text-center">
         <img src="public/img/logo.jpg" width="150" class="mb-3 rounded">
         <h1>Selamat Datang di Cilengkrang Web Wisata</h1>
         <p class="lead">Eksplorasi pesona alam Cilengkrang, dari curug hingga pemandian air panas.</p>
-        <a href="wisata/galeri.php" class="btn btn-primary mt-3">Lihat Galeri</a>
+        <a href="/admin/wisata/galeri.php" class="btn btn-primary mt-3">Lihat Galeri</a>
     </div>
 
     <div class="mt-5">

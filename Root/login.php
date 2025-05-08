@@ -1,4 +1,4 @@
 <?php
 include 'template/header.php';
-include 'auth/login_form.php';
+include 'auth/login.php';
 include 'template/footer.php';
