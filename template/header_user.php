@@ -22,12 +22,12 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav"> <!-- Perbaiki typo: navbar-collaps -> navbar-collapse -->
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/user/dashboard.php">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/galeri.php">Galeri</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/booking.php">Pemesanan</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/contact.php">Kontak</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/project_pweb2">Wisata</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/logout.php">Logout</a></li>
+                    <li class="nav-item"><a class="nav-link" href="./user/dashboard.php">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="./user/artikel.php">Artikel</a></li>
+                    <li class="nav-item"><a class="nav-link" href="./user/booking.php">Pemesanan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="./contact.php">Kontak</a></li>
+                    <li class="nav-item"><a class="nav-link" href="./wisata/deskripsi.php">Wisata</a></li>
+                    <li class="nav-item"><a class="nav-link" href="./auth/logout.php">Logout</a></li>
                 </ul>
             </div>
         </div>
