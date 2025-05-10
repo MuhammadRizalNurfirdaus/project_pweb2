@@ -1,36 +1,42 @@
 <?php
-include_once './config/Koneksi.php';
+// File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\AuthController.php
+// Skrip pemanggil (login.php) HARUS sudah include config.php
+require_once __DIR__ . '/../models/User.php'; // Model User
 
 class AuthController
 {
-    public static function login($email, $password)
+    public static function processLogin($email, $password)
     {
-        global $conn;
-        $email = mysqli_real_escape_string($conn, $email);
-        $password = mysqli_real_escape_string($conn, $password);
+        $user = User::login($email, $password); // Memanggil method static dari model
 
-        $query = "SELECT * FROM users WHERE email='$email'";
-        $result = mysqli_query($conn, $query);
-        $user = mysqli_fetch_assoc($result);
-
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user'] = $user;
+        if ($user) {
+            // Login berhasil, set session variables
+            session_regenerate_id(true); // Keamanan
+            $_SESSION['is_loggedin'] = true;
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_nama'] = $user['nama'];
+            $_SESSION['user_email'] = $user['email'];
+            $_SESSION['user_role'] = $user['role'];
             return true;
         }
         return false;
     }
 
-    public static function register($data)
+    public static function processLogout()
     {
-        global $conn;
-        $nama = mysqli_real_escape_string($conn, $data['nama']);
-        $email = mysqli_real_escape_string($conn, $data['email']);
-        $password = password_hash($data['password'], PASSWORD_DEFAULT);
-        $no_hp = mysqli_real_escape_string($conn, $data['no_hp']);
-        $alamat = mysqli_real_escape_string($conn, $data['alamat']);
-
-        $query = "INSERT INTO users (nama, email, password, no_hp, alamat) 
-                  VALUES ('$nama', '$email', '$password', '$no_hp', '$alamat')";
-        return mysqli_query($conn, $query);
+        $_SESSION = array();
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
+        session_destroy();
     }
 }

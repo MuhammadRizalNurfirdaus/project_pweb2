@@ -1,0 +1,17 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Abaikan file dan direktori yang sudah ada
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Arahkan semua request lain ke index.php, kecuali request ke folder public
+    # Ini penting agar aset seperti CSS, JS, Gambar di folder public tetap bisa diakses langsung
+    RewriteCond %{REQUEST_URI} !^/public/
+
+    # Anda bisa menambahkan kondisi lain di sini jika diperlukan
+    # Misalnya, jika Anda punya folder 'api' yang ingin diakses langsung:
+    # RewriteCond %{REQUEST_URI} !^/api/
+
+    RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
+</IfModule>
