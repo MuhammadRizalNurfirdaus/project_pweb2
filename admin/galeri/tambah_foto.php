@@ -53,17 +53,17 @@ if (isset($_SESSION['flash_form_data']['keterangan'])) {
             echo display_flash_message();
         }
         ?>
-        <p class="text-muted">Silakan isi detail dan pilih file gambar untuk diunggah ke galeri.</p>
+        <p class="text-muted">Bagikan momen terbaik Anda dengan melengkapi detail dan mengunggah gambar ke galeri.</p>
         <form method="post" enctype="multipart/form-data" action="<?= $base_url ?>admin/galeri/proses_tambah_foto.php" class="needs-validation" novalidate>
             <div class="mb-3">
-                <label for="keterangan" class="form-label">Keterangan Foto <span class="text-danger">*</span></label>
+                <label for="keterangan" class="form-label">Keterangan Foto </label>
                 <input type="text" id="keterangan" name="keterangan" class="form-control" value="<?= $keterangan_input ?>" required placeholder="Misal: Pemandangan Curug di Pagi Hari">
                 <div class="invalid-feedback">
                     Keterangan foto wajib diisi.
                 </div>
             </div>
             <div class="mb-3">
-                <label for="nama_file" class="form-label">Pilih File Gambar <span class="text-danger">*</span></label>
+                <label for="nama_file" class="form-label">Pilih File Gambar </label>
                 <input type="file" id="nama_file" name="nama_file" class="form-control" required accept="image/jpeg, image/png, image/gif">
                 <small class="form-text text-muted">Format yang diizinkan: JPG, PNG, GIF. Ukuran maksimal: 5MB.</small>
                 <div class="invalid-feedback">

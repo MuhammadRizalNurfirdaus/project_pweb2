@@ -1,99 +1,119 @@
 <?php
-include "../../config/Koneksi.php";
+// File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nama = isset($_POST['nama']) ? trim($_POST['nama']) : '';
-    $deskripsi = isset($_POST['deskripsi']) ? trim($_POST['deskripsi']) : '';
-    $lokasi = isset($_POST['lokasi']) ? trim($_POST['lokasi']) : null; // Nullable
-    $harga = isset($_POST['harga']) && is_numeric($_POST['harga']) ? (int)$_POST['harga'] : null; // Nullable, ensure numeric
+// 1. Sertakan konfigurasi utama
+// Path dari admin/wisata/proses_tambah_wisata.php ke config/ adalah ../../config/
+if (!@require_once __DIR__ . '/../../config/config.php') {
+    http_response_code(500);
+    error_log("FATAL: Gagal memuat config.php dari admin/wisata/proses_tambah_wisata.php");
+    exit("Terjadi kesalahan kritis pada server.");
+}
 
-    $gambar_final_name = null; // Initialize
+if (is_post()) {
+    $nama = trim(input('nama'));
+    $deskripsi = trim(input('deskripsi'));
+    $lokasi = trim(input('lokasi')); // Sekarang wajib
+
+    // Simpan input ke session untuk repopulasi jika ada error dan redirect
+    $_SESSION['flash_form_data_wisata'] = [
+        'nama' => $nama,
+        'deskripsi' => $deskripsi,
+        'lokasi' => $lokasi
+    ];
+
+    $gambar_final_name = null;
     $uploadOk = 1;
+    $target_file_upload = '';
 
-    // File upload logic
+    // Validasi input wajib dari sisi server (selain gambar yang divalidasi di bawah)
+    if (empty($nama) || empty($deskripsi) || empty($lokasi)) {
+        set_flash_message('danger', 'Semua field (Nama, Deskripsi, Lokasi) wajib diisi.');
+        redirect('admin/wisata/tambah_wisata.php');
+    }
+
+    // --- Handle File Upload (SEKARANG WAJIB) ---
     if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] == UPLOAD_ERR_OK && !empty($_FILES['gambar']['name'])) {
-        $target_dir = "../../public/img/"; // Make sure this directory exists and is writable
-        if (!is_dir($target_dir)) {
-            mkdir($target_dir, 0777, true);
-        }
-
-        $imageFileType = strtolower(pathinfo($_FILES["gambar"]["name"], PATHINFO_EXTENSION));
-        $gambar_final_name = uniqid('wisata_', true) . '.' . $imageFileType; // Unique name
-        $target_file = $target_dir . $gambar_final_name;
-
-        // Check if image file is a actual image or fake image
-        $check = getimagesize($_FILES["gambar"]["tmp_name"]);
-        if ($check === false) {
-            echo "<script>alert('File yang diupload bukan gambar.'); window.history.back();</script>";
-            $uploadOk = 0;
-        }
-
-        // Check file size (e.g., 5MB)
-        if ($_FILES["gambar"]["size"] > 5000000) {
-            echo "<script>alert('Maaf, ukuran file terlalu besar (maks 5MB).'); window.history.back();</script>";
-            $uploadOk = 0;
-        }
-
-        // Allow certain file formats
-        $allowed_formats = ["jpg", "png", "jpeg", "gif"];
-        if (!in_array($imageFileType, $allowed_formats)) {
-            echo "<script>alert('Maaf, hanya file JPG, JPEG, PNG & GIF yang diperbolehkan.'); window.history.back();</script>";
-            $uploadOk = 0;
-        }
-
-        if ($uploadOk == 1) {
-            if (!move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file)) {
-                echo "<script>alert('Maaf, terjadi error saat mengunggah file Anda.'); window.history.back();</script>";
-                $uploadOk = 0; // Mark as failed
-                $gambar_final_name = null; // Reset if upload failed
+        $target_dir_upload = __DIR__ . "/../../public/img/"; // Pastikan folder ini ada dan writable
+        if (!is_dir($target_dir_upload)) {
+            if (!mkdir($target_dir_upload, 0775, true) && !is_dir($target_dir_upload)) {
+                set_flash_message('danger', "Gagal membuat direktori unggah: " . $target_dir_upload . ". Periksa izin folder.");
+                redirect('admin/wisata/tambah_wisata.php');
             }
         }
-    } elseif (isset($_FILES['gambar']) && $_FILES['gambar']['error'] != UPLOAD_ERR_NO_FILE && $_FILES['gambar']['error'] != UPLOAD_ERR_OK) {
-        // Handle other upload errors specifically
-        echo "<script>alert('Error unggah file: Kode " . $_FILES['gambar']['error'] . "'); window.history.back();</script>";
+
+        if (is_dir($target_dir_upload) && is_writable($target_dir_upload)) {
+            $imageFileType = strtolower(pathinfo($_FILES["gambar"]["name"], PATHINFO_EXTENSION));
+            $gambar_final_name = "wisata_" . uniqid() . '.' . $imageFileType;
+            $target_file_upload = $target_dir_upload . $gambar_final_name;
+
+            $check = @getimagesize($_FILES["gambar"]["tmp_name"]);
+            if ($check === false) {
+                set_flash_message('danger', 'File yang diunggah bukan format gambar yang valid.');
+                $uploadOk = 0;
+            }
+            if ($_FILES["gambar"]["size"] > 5000000) { // Maks 5MB
+                set_flash_message('danger', 'Ukuran file terlalu besar (maksimal 5MB).');
+                $uploadOk = 0;
+            }
+            $allowed_formats = ["jpg", "png", "jpeg", "gif"];
+            if (!in_array($imageFileType, $allowed_formats)) {
+                set_flash_message('danger', 'Format file tidak diizinkan (hanya JPG, PNG, JPEG, GIF).');
+                $uploadOk = 0;
+            }
+
+            if ($uploadOk == 1) {
+                if (!move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file_upload)) {
+                    set_flash_message('danger', 'Gagal memindahkan file gambar yang diunggah. Pastikan folder writable.');
+                    error_log("Gagal move_uploaded_file ke: " . $target_file_upload);
+                    $uploadOk = 0; // Tandai gagal upload
+                }
+            }
+        } else {
+            set_flash_message('danger', 'Direktori unggah tidak dapat ditulis.');
+            $uploadOk = 0;
+        }
+    } else { // Tidak ada file yang diunggah atau ada error upload awal
+        set_flash_message('danger', 'Gambar utama destinasi wajib diunggah. Error: ' . ($_FILES['gambar']['error'] ?? 'Tidak ada file dipilih'));
         $uploadOk = 0;
     }
+    // --- End File Upload Handling ---
 
 
-    // Basic validation for required fields
-    if (empty($nama) || empty($deskripsi)) {
-        echo "<script>alert('Nama dan Deskripsi wisata wajib diisi.'); window.history.back();</script>";
-        exit;
-    }
+    if ($uploadOk == 1 && !empty($gambar_final_name)) { // Hanya lanjut jika upload berhasil dan nama file ada
+        // Kolom 'harga' sudah dihapus dari tabel dan query
+        $sql = "INSERT INTO wisata (nama, deskripsi, gambar, lokasi) VALUES (?, ?, ?, ?)";
+        // Asumsi kolom 'created_at' akan otomatis diisi oleh database (DEFAULT CURRENT_TIMESTAMP)
 
-    if ($uploadOk) { // Proceed only if upload was okay or no file was intended/uploaded
-        // 'created_at' will be handled by database default (CURRENT_TIMESTAMP)
-        // 'id' is auto_increment
-
-        // SQL Injection prevention using prepared statements
-        // Using all columns from DESCRIBE wisata: id, nama, deskripsi, gambar, lokasi, harga, created_at
-        $sql = "INSERT INTO wisata (nama, deskripsi, gambar, lokasi, harga) VALUES (?, ?, ?, ?, ?)";
         $stmt = mysqli_prepare($conn, $sql);
 
         if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "ssssi", $nama, $deskripsi, $gambar_final_name, $lokasi, $harga);
+            mysqli_stmt_bind_param($stmt, "ssss", $nama, $deskripsi, $gambar_final_name, $lokasi);
 
             if (mysqli_stmt_execute($stmt)) {
-                mysqli_stmt_close($stmt);
-                header("Location: kelola_wisata.php?success=1");
-                exit();
+                unset($_SESSION['flash_form_data_wisata']);
+                set_flash_message('success', 'Destinasi wisata berhasil ditambahkan!');
+                redirect('admin/wisata/kelola_wisata.php');
             } else {
-                // If insert fails and a file was uploaded, try to delete it
-                if ($gambar_final_name && file_exists($target_file)) {
-                    unlink($target_file);
+                set_flash_message('danger', 'Gagal menambahkan data wisata ke database: ' . mysqli_stmt_error($stmt));
+                // Hapus file yang sudah terlanjur diupload jika insert DB gagal
+                if (!empty($target_file_upload) && file_exists($target_file_upload)) {
+                    @unlink($target_file_upload);
                 }
-                echo "<script>alert('Gagal menambahkan data wisata: " . htmlspecialchars(mysqli_stmt_error($stmt)) . "'); window.history.back();</script>";
+                redirect('admin/wisata/tambah_wisata.php');
             }
+            mysqli_stmt_close($stmt);
         } else {
-            // If prepare fails and a file was uploaded, try to delete it
-            if ($gambar_final_name && file_exists($target_file)) {
-                unlink($target_file);
+            set_flash_message('danger', 'Gagal mempersiapkan statement database: ' . mysqli_error($conn));
+            if (!empty($target_file_upload) && file_exists($target_file_upload)) {
+                @unlink($target_file_upload);
             }
-            echo "<script>alert('Gagal mempersiapkan statement: " . htmlspecialchars(mysqli_error($conn)) . "'); window.history.back();</script>";
+            redirect('admin/wisata/tambah_wisata.php');
         }
+    } else { // Jika $uploadOk = 0 (ada error upload file)
+        // Flash message seharusnya sudah di-set di blok upload
+        redirect('admin/wisata/tambah_wisata.php');
     }
 } else {
-    // Not a POST request
-    header("Location: tambah_wisata.php");
-    exit();
+    // Jika bukan POST, redirect ke halaman tambah
+    redirect('admin/wisata/tambah_wisata.php');
 }

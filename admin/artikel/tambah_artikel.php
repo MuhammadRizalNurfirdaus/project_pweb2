@@ -163,15 +163,15 @@ if (is_post()) {
             echo display_flash_message();
         }
         ?>
-        <p class="text-muted">Isi semua field yang ditandai dengan <span class="text-danger">*</span>.</p>
+        <p class="text-muted">Silakan lengkapi seluruh informasi untuk menyimpan artikel baru.</p>
         <form action="<?= e($base_url . 'admin/artikel/tambah_artikel.php') ?>" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
             <div class="mb-3">
-                <label for="judul" class="form-label">Judul Artikel <span class="text-danger">*</span></label>
+                <label for="judul" class="form-label">Judul Artikel </label>
                 <input type="text" class="form-control" id="judul" name="judul" value="<?= $judul_input_val ?>" required>
                 <div class="invalid-feedback">Judul artikel wajib diisi.</div>
             </div>
             <div class="mb-3">
-                <label for="isi" class="form-label">Isi Artikel <span class="text-danger">*</span></label>
+                <label for="isi" class="form-label">Isi Artikel </label>
                 <textarea class="form-control" id="isi" name="isi" rows="10" required><?= $isi_input_val ?></textarea>
                 <div class="invalid-feedback">Isi artikel wajib diisi.</div>
                 <!-- Pertimbangkan untuk menggunakan WYSIWYG Editor seperti TinyMCE atau CKEditor di sini -->
