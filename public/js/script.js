@@ -1,65 +1,105 @@
 // File: public/js/script.js
 
+// Fungsi Global untuk Inisialisasi Tema (Dipanggil segera)
+(function() {
+    const bodyElement = document.body;
+    const htmlElement = document.documentElement; // Target elemen <html> juga
+
+    function applyInitialTheme(theme) {
+        if (theme === 'dark') {
+            bodyElement.classList.add('dark-mode');
+            htmlElement.classList.add('dark-mode');
+        } else {
+            bodyElement.classList.remove('dark-mode');
+            htmlElement.classList.remove('dark-mode');
+        }
+    }
+
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const manualOverride = localStorage.getItem('theme-manual-override');
+
+    if (manualOverride && savedTheme) { // Jika ada pilihan manual, gunakan itu
+        applyInitialTheme(savedTheme);
+    } else if (prefersDark) { // Jika tidak ada pilihan manual, coba preferensi sistem
+        applyInitialTheme('dark');
+    } else { // Default ke terang jika tidak ada keduanya
+        applyInitialTheme('light');
+    }
+})();
+
+
 document.addEventListener('DOMContentLoaded', function() {
 
-    // 1. Smooth scrolling untuk link anchor (misalnya, #section-id)
+    // 1. Smooth scrolling untuk link anchor
     const anchorLinks = document.querySelectorAll('a[href^="#"]');
     anchorLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             let targetId = this.getAttribute('href');
-            if (targetId && targetId.length > 1 && document.querySelector(targetId)) {
-                try {
-                    document.querySelector(targetId).scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                } catch (error) {
-                    console.warn("Error scrolling to target:", targetId, error);
+            if (targetId && targetId.length > 1) {
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    try {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    } catch (error) {
+                        console.warn("Error scrolling to target:", targetId, error);
+                    }
+                } else {
+                    // console.warn("Target element not found for scroll:", targetId);
                 }
             }
         });
     });
 
     // 2. Tombol "Back to Top"
-    const backToTopButton = document.createElement('button');
-    backToTopButton.innerHTML = '<i class="fas fa-arrow-up"></i>';
-    backToTopButton.className = 'back-to-top-btn';
-    backToTopButton.setAttribute('title', 'Kembali ke atas');
-    document.body.appendChild(backToTopButton);
+    let backToTopButton = document.querySelector('.back-to-top-btn');
+    if (!backToTopButton) {
+        backToTopButton = document.createElement('button');
+        backToTopButton.innerHTML = '<i class="fas fa-arrow-up"></i>'; 
+        backToTopButton.className = 'back-to-top-btn'; 
+        backToTopButton.setAttribute('title', 'Kembali ke atas');
+        document.body.appendChild(backToTopButton);
+    }
+    
+    if (backToTopButton) { // Pastikan tombol ada sebelum menambah event listener
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) { 
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
 
-    window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-            backToTopButton.classList.add('show');
-        } else {
-            backToTopButton.classList.remove('show');
-        }
-    });
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
 
-    backToTopButton.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
 
-    // 3. Navbar menjadi solid saat di-scroll
-    const navbar = document.querySelector('.navbar-public');
-    if (navbar) {
-        const isTransparentOnTop = navbar.classList.contains('navbar-transparent-on-top');
-        const heroElement = document.querySelector('.hero-video-background') || document.querySelector('.hero');
-        const heroSectionHeight = heroElement ? heroElement.offsetHeight / 2 : 100; 
+    // 3. Navbar menjadi solid saat di-scroll (untuk .navbar-public)
+    const publicNavbar = document.querySelector('.navbar-public');
+    if (publicNavbar) {
+        const isTransparentOnTop = publicNavbar.classList.contains('navbar-transparent-on-top');
+        const heroElementPublic = document.querySelector('.hero-video-background') || document.querySelector('.hero');
+        const heroOffset = heroElementPublic ? heroElementPublic.offsetHeight / 2.5 : 50; 
 
         window.addEventListener('scroll', () => {
             if (isTransparentOnTop) {
-                if (window.scrollY > heroSectionHeight) {
-                    navbar.classList.remove('navbar-transparent-on-top');
-                    navbar.classList.add('navbar-scrolled-solid');
+                if (window.scrollY > heroOffset) {
+                    publicNavbar.classList.remove('navbar-transparent-on-top');
+                    publicNavbar.classList.add('navbar-scrolled-solid');
                 } else {
-                    navbar.classList.add('navbar-transparent-on-top');
-                    navbar.classList.remove('navbar-scrolled-solid');
+                    publicNavbar.classList.add('navbar-transparent-on-top');
+                    publicNavbar.classList.remove('navbar-scrolled-solid');
                 }
-            } else {
-                if (window.scrollY > 50) {
-                    navbar.classList.add('scrolled');
+            } else { 
+                if (window.scrollY > 50) { 
+                    publicNavbar.classList.add('scrolled'); 
                 } else {
-                    navbar.classList.remove('scrolled');
+                    publicNavbar.classList.remove('scrolled');
                 }
             }
         });
@@ -71,23 +111,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const observerCallback = (entries, observerInstance) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    const delay = entry.target.dataset.animationDelay || '100ms';
+                    const delay = entry.target.dataset.animationDelay || '0ms'; // Default delay 0ms jika ingin langsung
                     entry.target.style.transitionDelay = delay;
                     entry.target.classList.add('is-visible');
                     observerInstance.unobserve(entry.target);
                 }
             });
         };
-        
         const intersectionObserver = new IntersectionObserver(observerCallback, { threshold: 0.1 });
-
         animatedElements.forEach(el => {
             intersectionObserver.observe(el);
         });
     }
 
-    // 5. Client-side form validation example
-    // Ganti 'contactFormPublic' dengan ID form kontak Anda jika berbeda
+    // 5. Client-side form validation example (jika ada form kontak publik dengan ID ini)
     const contactFormPublic = document.getElementById('contactFormPublic'); 
     if (contactFormPublic) {
         contactFormPublic.addEventListener('submit', function(event) {
@@ -139,84 +176,101 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 6. Bootstrap validation
-    var forms = document.querySelectorAll('.needs-validation')
+    // 6. Bootstrap validation (untuk form yang menggunakan kelas .needs-validation)
+    var forms = document.querySelectorAll('.needs-validation');
     Array.prototype.slice.call(forms)
         .forEach(function (form) {
             form.addEventListener('submit', function (event) {
                 if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
+                    event.preventDefault();
+                    event.stopPropagation();
                 }
-                form.classList.add('was-validated')
-            }, false)
-        })
+                form.classList.add('was-validated');
+            }, false);
+        });
 
-}); // Akhir dari DOMContentLoaded
-
-
-// --- LOGIKA UNTUK MODE GELAP/TERANG ---
-(function() {
+    // --- Logika Tombol Pengalih Tema (Setelah DOM siap) ---
     const themeToggleButton = document.getElementById('theme-toggle-btn');
     const bodyElement = document.body;
-    const themeIcon = themeToggleButton ? themeToggleButton.querySelector('i') : null;
-
-    function setTheme(theme) {
-        if (theme === 'dark') {
-            bodyElement.classList.add('dark-mode');
-            if (themeIcon) {
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
-                themeIcon.style.transform = 'rotate(360deg)';
-            }
-            localStorage.setItem('theme', 'dark');
-        } else {
-            bodyElement.classList.remove('dark-mode');
-            if (themeIcon) {
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
-                themeIcon.style.transform = 'rotate(0deg)';
-            }
-            localStorage.setItem('theme', 'light');
-        }
-    }
-
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    if (savedTheme) {
-        setTheme(savedTheme);
-    } else if (prefersDark) {
-        setTheme('dark');
-    } else {
-        setTheme('light');
-    }
+    const htmlElement = document.documentElement;
+    let themeIcon = null;
 
     if (themeToggleButton) {
+        themeIcon = themeToggleButton.querySelector('i');
+        // Set ikon awal berdasarkan tema yang sudah diterapkan saat load
+        if (bodyElement.classList.contains('dark-mode')) {
+            if(themeIcon) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+        } else {
+             if(themeIcon) {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        }
+
         themeToggleButton.addEventListener('click', () => {
-            const newTheme = bodyElement.classList.contains('dark-mode') ? 'light' : 'dark';
-            setTheme(newTheme);
+            let newTheme;
+            if (bodyElement.classList.contains('dark-mode')) {
+                newTheme = 'light';
+                bodyElement.classList.remove('dark-mode');
+                htmlElement.classList.remove('dark-mode');
+                if (themeIcon) {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                    themeIcon.style.transform = 'rotate(0deg)';
+                }
+            } else {
+                newTheme = 'dark';
+                bodyElement.classList.add('dark-mode');
+                htmlElement.classList.add('dark-mode');
+                if (themeIcon) {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                    themeIcon.style.transform = 'rotate(360deg)';
+                }
+            }
+            localStorage.setItem('theme', newTheme);
             localStorage.setItem('theme-manual-override', 'true'); 
         });
     }
 
+    // Dengar perubahan preferensi sistem (jika pengguna belum override manual)
     if (window.matchMedia) {
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
             if (!localStorage.getItem('theme-manual-override')) { 
                 const newSystemTheme = e.matches ? 'dark' : 'light';
-                setTheme(newSystemTheme);
+                // Panggil fungsi yang sama seperti di atas untuk menerapkan dan mengganti ikon
+                if (newSystemTheme === 'dark') {
+                    bodyElement.classList.add('dark-mode');
+                    htmlElement.classList.add('dark-mode');
+                    if (themeIcon) {
+                        themeIcon.classList.remove('fa-moon');
+                        themeIcon.classList.add('fa-sun');
+                    }
+                } else {
+                    bodyElement.classList.remove('dark-mode');
+                    htmlElement.classList.remove('dark-mode');
+                     if (themeIcon) {
+                        themeIcon.classList.remove('fa-sun');
+                        themeIcon.classList.add('fa-moon');
+                    }
+                }
+                localStorage.setItem('theme', newSystemTheme); // Simpan juga perubahan dari sistem
             }
         });
     }
-})();
+
+}); // Akhir dari DOMContentLoaded
 
 
-// !!! SOLUSI UTAMA UNTUK PRELOADER YANG TIDAK HILANG !!!
+// --- PRELOADER LOGIC (GLOBAL) ---
 window.onload = function() {
     const preloader = document.getElementById('preloader');
     if (preloader) {
         setTimeout(function() {
             preloader.classList.add('loaded');
-        }, 500); 
+        }, 300); // Jeda bisa dikurangi jika aset sudah sangat optimal
     }
 };
