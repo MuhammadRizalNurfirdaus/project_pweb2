@@ -1,66 +1,72 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+// File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\ContactController.php
+
+require_once __DIR__ . '/../config/config.php'; // Memuat konfigurasi dasar
+require_once __DIR__ . '/../models/Contact.php';   // Memuat Model Contact
 
 class ContactController
 {
     /**
-     * Buat pesan kontak baru
-     * @param array $data [nama, email, pesan]
-     * @return bool
+     * Memproses pembuatan pesan kontak baru.
+     * Menerima data dari handler form, melakukan validasi tambahan jika perlu,
+     * dan memanggil Model untuk menyimpan data.
+     * @param array $data Array asosiatif dengan kunci ['nama', 'email', 'pesan'].
+     * @return int|false ID pesan kontak baru jika berhasil, false jika gagal.
      */
     public static function create($data)
     {
-        global $conn;
-        $nama = $data['nama'];
-        $email = $data['email'];
-        $pesan = $data['pesan'];
-
-        // DESCRIBE contacts: id, nama, email, pesan, created_at
-        // 'created_at' is likely auto by DB
-        $sql = "INSERT INTO contacts (nama, email, pesan) VALUES (?, ?, ?)";
-        $stmt = mysqli_prepare($conn, $sql);
-
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "sss", $nama, $email, $pesan);
-            if (mysqli_stmt_execute($stmt)) {
-                mysqli_stmt_close($stmt);
-                return true;
-            }
-            mysqli_stmt_close($stmt);
+        // Validasi dasar bisa juga ada di sini sebagai lapisan tambahan,
+        // meskipun Model sudah memiliki validasi.
+        if (empty($data['nama']) || empty($data['email']) || empty($data['pesan'])) {
+            // Pesan flash biasanya di-set oleh script pemanggil (handler form)
+            error_log("ContactController::create() - Error: Data input tidak lengkap.");
+            return false;
         }
-        return false;
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            error_log("ContactController::create() - Error: Format email tidak valid.");
+            return false;
+        }
+
+        // Data yang akan dikirim ke Model
+        $data_to_save = [
+            'nama' => $data['nama'],
+            'email' => $data['email'],
+            'pesan' => $data['pesan']
+        ];
+
+        $new_contact_id = Contact::create($data_to_save);
+
+        if ($new_contact_id) {
+            // Di sini Anda bisa menambahkan logika lain, misalnya mengirim notifikasi email ke admin
+            // send_admin_notification_new_contact($new_contact_id, $data_to_save);
+            return $new_contact_id;
+        } else {
+            // Error sudah di-log oleh Model
+            return false;
+        }
     }
 
     /**
-     * Ambil semua pesan kontak
-     * @return mysqli_result|false
+     * Mengambil semua pesan kontak.
+     * @return array Array data pesan kontak, atau array kosong jika tidak ada/error.
      */
     public static function getAll()
     {
-        global $conn;
-        // Assuming 'contacts' table and 'created_at' for ordering
-        $result = mysqli_query($conn, "SELECT id, nama, email, pesan, created_at FROM contacts ORDER BY created_at DESC");
-        return $result;
+        return Contact::getAll(); // Mendelegasikan ke Model
     }
 
     /**
-     * Hapus pesan kontak
-     * @param int $id
-     * @return bool
+     * Memproses penghapusan pesan kontak.
+     * @param int $id ID pesan kontak yang akan dihapus.
+     * @return bool True jika berhasil, false jika gagal.
      */
     public static function delete($id)
     {
-        global $conn;
-        $sql = "DELETE FROM contacts WHERE id = ?";
-        $stmt = mysqli_prepare($conn, $sql);
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "i", $id);
-            if (mysqli_stmt_execute($stmt)) {
-                mysqli_stmt_close($stmt);
-                return true;
-            }
-            mysqli_stmt_close($stmt);
+        $id_val = filter_var($id, FILTER_VALIDATE_INT);
+        if ($id_val === false || $id_val <= 0) {
+            error_log("ContactController::delete() - Error: ID tidak valid (" . $id . ").");
+            return false;
         }
-        return false;
+        return Contact::delete($id_val); // Mendelegasikan ke Model
     }
 }

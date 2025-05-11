@@ -3,9 +3,9 @@
 require_once __DIR__ . '/../config/config.php';
 require_login(); // Pastikan hanya user yang login bisa akses
 
-// Anda bisa mengambil data spesifik user di sini jika perlu, misal jumlah booking terakhir
-// require_once __DIR__ . '/../models/Booking.php';
-// $recent_bookings = Booking::getByUserId(get_current_user_id(), 3); // Contoh, limit 3
+// Anda bisa mengambil data spesifik user di sini jika perlu, misal jumlah pemesanan terakhir
+// require_once __DIR__ . '/../models/PemesananTiket.php'; // Mengganti Booking.php
+// $recent_pemesanan = PemesananTiket::getByUserId(get_current_user_id(), 3); // Contoh, limit 3
 
 include_once __DIR__ . '/../template/header_user.php';
 ?>
@@ -39,7 +39,8 @@ include_once __DIR__ . '/../template/header_user.php';
                         <i class="fas fa-history fa-3x text-success mb-3"></i>
                         <h5 class="card-title">Riwayat Pemesanan</h5>
                         <p class="card-text text-muted small">Lacak status dan detail semua pemesanan tiket Anda.</p>
-                        <a href="<?= $base_url ?>user/riwayat_booking.php" class="btn btn-outline-success stretched-link">Lihat Riwayat</a>
+                        <!-- Mengganti riwayat_booking.php menjadi riwayat_pemesanan.php -->
+                        <a href="<?= $base_url ?>user/riwayat_pemesanan.php" class="btn btn-outline-success stretched-link">Lihat Riwayat</a>
                     </div>
                 </div>
             </div>
@@ -49,7 +50,8 @@ include_once __DIR__ . '/../template/header_user.php';
                         <i class="fas fa-ticket-alt fa-3x text-info mb-3"></i>
                         <h5 class="card-title">Pesan Tiket Baru</h5>
                         <p class="card-text text-muted small">Rencanakan kunjungan Anda berikutnya ke Cilengkrang.</p>
-                        <a href="<?= $base_url ?>user/booking.php" class="btn btn-outline-info stretched-link">Pesan Sekarang</a>
+                        <!-- Mengganti booking.php menjadi pemesanan_tiket.php -->
+                        <a href="<?= $base_url ?>user/pemesanan_tiket.php" class="btn btn-outline-info stretched-link">Pesan Sekarang</a>
                     </div>
                 </div>
             </div>

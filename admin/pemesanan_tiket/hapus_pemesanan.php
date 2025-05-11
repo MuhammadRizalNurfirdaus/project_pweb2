@@ -1,15 +1,27 @@
 <?php
-include "../../config/Koneksi.php";
+// File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_tiket\hapus_pemesanan.php
 
-if (isset($_GET['id'])) {
-    $id = intval($_GET['id']);
+require_once __DIR__ . '/../../config/config.php'; // Memuat konfigurasi dan helper
+require_once __DIR__ . '/../../controllers/PemesananTiketController.php'; // Memuat controller
 
-    // Use prepared statement to prevent SQL injection
-    $stmt = mysqli_prepare($conn, "DELETE FROM booking WHERE id = ?"); // Assuming table name is 'booking'
-    mysqli_stmt_bind_param($stmt, "i", $id);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
+// Pastikan admin yang login (bisa ditambahkan di config.php atau header_admin.php,
+// atau dicek secara eksplisit di sini jika perlu)
+// require_admin(); // Jika Anda memiliki helper untuk ini
+
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    set_flash_message('danger', 'ID Pemesanan tidak valid atau tidak ditemukan.');
+    redirect('admin/pemesanan_tiket/kelola_pemesanan.php');
 }
 
-header("Location: kelola_booking.php");
-exit;
+$id = (int)$_GET['id'];
+
+// Memanggil method delete dari PemesananTiketController
+if (PemesananTiketController::delete($id)) {
+    set_flash_message('success', 'Pemesanan tiket berhasil dihapus.');
+} else {
+    // Pesan error spesifik mungkin sudah di-log oleh Controller atau Model
+    set_flash_message('danger', 'Gagal menghapus pemesanan tiket. Coba lagi atau periksa log server.');
+}
+
+// Redirect kembali ke halaman kelola pemesanan tiket
+redirect('admin/pemesanan_tiket/kelola_pemesanan.php');

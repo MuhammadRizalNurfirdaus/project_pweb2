@@ -52,8 +52,10 @@ $page_title = isset($page_title) ? e($page_title) : "Area Pengguna";
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], 'user/dashboard') !== false || $_SERVER['REQUEST_URI'] == $base_url . 'user/') ? 'active' : '' ?>" href="<?= $base_url ?>user/dashboard.php"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], 'user/artikel.php') !== false) ? 'active' : '' ?>" href="<?= $base_url ?>user/artikel.php"><i class="fas fa-newspaper me-1"></i> Artikel</a></li>
-                    <li class="nav-item"><a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], 'user/booking.php') !== false) ? 'active' : '' ?>" href="<?= $base_url ?>user/booking.php"><i class="fas fa-ticket-alt me-1"></i> Buat Booking</a></li>
-                    <li class="nav-item"><a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], 'user/riwayat_booking.php') !== false) ? 'active' : '' ?>" href="<?= $base_url ?>user/riwayat_booking.php"><i class="fas fa-history me-1"></i> Riwayat Saya</a></li>
+                    <!-- Mengganti 'booking.php' menjadi 'pemesanan_tiket.php' dan teksnya -->
+                    <li class="nav-item"><a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], 'user/pemesanan_tiket.php') !== false) ? 'active' : '' ?>" href="<?= $base_url ?>user/pemesanan_tiket.php"><i class="fas fa-ticket-alt me-1"></i> Buat Pemesanan</a></li>
+                    <!-- Mengganti 'riwayat_booking.php' menjadi 'riwayat_pemesanan.php' dan teksnya (jika perlu) -->
+                    <li class="nav-item"><a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], 'user/riwayat_pemesanan.php') !== false) ? 'active' : '' ?>" href="<?= $base_url ?>user/riwayat_pemesanan.php"><i class="fas fa-history me-1"></i> Riwayat Pemesanan</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user-cog me-1"></i> <?= e(get_current_user_name()) ?>

@@ -1,19 +1,16 @@
 <?php
 // File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\PemesananTiket.php
-// Nama class dan file diubah dari Booking menjadi PemesananTiket
 
 class PemesananTiket
 {
-    // Nama tabel di database. Sesuaikan jika Anda mengubah nama tabel di DB.
-    private static $table_name = "pemesanan_tiket"; // Pastikan nama tabel sesuai dengan yang ada di database
+    // Nama tabel di database
+    private static $table_name = "pemesanan_tiket";
 
     /**
-     * Creates a new pemesanan tiket.
-     * @param array $data Associative array of data.
-     * Expected keys: 'user_id' (optional, int), 'nama_wisata' (string),
-     * 'tanggal_kunjungan' (string YYYY-MM-DD), 'jumlah_orang' (int), 'status' (optional, string),
-     * 'catatan' (optional, string), 'nama_lengkap_tamu', 'email_tamu', 'no_hp_tamu' (jika untuk tamu).
-     * @return int|false ID of the new record on success, false on failure.
+     * Membuat pemesanan tiket baru.
+     * @param array $data Array asosiatif data.
+     * Kunci yang diharapkan: 'user_id', 'nama_destinasi', 'jenis_pemesanan', 'nama_item', 'jumlah_item', 'tanggal_kunjungan', 'total_harga', 'status'.
+     * @return int|false ID dari record baru jika berhasil, false jika gagal.
      */
     public static function create($data)
     {
@@ -23,49 +20,30 @@ class PemesananTiket
             return false;
         }
 
-        // Ambil dan sanitasi data
         $user_id = isset($data['user_id']) && !empty($data['user_id']) ? (int)$data['user_id'] : null;
-        $nama_wisata = trim($data['nama_wisata'] ?? '');
+        $nama_destinasi = trim($data['nama_destinasi'] ?? '');
+        $jenis_pemesanan = trim($data['jenis_pemesanan'] ?? 'Online');
+        $nama_item = trim($data['nama_item'] ?? '');
+        $jumlah_item = isset($data['jumlah_item']) ? (int)$data['jumlah_item'] : 0;
         $tanggal_kunjungan = trim($data['tanggal_kunjungan'] ?? '');
-        $jumlah_orang = isset($data['jumlah_orang']) ? (int)$data['jumlah_orang'] : 0;
+        $total_harga = isset($data['total_harga']) ? (float)$data['total_harga'] : 0.00;
         $status = trim($data['status'] ?? 'pending');
-        $catatan = trim($data['catatan'] ?? '');
 
-        // Kolom tambahan untuk tamu (jika user_id null)
-        $nama_lengkap_tamu = trim($data['nama_lengkap_tamu'] ?? null);
-        $email_tamu = trim($data['email_tamu'] ?? null);
-        $no_hp_tamu = trim($data['no_hp_tamu'] ?? null);
-
-
-        // Validasi dasar
-        if (empty($nama_wisata) || empty($tanggal_kunjungan) || $jumlah_orang <= 0) {
-            error_log("PemesananTiket Create Error: Field wajib nama_wisata, tanggal_kunjungan, atau jumlah_orang kosong/tidak valid.");
-            return false;
-        }
-        // Jika user_id tidak ada (tamu), maka nama, email, no_hp tamu menjadi wajib
-        if (is_null($user_id) && (empty($nama_lengkap_tamu) || empty($email_tamu) || empty($no_hp_tamu))) {
-            error_log("PemesananTiket Create Error: Untuk tamu, nama, email, dan no hp wajib diisi.");
-            return false;
-        }
-        if (!is_null($email_tamu) && !empty($email_tamu) && !filter_var($email_tamu, FILTER_VALIDATE_EMAIL)) {
-            error_log("PemesananTiket Create Error: Format email tamu tidak valid.");
+        if (empty($nama_destinasi) || empty($nama_item) || empty($tanggal_kunjungan) || $jumlah_item <= 0 || $total_harga < 0) {
+            error_log("PemesananTiket Create Error: Field wajib (nama_destinasi, nama_item, tanggal_kunjungan, jumlah_item, total_harga) kosong/tidak valid.");
             return false;
         }
 
-
-        // Sesuaikan query SQL dengan kolom yang ada di tabel 'bookings' Anda
-        // Jika Anda menambahkan kolom untuk tamu, masukkan di sini
-        $sql = "INSERT INTO " . self::$table_name . " 
-                (user_id, nama_wisata, tanggal_kunjungan, jumlah_orang, status, catatan, nama_lengkap_tamu, email_tamu, no_hp_tamu)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO " . self::$table_name . "
+                (user_id, nama_destinasi, jenis_pemesanan, nama_item, jumlah_item, tanggal_kunjungan, total_harga, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = mysqli_prepare($conn, $sql);
 
         if (!$stmt) {
             error_log("MySQLi Prepare Error (PemesananTiket Create): " . mysqli_error($conn));
             return false;
         }
-
-        mysqli_stmt_bind_param($stmt, "ississsss", $user_id, $nama_wisata, $tanggal_kunjungan, $jumlah_orang, $status, $catatan, $nama_lengkap_tamu, $email_tamu, $no_hp_tamu);
+        mysqli_stmt_bind_param($stmt, "isssisds", $user_id, $nama_destinasi, $jenis_pemesanan, $nama_item, $jumlah_item, $tanggal_kunjungan, $total_harga, $status);
 
         if (mysqli_stmt_execute($stmt)) {
             $new_id = mysqli_insert_id($conn);
@@ -79,9 +57,9 @@ class PemesananTiket
     }
 
     /**
-     * Retrieves all pemesanan tiket, optionally joining with user data.
+     * Mengambil semua pemesanan tiket, bisa join dengan data pengguna.
      * @param mysqli|null $conn_param Koneksi database opsional.
-     * @return array Array of records, or empty array on failure/no records.
+     * @return array Array records, atau array kosong jika gagal/tidak ada records.
      */
     public static function getAll($conn_param = null)
     {
@@ -91,11 +69,10 @@ class PemesananTiket
             return [];
         }
 
-        // Sesuaikan query jika Anda menambahkan kolom tamu
-        $sql = "SELECT b.*, u.nama AS user_nama, u.email AS user_email 
-                FROM " . self::$table_name . " b
-                LEFT JOIN users u ON b.user_id = u.id
-                ORDER BY b.tanggal_kunjungan DESC, b.created_at DESC, b.id DESC"; // Tambah created_at untuk urutan sekunder
+        $sql = "SELECT pt.*, u.nama AS user_nama, u.email AS user_email
+                FROM " . self::$table_name . " pt
+                LEFT JOIN users u ON pt.user_id = u.id
+                ORDER BY pt.created_at DESC, pt.id DESC";
         $result = mysqli_query($db_conn, $sql);
 
         if ($result) {
@@ -107,10 +84,56 @@ class PemesananTiket
     }
 
     /**
-     * Deletes a pemesanan tiket by its ID.
-     * @param int $id The ID of the record to delete.
+     * Mengambil satu pemesanan tiket berdasarkan ID.
+     * @param int $id ID pemesanan.
      * @param mysqli|null $conn_param Koneksi database opsional.
-     * @return bool True on success, false on failure.
+     * @return array|null Data pemesanan atau null jika tidak ditemukan/error.
+     */
+    public static function getById($id, $conn_param = null)
+    {
+        $db_conn = $conn_param ?? $GLOBALS['conn'];
+        if (!$db_conn) {
+            error_log("Koneksi database gagal di PemesananTiket::getById()");
+            return null;
+        }
+
+        $id_val = intval($id);
+        if ($id_val <= 0) {
+            error_log("PemesananTiket getById Error: ID tidak valid.");
+            return null;
+        }
+
+        $sql = "SELECT pt.*, u.nama AS user_nama, u.email AS user_email
+                FROM " . self::$table_name . " pt
+                LEFT JOIN users u ON pt.user_id = u.id
+                WHERE pt.id = ?";
+        $stmt = mysqli_prepare($db_conn, $sql);
+
+        if (!$stmt) {
+            error_log("MySQLi Prepare Error (PemesananTiket getById): " . mysqli_error($db_conn));
+            return null;
+        }
+
+        mysqli_stmt_bind_param($stmt, "i", $id_val);
+
+        if (mysqli_stmt_execute($stmt)) {
+            $result = mysqli_stmt_get_result($stmt);
+            $pemesanan = mysqli_fetch_assoc($result);
+            mysqli_stmt_close($stmt);
+            return $pemesanan ?: null; // Mengembalikan null jika tidak ada hasil
+        } else {
+            error_log("MySQLi Execute Error (PemesananTiket getById): " . mysqli_stmt_error($stmt));
+            mysqli_stmt_close($stmt);
+            return null;
+        }
+    }
+
+
+    /**
+     * Menghapus pemesanan tiket berdasarkan ID.
+     * @param int $id ID record yang akan dihapus.
+     * @param mysqli|null $conn_param Koneksi database opsional.
+     * @return bool True jika berhasil, false jika gagal.
      */
     public static function delete($id, $conn_param = null)
     {
@@ -127,7 +150,6 @@ class PemesananTiket
             error_log("MySQLi Prepare Error (PemesananTiket Delete): " . mysqli_error($db_conn));
             return false;
         }
-
         mysqli_stmt_bind_param($stmt, "i", $id_to_delete);
 
         if (mysqli_stmt_execute($stmt)) {
@@ -142,11 +164,11 @@ class PemesananTiket
     }
 
     /**
-     * Updates the status of a pemesanan tiket.
-     * @param int $id The ID of the record.
-     * @param string $status The new status.
+     * Memperbarui status pemesanan tiket.
+     * @param int $id ID record.
+     * @param string $status Status baru.
      * @param mysqli|null $conn_param Koneksi database opsional.
-     * @return bool True on success, false on failure.
+     * @return bool True jika berhasil, false jika gagal.
      */
     public static function updateStatus($id, $status, $conn_param = null)
     {
@@ -175,10 +197,10 @@ class PemesananTiket
     }
 
     /**
-     * Counts pemesanan tiket by status.
-     * @param string $status Status pemesanan (e.g., 'pending').
+     * Menghitung pemesanan tiket berdasarkan status.
+     * @param string $status Status pemesanan (misal, 'pending').
      * @param mysqli|null $conn_param Koneksi database opsional.
-     * @return int Total count.
+     * @return int Jumlah total.
      */
     public static function countByStatus($status, $conn_param = null)
     {
@@ -200,5 +222,52 @@ class PemesananTiket
         }
         mysqli_stmt_close($stmt);
         return 0;
+    }
+
+    /**
+     * Mengambil pemesanan tiket berdasarkan User ID.
+     * @param int $user_id ID Pengguna.
+     * @param mysqli|null $conn_param Koneksi database opsional.
+     * @param int|null $limit Batas jumlah record yang diambil.
+     * @return array Array records, atau array kosong jika gagal/tidak ada records.
+     */
+    public static function getByUserId($user_id, $conn_param = null, $limit = null)
+    {
+        $db_conn = $conn_param ?? $GLOBALS['conn'];
+        if (!$db_conn) {
+            error_log("Koneksi database gagal di PemesananTiket::getByUserId()");
+            return [];
+        }
+
+        $user_id_val = intval($user_id);
+        if ($user_id_val <= 0) {
+            return [];
+        }
+
+        $sql = "SELECT pt.*, u.nama AS user_nama, u.email AS user_email
+                FROM " . self::$table_name . " pt
+                LEFT JOIN users u ON pt.user_id = u.id
+                WHERE pt.user_id = ? ORDER BY pt.created_at DESC, pt.id DESC";
+        if (is_numeric($limit) && $limit > 0) {
+            $sql .= " LIMIT " . intval($limit);
+        }
+
+        $stmt = mysqli_prepare($db_conn, $sql);
+        if (!$stmt) {
+            error_log("MySQLi Prepare Error (PemesananTiket getByUserId): " . mysqli_error($db_conn));
+            return [];
+        }
+
+        mysqli_stmt_bind_param($stmt, "i", $user_id_val);
+        if (mysqli_stmt_execute($stmt)) {
+            $result = mysqli_stmt_get_result($stmt);
+            $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            mysqli_stmt_close($stmt);
+            return $data;
+        } else {
+            error_log("MySQLi Execute Error (PemesananTiket getByUserId): " . mysqli_stmt_error($stmt));
+            mysqli_stmt_close($stmt);
+            return [];
+        }
     }
 }

@@ -1,49 +1,99 @@
 <?php
-include "../../config/Koneksi.php";
+// File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_tiket\proses_pemesanan.php
+
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../controllers/PemesananTiketController.php';
+// require_once __DIR__ . '/../../models/Wisata.php'; // Diperlukan jika ingin menghitung harga dari sini
+
+// require_admin(); // Pastikan hanya admin yang bisa akses
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Sanitize inputs
-    $nama = isset($_POST['nama']) ? trim($_POST['nama']) : '';
-    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
-    $no_hp = isset($_POST['no_hp']) ? trim($_POST['no_hp']) : '';
-    $jumlah_tiket = isset($_POST['jumlah_tiket']) ? intval($_POST['jumlah_tiket']) : 0;
-    $tanggal_kunjungan = isset($_POST['tanggal_kunjungan']) ? $_POST['tanggal_kunjungan'] : '';
-    $catatan = isset($_POST['catatan']) ? trim($_POST['catatan']) : '';
+    // Ambil data dari POST. Nama field di form admin mungkin berbeda, sesuaikan.
+    $user_id = isset($_POST['user_id']) && !empty($_POST['user_id']) ? (int)$_POST['user_id'] : null;
 
-    // Basic validation
-    if (empty($nama) || empty($email) || empty($no_hp) || $jumlah_tiket <= 0 || empty($tanggal_kunjungan)) {
-        // Consider redirecting back with an error message instead of just alert
-        echo "<script>alert('Harap lengkapi semua data yang wajib diisi (Nama, Email, No HP, Jumlah Tiket, Tanggal Kunjungan).'); window.history.back();</script>";
-        exit;
-    }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "<script>alert('Format email tidak valid.'); window.history.back();</script>";
-        exit;
+    // Jika user_id tidak ada (untuk tamu), ambil info tamu
+    $nama_tamu = null;
+    if (is_null($user_id)) {
+        $nama_tamu = isset($_POST['nama_tamu']) ? trim($_POST['nama_tamu']) : null;
+        // Anda bisa menambahkan validasi untuk email_tamu, no_hp_tamu jika form admin menyediakannya untuk tamu
     }
 
-    // Using 'booking' as table name, consistent with kelola_booking.php and hapus_booking.php
-    // The columns here are: nama, email, no_hp, jumlah_tiket, tanggal_kunjungan, catatan
-    // The 'DESCRIBE bookings' output was for a different structure (user_id, nama_wisata, etc.)
-    $query = "INSERT INTO booking (nama, email, no_hp, jumlah_tiket, tanggal_kunjungan, catatan)
-              VALUES (?, ?, ?, ?, ?, ?)";
+    $nama_destinasi = isset($_POST['nama_destinasi']) ? trim($_POST['nama_destinasi']) : '';
+    $jenis_pemesanan = isset($_POST['jenis_pemesanan']) ? trim($_POST['jenis_pemesanan']) : 'Manual Admin'; // Default jika admin yang input
+    $nama_item = isset($_POST['nama_item']) ? trim($_POST['nama_item']) : 'Tiket Masuk ' . $nama_destinasi;
+    $jumlah_item = isset($_POST['jumlah_item']) ? intval($_POST['jumlah_item']) : 0;
+    $tanggal_kunjungan = isset($_POST['tanggal_kunjungan']) ? trim($_POST['tanggal_kunjungan']) : '';
+    $total_harga_input = isset($_POST['total_harga']) ? (float)str_replace(['Rp ', '.', ','], ['', '', '.'], $_POST['total_harga']) : null; // Menghilangkan format Rupiah jika ada
+    $status = isset($_POST['status']) ? trim($_POST['status']) : 'pending';
 
-    $stmt = mysqli_prepare($conn, $query);
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, "sssiis", $nama, $email, $no_hp, $jumlah_tiket, $tanggal_kunjungan, $catatan);
+    // Validasi dasar
+    $errors = [];
+    if (empty($nama_destinasi)) {
+        $errors[] = "Nama destinasi wajib diisi.";
+    }
+    if ($jumlah_item <= 0) {
+        $errors[] = "Jumlah item/tiket harus lebih dari 0.";
+    }
+    if (empty($tanggal_kunjungan)) {
+        $errors[] = "Tanggal kunjungan wajib diisi.";
+    }
+    // Jika input total_harga ada, validasi. Jika tidak, perhitungan otomatis diharapkan (lihat bawah).
+    if (!is_null($total_harga_input) && $total_harga_input < 0) {
+        $errors[] = "Total harga tidak boleh negatif.";
+    } elseif (is_null($total_harga_input)) {
+        // PERHITUNGAN TOTAL HARGA OTOMATIS (CONTOH SEDERHANA - IDEALNYA DI MODEL/SERVICE)
+        // Anda perlu logika untuk mengambil harga tiket dari tabel 'wisata' berdasarkan $nama_destinasi
+        // Misalnya, jika ada Model Wisata:
+        // $wisata_detail = Wisata::getByNama($nama_destinasi); // Asumsi method ada
+        // if ($wisata_detail && isset($wisata_detail['harga_tiket'])) {
+        //     $total_harga_input = (float)$wisata_detail['harga_tiket'] * $jumlah_item;
+        // } else {
+        //     $errors[] = "Tidak dapat menentukan harga tiket untuk destinasi: " . e($nama_destinasi);
+        // }
+        // Untuk sementara, jika tidak ada input harga dan tidak ada perhitungan otomatis, set error
+        // atau Anda bisa mewajibkan admin menginput total harga.
+        $errors[] = "Total harga wajib diisi atau dihitung otomatis (fitur belum diimplementasikan sepenuhnya di sini).";
+    }
 
-        if (mysqli_stmt_execute($stmt)) {
-            mysqli_stmt_close($stmt);
-            // Redirect to a success page or back to the booking form page, not necessarily '../../booking.php' if that's the public form
-            echo "<script>alert('Booking berhasil!'); window.location.href='../../booking.php';</script>"; // Assuming booking.php is the public form
-            exit;
-        } else {
-            echo "<script>alert('Gagal melakukan booking: " . htmlspecialchars(mysqli_stmt_error($stmt)) . "'); window.history.back();</script>";
-        }
+    if (is_null($user_id) && empty($nama_tamu)) {
+        $nama_item_final = $nama_item; // Jika tidak ada user_id dan tidak ada nama_tamu, gunakan nama_item default
+    } elseif (is_null($user_id) && !empty($nama_tamu)) {
+        $nama_item_final = 'Tiket Masuk: ' . $nama_destinasi . ' (Tamu Admin: ' . e($nama_tamu) . ')';
     } else {
-        echo "<script>alert('Gagal mempersiapkan statement: " . htmlspecialchars(mysqli_error($conn)) . "'); window.history.back();</script>";
+        $nama_item_final = $nama_item; // Untuk pengguna terdaftar, nama_item sesuai input atau default
+    }
+
+
+    if (!empty($errors)) {
+        foreach ($errors as $error) {
+            set_flash_message('danger', $error);
+        }
+        // Redirect kembali ke form tambah pemesanan manual (Anda perlu membuat form ini)
+        redirect('admin/pemesanan_tiket/tambah_pemesanan.php'); // Sesuaikan path jika nama form berbeda
+    } else {
+        $data_pemesanan = [
+            'user_id' => $user_id,
+            'nama_destinasi' => $nama_destinasi,
+            'jenis_pemesanan' => $jenis_pemesanan,
+            'nama_item' => $nama_item_final,
+            'jumlah_item' => $jumlah_item,
+            'tanggal_kunjungan' => $tanggal_kunjungan,
+            'total_harga' => $total_harga_input, // Gunakan total_harga yang sudah divalidasi/dihitung
+            'status' => $status
+        ];
+
+        $pemesanan_id = PemesananTiketController::create($data_pemesanan);
+
+        if ($pemesanan_id) {
+            set_flash_message('success', 'Pemesanan tiket baru (ID: ' . $pemesanan_id . ') berhasil ditambahkan oleh admin.');
+            redirect('admin/pemesanan_tiket/kelola_pemesanan.php');
+        } else {
+            set_flash_message('danger', 'Gagal menambahkan pemesanan tiket baru. Silakan coba lagi.');
+            redirect('admin/pemesanan_tiket/tambah_pemesanan.php'); // Kembali ke form tambah
+        }
     }
 } else {
-    // If not POST, redirect to the booking form page
-    header("Location: ../../booking.php"); // Assuming booking.php is the public form
-    exit;
+    // Jika bukan POST, redirect ke halaman kelola pemesanan atau dashboard admin
+    set_flash_message('info', 'Metode request tidak valid.');
+    redirect('admin/pemesanan_tiket/kelola_pemesanan.php');
 }

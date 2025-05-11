@@ -1,0 +1,118 @@
+[11-May-2025 22:09:33 Asia/Jakarta] INFO: Mencoba memindahkan file ke: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata/../../public/uploads/wisata/wisata_6820bdad027b1_1746976173.jpg
+[11-May-2025 22:09:33 Asia/Jakarta] SUCCESS: File berhasil dipindahkan ke: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata/../../public/uploads/wisata/wisata_6820bdad027b1_1746976173.jpg
+[11-May-2025 22:09:48 Asia/Jakarta] INFO: Mencoba memindahkan file ke: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata/../../public/uploads/wisata/wisata_6820bdbc5c261_1746976188.jpg
+[11-May-2025 22:09:48 Asia/Jakarta] SUCCESS: File berhasil dipindahkan ke: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata/../../public/uploads/wisata/wisata_6820bdbc5c261_1746976188.jpg
+[11-May-2025 22:26:00 Asia/Jakarta] PHP Warning:  Undefined variable $deskripsi_input_saat_ini in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php on line 105
+[11-May-2025 22:26:00 Asia/Jakarta] PHP Warning:  Undefined variable $lokasi_input_saat_ini in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php on line 106
+[11-May-2025 22:26:00 Asia/Jakarta] WisataController::create() - Error: Deskripsi tidak boleh kosong.
+[11-May-2025 22:26:00 Asia/Jakarta] INFO: Rollback upload file di proses_tambah_wisata.php (karena gagal insert DB): C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata/../../public/uploads/wisata/wisata_6820c188794e5_1746977160.jpg
+[11-May-2025 22:26:19 Asia/Jakarta] PHP Warning:  Undefined variable $deskripsi_input_saat_ini in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php on line 105
+[11-May-2025 22:26:19 Asia/Jakarta] PHP Warning:  Undefined variable $lokasi_input_saat_ini in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php on line 106
+[11-May-2025 22:26:19 Asia/Jakarta] WisataController::create() - Error: Deskripsi tidak boleh kosong.
+[11-May-2025 22:26:19 Asia/Jakarta] INFO: Rollback upload file di proses_tambah_wisata.php (karena gagal insert DB): C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata/../../public/uploads/wisata/wisata_6820c19b6e35f_1746977179.jpg
+[11-May-2025 22:26:33 Asia/Jakarta] PHP Warning:  Undefined variable $deskripsi_input_saat_ini in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php on line 105
+[11-May-2025 22:26:33 Asia/Jakarta] PHP Warning:  Undefined variable $lokasi_input_saat_ini in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php on line 106
+[11-May-2025 22:26:33 Asia/Jakarta] WisataController::create() - Error: Deskripsi tidak boleh kosong.
+[11-May-2025 22:26:33 Asia/Jakarta] INFO: Rollback upload file di proses_tambah_wisata.php (karena gagal insert DB): C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata/../../public/uploads/wisata/wisata_6820c1a9208fa_1746977193.jpg
+[11-May-2025 22:26:42 Asia/Jakarta] PHP Warning:  Undefined variable $deskripsi_input_saat_ini in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php on line 105
+[11-May-2025 22:26:42 Asia/Jakarta] PHP Warning:  Undefined variable $lokasi_input_saat_ini in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php on line 106
+[11-May-2025 22:26:42 Asia/Jakarta] WisataController::create() - Error: Deskripsi tidak boleh kosong.
+[11-May-2025 22:26:42 Asia/Jakarta] INFO: Rollback upload file di proses_tambah_wisata.php (karena gagal insert DB): C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata/../../public/uploads/wisata/wisata_6820c1b2052fc_1746977202.jpg
+[11-May-2025 22:26:59 Asia/Jakarta] PHP Warning:  Undefined variable $deskripsi_input_saat_ini in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php on line 105
+[11-May-2025 22:26:59 Asia/Jakarta] PHP Warning:  Undefined variable $lokasi_input_saat_ini in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php on line 106
+[11-May-2025 22:26:59 Asia/Jakarta] WisataController::create() - Error: Deskripsi tidak boleh kosong.
+[11-May-2025 22:26:59 Asia/Jakarta] INFO: Rollback upload file di proses_tambah_wisata.php (karena gagal insert DB): C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata/../../public/uploads/wisata/wisata_6820c1c331654_1746977219.jpg
+[11-May-2025 22:27:59 Asia/Jakarta] PHP Warning:  Undefined variable $deskripsi_input_saat_ini in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php on line 105
+[11-May-2025 22:27:59 Asia/Jakarta] PHP Warning:  Undefined variable $lokasi_input_saat_ini in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata\proses_tambah_wisata.php on line 106
+[11-May-2025 22:27:59 Asia/Jakarta] WisataController::create() - Error: Deskripsi tidak boleh kosong.
+[11-May-2025 22:27:59 Asia/Jakarta] INFO: Rollback upload file di proses_tambah_wisata.php (karena gagal insert DB): C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\wisata/../../public/uploads/wisata/wisata_6820c1ffe3a26_1746977279.jpg
+[11-May-2025 22:42:41 Asia/Jakarta] Peringatan: Gagal melakukan redirect PHP ke 'http://localhost/Cilengkrang-Web-Wisata/admin/artikel/kelola_artikel.php' karena headers sudah terkirim. Output kemungkinan dimulai di: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\artikel\tambah_artikel.php pada baris 121
+[11-May-2025 22:42:47 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: Cannot delete or update a parent row: a foreign key constraint fails (`cilengkrang_web_wisata`.`feedback`, CONSTRAINT `feedback_ibfk_2` FOREIGN KEY (`artikel_id`) REFERENCES `articles` (`id`)) in C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\ArtikelController.php:142
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\ArtikelController.php(142): mysqli_stmt_execute(Object(mysqli_stmt))
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\artikel\hapus_artikel.php(19): ArtikelController::delete(1)
+#2 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\ArtikelController.php on line 142
+[11-May-2025 22:46:07 Asia/Jakarta] Peringatan: Gagal melakukan redirect PHP ke 'http://localhost/Cilengkrang-Web-Wisata/admin/artikel/kelola_artikel.php' karena headers sudah terkirim. Output kemungkinan dimulai di: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\artikel\tambah_artikel.php pada baris 121
+[11-May-2025 22:50:33 Asia/Jakarta] Peringatan: Gagal melakukan redirect PHP ke 'http://localhost/Cilengkrang-Web-Wisata/admin/artikel/kelola_artikel.php' karena headers sudah terkirim. Output kemungkinan dimulai di: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\artikel\tambah_artikel.php pada baris 121
+[11-May-2025 22:51:08 Asia/Jakarta] Peringatan: Gagal melakukan redirect PHP ke 'http://localhost/Cilengkrang-Web-Wisata/admin/artikel/kelola_artikel.php' karena headers sudah terkirim. Output kemungkinan dimulai di: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\artikel\edit_artikel.php pada baris 116
+[12-May-2025 00:31:12 Asia/Jakarta] Error inisialisasi model: Too few arguments to function Artikel::__construct(), 0 passed in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 32 and exactly 1 expected
+[12-May-2025 00:31:15 Asia/Jakarta] Error inisialisasi model: Too few arguments to function Artikel::__construct(), 0 passed in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 32 and exactly 1 expected
+[12-May-2025 00:37:49 Asia/Jakarta] Error: Too few arguments to function Artikel::__construct(), 0 passed in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 44 and exactly 1 expected in C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\Artikel.php:14
+[12-May-2025 00:39:51 Asia/Jakarta] PHP Fatal error:  Cannot redeclare e() (previously declared in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:85) in C:\xampp\htdocs\Cilengkrang-Web-Wisata\includes\helpers.php on line 66
+[12-May-2025 00:44:30 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 00:51:15 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 00:51:26 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 00:55:55 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 00:55:56 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 00:55:56 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 00:55:57 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 00:55:57 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 01:00:42 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 01:00:43 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 01:00:43 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 01:00:43 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 01:00:43 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 01:00:43 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 01:00:44 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 01:00:54 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 01:02:37 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 01:31:22 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26
+[12-May-2025 01:31:25 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Failed opening required 'C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin/../models/PemesananSewaAlat.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php:26
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php on line 26

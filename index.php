@@ -60,7 +60,8 @@ if (!@include_once __DIR__ . '/template/header.php') {
       <a href="<?= $base_url ?>wisata/deskripsi.php" class="btn btn-primary btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn">
         <i class="fas fa-info-circle me-2"></i>Pelajari Lebih Lanjut
       </a>
-      <a href="<?= $base_url ?>user/booking.php" class="btn btn-light btn-lg hero-btn">
+      <!-- Mengganti user/booking.php menjadi user/pemesanan_tiket.php -->
+      <a href="<?= $base_url ?>user/pemesanan_tiket.php" class="btn btn-light btn-lg hero-btn">
         <i class="fas fa-ticket-alt me-2"></i>Pesan Tiket Sekarang
       </a>
     </div>
@@ -242,7 +243,8 @@ if (!@include_once __DIR__ . '/template/header.php') {
       <div class="animate-on-scroll">
         <h2 class="section-title text-white">Siap untuk Petualangan Berikutnya?</h2>
         <p class="lead mb-4 mx-auto text-white-90" style="max-width: 700px;">Cilengkrang menanti kedatangan Anda dengan sejuta pesona alam, keramahan, dan pengalaman tak terlupakan yang akan memperkaya jiwa.</p>
-        <a href="<?= $base_url ?>user/booking.php" class="btn btn-light btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn">
+        <!-- Mengganti user/booking.php menjadi user/pemesanan_tiket.php -->
+        <a href="<?= $base_url ?>user/pemesanan_tiket.php" class="btn btn-light btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn">
           <i class="fas fa-calendar-check me-2"></i> Rencanakan Kunjungan
         </a>
         <a href="<?= $base_url ?>kontak.php" class="btn btn-outline-light btn-lg hero-btn">

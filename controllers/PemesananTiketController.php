@@ -1,99 +1,117 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+// File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\PemesananTiketController.php
 
-class BookingController
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../models/PemesananTiket.php';
+
+class PemesananTiketController
 {
     /**
-     * Buat booking baru
-     * @param array $data [nama_wisata, user_id (opsional), tanggal_kunjungan, jumlah_orang, status (opsional)]
-     *                   OR [nama, email, no_hp, jumlah_tiket, tanggal_kunjungan, catatan] (sesuaikan dgn skema yg dipakai)
-     * @return bool True jika berhasil, false jika gagal
+     * Membuat pemesanan tiket baru.
+     * @param array $data Data untuk membuat pemesanan.
+     * Kunci yang diharapkan: 'user_id', 'nama_destinasi', 'jenis_pemesanan', 'nama_item', 'jumlah_item', 'tanggal_kunjungan', 'total_harga', 'status'.
+     * @return int|false ID pemesanan baru jika berhasil, false jika gagal.
      */
     public static function create($data)
     {
-        global $conn;
-
-        // DESCRIBE bookings: id, user_id, nama_wisata, tanggal_kunjungan, jumlah_orang, status
-        // Your form from `proses_booking.php` had: nama, email, no_hp, jumlah_tiket, tanggal_kunjungan, catatan for a table `booking` (singular)
-        // LET'S ASSUME we are using the 'bookings' (plural) table structure from DESCRIBE.
-        // If you have a separate `booking` (singular) table with different fields, this needs adjustment.
-
-        $user_id = isset($data['user_id']) ? (int)$data['user_id'] : null;
-        $nama_wisata = $data['nama_wisata'];
-        $tanggal_kunjungan = $data['tanggal_kunjungan']; // Format YYYY-MM-DD
-        $jumlah_orang = (int)$data['jumlah_orang'];
-        $status = isset($data['status']) ? $data['status'] : 'pending'; // Default status
-
-        $sql = "INSERT INTO bookings (user_id, nama_wisata, tanggal_kunjungan, jumlah_orang, status) 
-                  VALUES (?, ?, ?, ?, ?)";
-        $stmt = mysqli_prepare($conn, $sql);
-
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "issis", $user_id, $nama_wisata, $tanggal_kunjungan, $jumlah_orang, $status);
-            if (mysqli_stmt_execute($stmt)) {
-                mysqli_stmt_close($stmt);
-                return true;
-            }
-            mysqli_stmt_close($stmt);
+        if (empty($data['nama_destinasi']) || !isset($data['jumlah_item']) || $data['jumlah_item'] <= 0 || !isset($data['total_harga']) || $data['total_harga'] < 0 || empty($data['tanggal_kunjungan'])) {
+            error_log("PemesananTiketController Error: Data tidak lengkap atau tidak valid untuk membuat pemesanan.");
+            return false;
         }
-        return false;
+        if (isset($data['user_id']) && !is_numeric($data['user_id']) && !is_null($data['user_id'])) {
+            error_log("PemesananTiketController Error: User ID tidak valid.");
+            return false;
+        }
+
+        $new_pemesanan_id = PemesananTiket::create($data);
+
+        if ($new_pemesanan_id) {
+            return $new_pemesanan_id;
+        } else {
+            error_log("PemesananTiketController: Gagal membuat pemesanan melalui Model.");
+            return false;
+        }
     }
 
     /**
-     * Ambil semua data booking
-     * @return mysqli_result|false
+     * Mengambil semua data pemesanan tiket.
+     * @return array Daftar pemesanan tiket.
      */
     public static function getAll()
     {
-        global $conn;
-        // Assuming 'bookings' table and 'tanggal_kunjungan' or 'created_at' for ordering
-        $result = mysqli_query($conn, "SELECT b.*, u.nama as user_nama, u.email as user_email 
-                                       FROM bookings b
-                                       LEFT JOIN users u ON b.user_id = u.id
-                                       ORDER BY b.tanggal_kunjungan DESC");
-        return $result;
+        return PemesananTiket::getAll();
     }
 
     /**
-     * Hapus data booking
-     * @param int $id
-     * @return bool
+     * Mengambil satu pemesanan tiket berdasarkan ID.
+     * @param int $id ID Pemesanan.
+     * @return array|null Data pemesanan atau null jika tidak ditemukan.
+     */
+    public static function getById($id)
+    {
+        if (!is_numeric($id) || $id <= 0) {
+            error_log("PemesananTiketController Error: ID tidak valid untuk getById.");
+            return null;
+        }
+        return PemesananTiket::getById((int)$id);
+    }
+
+    /**
+     * Menghapus data pemesanan tiket.
+     * @param int $id ID pemesanan yang akan dihapus.
+     * @return bool True jika berhasil, false jika gagal.
      */
     public static function delete($id)
     {
-        global $conn;
-        $sql = "DELETE FROM bookings WHERE id = ?";
-        $stmt = mysqli_prepare($conn, $sql);
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "i", $id);
-            if (mysqli_stmt_execute($stmt)) {
-                mysqli_stmt_close($stmt);
-                return true;
-            }
-            mysqli_stmt_close($stmt);
+        if (!is_numeric($id) || $id <= 0) {
+            error_log("PemesananTiketController Error: ID tidak valid untuk penghapusan.");
+            return false;
         }
-        return false;
+        return PemesananTiket::delete((int)$id);
     }
 
     /**
-     * Update status booking
-     * @param int $id
-     * @param string $status
-     * @return bool
+     * Memperbarui status pemesanan tiket.
+     * @param int $id ID pemesanan.
+     * @param string $status Status baru.
+     * @return bool True jika berhasil, false jika gagal.
      */
     public static function updateStatus($id, $status)
     {
-        global $conn;
-        $sql = "UPDATE bookings SET status = ? WHERE id = ?";
-        $stmt = mysqli_prepare($conn, $sql);
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "si", $status, $id);
-            if (mysqli_stmt_execute($stmt)) {
-                mysqli_stmt_close($stmt);
-                return true;
-            }
-            mysqli_stmt_close($stmt);
+        if (!is_numeric($id) || $id <= 0 || empty(trim($status))) {
+            error_log("PemesananTiketController Error: Data tidak valid untuk update status.");
+            return false;
         }
-        return false;
+        return PemesananTiket::updateStatus((int)$id, trim($status));
+    }
+
+    /**
+     * Mengambil pemesanan tiket berdasarkan User ID.
+     * @param int $user_id ID Pengguna.
+     * @param int|null $limit Batas jumlah record.
+     * @return array Daftar pemesanan tiket pengguna.
+     */
+    public static function getByUserId($user_id, $limit = null)
+    {
+        if (!is_numeric($user_id) || $user_id <= 0) {
+            error_log("PemesananTiketController Error: User ID tidak valid.");
+            return [];
+        }
+        return PemesananTiket::getByUserId((int)$user_id, null, $limit);
+    }
+
+
+    /**
+     * Menghitung jumlah pemesanan tiket berdasarkan status.
+     * @param string $status Status pemesanan.
+     * @return int Jumlah pemesanan.
+     */
+    public static function countByStatus($status)
+    {
+        if (empty(trim($status))) {
+            error_log("PemesananTiketController Error: Status tidak valid untuk dihitung.");
+            return 0;
+        }
+        return PemesananTiket::countByStatus(trim($status));
     }
 }

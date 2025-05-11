@@ -75,7 +75,7 @@ if (function_exists('display_flash_message')) {
             <table class="table table-bordered table-hover table-striped">
                 <thead class="table-dark">
                     <tr>
-                        <th scope="col" style="width: 5%;">#</th>
+                        <th scope="col" style="width: 5%;">No.</th> <!-- Kolom Nomor Urut Visual -->
                         <th scope="col">Judul</th>
                         <th scope="col" style="width: 30%;">Isi (Ringkasan)</th>
                         <th scope="col" style="width: 15%;">Gambar</th>

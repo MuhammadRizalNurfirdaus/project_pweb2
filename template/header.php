@@ -64,7 +64,8 @@ $is_homepage = isset($is_homepage) ? $is_homepage : false;
                             </ul>
                         </li>
                         <li class="nav-item"><a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], 'user/artikel.php') !== false) ? 'active' : '' ?>" href="<?= $base_url ?>user/artikel.php">Artikel</a></li>
-                        <li class="nav-item"><a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], 'user/booking.php') !== false) ? 'active' : '' ?>" href="<?= $base_url ?>user/booking.php">Booking Tiket</a></li>
+                        <!-- Mengganti 'user/booking.php' menjadi 'user/pemesanan_tiket.php' dan teks tautan -->
+                        <li class="nav-item"><a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], 'user/pemesanan_tiket.php') !== false) ? 'active' : '' ?>" href="<?= $base_url ?>user/pemesanan_tiket.php">Pesan Tiket</a></li>
                         <li class="nav-item"><a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], '/kontak.php') !== false && strpos($_SERVER['REQUEST_URI'], 'admin/contact') === false) ? 'active' : '' ?>" href="<?= $base_url ?>kontak.php">Kontak</a></li>
 
                         <?php if (is_logged_in()): ?>

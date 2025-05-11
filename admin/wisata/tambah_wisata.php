@@ -22,11 +22,12 @@ $nama_input_val = '';
 $deskripsi_input_val = '';
 $lokasi_input_val = '';
 
+// Ambil data dari session untuk repopulate jika ada
 if (isset($_SESSION['flash_form_data_wisata'])) {
-    $nama_input_val = e($_SESSION['flash_form_data_wisata']['nama'] ?? '');
+    $nama_input_val = e($_SESSION['flash_form_data_wisata']['nama'] ?? ''); // Kunci 'nama'
     $deskripsi_input_val = e($_SESSION['flash_form_data_wisata']['deskripsi'] ?? '');
     $lokasi_input_val = e($_SESSION['flash_form_data_wisata']['lokasi'] ?? '');
-    // Jangan unset di sini, biarkan sampai proses berhasil atau session expired
+    // Jangan unset di sini, biarkan sampai proses berhasil atau session expired di proses_tambah_wisata.php
 }
 ?>
 
@@ -57,24 +58,24 @@ if (isset($_SESSION['flash_form_data_wisata'])) {
         <form action="<?= $base_url ?>admin/wisata/proses_tambah_wisata.php" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
             <div class="mb-3">
                 <label for="nama" class="form-label">Nama Wisata</label>
-                <input type="text" id="nama" name="nama" class="form-control" value="<?= $nama_input_val ?>" required placeholder="Contoh: Curug Cilengkrang">
+                <input type="text" id="nama" name="nama" class="form-control form-control-lg" value="<?= $nama_input_val ?>" required placeholder="Contoh: Curug Cilengkrang">
                 <div class="invalid-feedback">Nama destinasi wisata wajib diisi.</div>
             </div>
             <div class="mb-3">
-                <label for="deskripsi" class="form-label">Deskripsi</label>
-                <textarea id="deskripsi" name="deskripsi" class="form-control" rows="5" required placeholder="Jelaskan tentang destinasi wisata ini..."><?= $deskripsi_input_val ?></textarea>
+                <label for="deskripsi" class="form-label">Deskripsi</span></label>
+                <textarea id="deskripsi" name="deskripsi" class="form-control form-control-lg" rows="5" required placeholder="Jelaskan tentang destinasi wisata ini..."><?= $deskripsi_input_val ?></textarea>
                 <div class="invalid-feedback">Deskripsi wajib diisi.</div>
             </div>
             <div class="mb-3">
-                <label for="lokasi" class="form-label">Lokasi</label>
-                <input type="text" id="lokasi" name="lokasi" class="form-control" value="<?= $lokasi_input_val ?>" required placeholder="Contoh: Area Pemandian Utama, Desa Pajambon">
+                <label for="lokasi" class="form-label">Lokasi</span></label>
+                <input type="text" id="lokasi" name="lokasi" class="form-control form-control-lg" value="<?= $lokasi_input_val ?>" required placeholder="Contoh: Area Pemandian Utama, Desa Pajambon">
                 <div class="invalid-feedback">Lokasi wajib diisi.</div>
             </div>
 
             <div class="mb-3">
                 <label for="gambar" class="form-label">Gambar Utama Destinasi</label>
-                <input type="file" id="gambar" name="gambar" class="form-control" required accept="image/jpeg, image/png, image/gif">
-                <small class="form-text text-muted">Format yang diizinkan: JPG, PNG, GIF. Ukuran maksimal: 5MB.</small>
+                <input type="file" id="gambar" name="gambar" class="form-control form-control-lg" required accept="image/jpeg, image/png, image/gif, image/webp">
+                <small class="form-text text-muted">Format yang diizinkan: JPG, PNG, GIF, WEBP. Ukuran maksimal: 5MB.</small>
                 <div class="invalid-feedback">Silakan pilih file gambar utama.</div>
             </div>
             <hr>
