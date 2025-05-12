@@ -688,10 +688,10 @@ if (!function_exists('isAdminSidebarActive')) {
     <!-- Navbar Top -->
     <nav class="navbar navbar-expand-lg admin-navbar-top fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="<?= $base_url ?>admin/dashboard.php">
-                <img src="<?= $base_url ?>public/img/logo.png" alt="Logo"> Cilengkrang Admin
+            <a class="navbar-brand" href="<?= isset($base_url) ? e($base_url . 'admin/dashboard.php') : '#' ?>">
+                <img src="<?= isset($base_url) ? e($base_url . 'public/img/logo.png') : '#' ?>" alt="Logo"> Cilengkrang Admin
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminTopNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminTopNav" aria-controls="adminTopNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="adminTopNav">
@@ -703,112 +703,131 @@ if (!function_exists('isAdminSidebarActive')) {
                         </span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="<?= $base_url ?>" target="_blank" title="Lihat Situs Publik">
-                            <i class="fas fa-eye"></i>
+                        <a class="nav-link" href="<?= isset($base_url) ? e($base_url) : '#' ?>" target="_blank" title="Lihat Situs Publik">
+                            <i class="fas fa-eye"></i> <span class="d-none d-sm-inline-block ms-1">Lihat Situs</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="<?= $base_url ?>auth/logout.php" title="Logout">
-                            <i class="fas fa-sign-out-alt" style="color: #dc3545;"></i>
+                        <a class="nav-link text-danger" href="<?= isset($base_url) ? e($base_url . 'auth/logout.php') : '#' ?>" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i> <span class="d-none d-sm-inline-block ms-1">Logout</span>
                         </a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
-
     <!-- Sidebar -->
     <div class="admin-wrapper">
         <nav class="sidebar">
             <div class="sidebar-sticky pt-3">
                 <ul class="nav flex-column">
-                    <!-- Menu Utama -->
                     <li class="sidebar-heading">Utama</li>
                     <li class="nav-item">
-                        <a class="nav-link <?= isAdminSidebarActive('dashboard.php', $base_url, $current_uri_admin) ? 'active' : '' ?>"
-                            href="<?= $base_url ?>admin/dashboard.php">
+                        <a class="nav-link <?= (isAdminSidebarActive('dashboard.php', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/dashboard.php') ?>">
                             <i class="fas fa-tachometer-alt fa-fw"></i> Dashboard
                         </a>
                     </li>
 
-                    <!-- Manajemen Konten -->
                     <li class="sidebar-heading mt-3">Manajemen Konten</li>
                     <li class="nav-item">
-                        <a class="nav-link <?= isAdminSidebarActive('artikel/kelola_artikel.php', $base_url, $current_uri_admin) ? 'active' : '' ?>"
-                            href="<?= $base_url ?>admin/artikel/kelola_artikel.php">
+                        <a class="nav-link <?= (isAdminSidebarActive('artikel/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/artikel/kelola_artikel.php') ?>">
                             <i class="fas fa-newspaper fa-fw"></i> Artikel
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?= isAdminSidebarActive('galeri/kelola_galeri.php', $base_url, $current_uri_admin) ? 'active' : '' ?>"
-                            href="<?= $base_url ?>admin/galeri/kelola_galeri.php">
+                        <a class="nav-link <?= (isAdminSidebarActive('galeri/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/galeri/kelola_galeri.php') ?>">
                             <i class="fas fa-images fa-fw"></i> Galeri
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?= isAdminSidebarActive('wisata/kelola_wisata.php', $base_url, $current_uri_admin) ? 'active' : '' ?>"
-                            href="<?= $base_url ?>admin/wisata/kelola_wisata.php">
-                            <i class="fas fa-map-marked-alt fa-fw"></i> Destinasi
+                        <a class="nav-link <?= (isAdminSidebarActive('wisata/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/wisata/kelola_wisata.php') ?>">
+                            <i class="fas fa-map-marked-alt fa-fw"></i> Destinasi Wisata
                         </a>
                     </li>
-                    <!-- Menu Baru: Alat Sewa -->
+
+                    <li class="sidebar-heading mt-3">Manajemen Tiket & Fasilitas</li>
                     <li class="nav-item">
-                        <a class="nav-link <?= isAdminSidebarActive('alat_sewa/kelola_alat.php', $base_url, $current_uri_admin) ? 'active' : '' ?>"
-                            href="<?= $base_url ?>admin/alat_sewa/kelola_alat.php">
+                        <a class="nav-link <?= (isAdminSidebarActive('jenis_tiket/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/jenis_tiket/kelola_jenis_tiket.php') ?>">
+                            <i class="fas fa-tags fa-fw"></i> Jenis Tiket
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= (isAdminSidebarActive('jadwal_ketersediaan/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/jadwal_ketersediaan/kelola_jadwal.php') ?>">
+                            <i class="fas fa-calendar-alt fa-fw"></i> Jadwal Ketersediaan
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= (isAdminSidebarActive('alat_sewa/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/alat_sewa/kelola_alat.php') ?>">
                             <i class="fas fa-tools fa-fw"></i> Alat Sewa
                         </a>
                     </li>
 
-                    <!-- Interaksi -->
-                    <li class="sidebar-heading mt-3">Interaksi</li>
+                    <li class="sidebar-heading mt-3">Manajemen Pemesanan</li>
                     <li class="nav-item">
-                        <a class="nav-link <?= isAdminSidebarActive('pemesanan_tiket/kelola_pemesanan.php', $base_url, $current_uri_admin) ? 'active' : '' ?>"
-                            href="<?= $base_url ?>admin/pemesanan_tiket/kelola_pemesanan.php">
+                        <a class="nav-link <?= (isAdminSidebarActive('pemesanan_tiket/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/pemesanan_tiket/kelola_pemesanan.php') ?>">
                             <i class="fas fa-ticket-alt fa-fw"></i> Pemesanan Tiket
                         </a>
                     </li>
-                    <!-- Menu Baru: Pemesanan Sewa Alat -->
                     <li class="nav-item">
-                        <a class="nav-link <?= isAdminSidebarActive('alat_sewa/kelola_pemesanan.php', $base_url, $current_uri_admin) ? 'active' : '' ?>"
-                            href="<?= $base_url ?>admin/alat_sewa/kelola_pemesanan.php">
-                            <i class="fas fa-shopping-cart fa-fw"></i> Pemesanan Sewa
+                        <a class="nav-link <?= (isAdminSidebarActive('pemesanan_sewa/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/pemesanan_sewa/kelola_pemesanan_sewa.php') ?>">
+                            <i class="fas fa-dolly-flatbed fa-fw"></i> Pemesanan Sewa Alat
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?= isAdminSidebarActive('contact/kelola_contact.php', $base_url, $current_uri_admin) ? 'active' : '' ?>"
-                            href="<?= $base_url ?>admin/contact/kelola_contact.php">
-                            <i class="fas fa-envelope fa-fw"></i> Pesan
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?= isAdminSidebarActive('feedback/kelola_feedback.php', $base_url, $current_uri_admin) ? 'active' : '' ?>"
-                            href="<?= $base_url ?>admin/feedback/kelola_feedback.php">
-                            <i class="fas fa-comments fa-fw"></i> Feedback
+                        <a class="nav-link <?= (isAdminSidebarActive('pembayaran/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/pembayaran/kelola_pembayaran.php') ?>">
+                            <i class="fas fa-money-check-alt fa-fw"></i> Kelola Pembayaran
                         </a>
                     </li>
 
-                    <!-- Administrasi -->
-                    <li class="sidebar-heading mt-3">Administrasi</li>
+
+                    <li class="sidebar-heading mt-3">Interaksi Pengguna</li>
                     <li class="nav-item">
-                        <a class="nav-link <?= isAdminSidebarActive('users/kelola_users.php', $base_url, $current_uri_admin) ? 'active' : '' ?>"
-                            href="<?= $base_url ?>admin/users/kelola_users.php">
-                            <i class="fas fa-users-cog fa-fw"></i> Pengguna
+                        <a class="nav-link <?= (isAdminSidebarActive('contact/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/contact/kelola_contact.php') ?>">
+                            <i class="fas fa-envelope-open-text fa-fw"></i> Pesan Kontak
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?= isAdminSidebarActive('pengaturan.php', $base_url, $current_uri_admin) ? 'active' : '' ?>"
-                            href="<?= $base_url ?>admin/pengaturan.php">
-                            <i class="fas fa-sliders-h fa-fw"></i> Pengaturan
+                        <a class="nav-link <?= (isAdminSidebarActive('feedback/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/feedback/kelola_feedback.php') ?>">
+                            <i class="fas fa-comment-dots fa-fw"></i> Feedback Pengguna
+                        </a>
+                    </li>
+
+                    <li class="sidebar-heading mt-3">Administrasi Situs</li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= (isAdminSidebarActive('users/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/users/kelola_users.php') ?>">
+                            <i class="fas fa-users-cog fa-fw"></i> Manajemen Pengguna
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= (isAdminSidebarActive('pengaturan/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= e($base_url . 'admin/pengaturan/umum.php') // Arahkan ke halaman pengaturan yang spesifik jika ada 
+                                    ?>">
+                            <i class="fas fa-cogs fa-fw"></i> Pengaturan Umum
                         </a>
                     </li>
                 </ul>
             </div>
         </nav>
 
-        <!-- Main Content -->
+        <!-- Main Content Wrapper (Konten akan di-load di sini oleh halaman spesifik) -->
         <main class="main-admin-content">
-            <div class="container-fluid pt-2">
-                <?php if (function_exists('display_flash_message')) {
+            <div class="container-fluid pt-3">
+                <?php
+                if (function_exists('display_flash_message')) {
                     echo display_flash_message();
-                } ?>
-                <!-- Konten halaman spesifik dimulai di bawah ini -->
+                }
+                ?>
+                <!-- Konten spesifik halaman admin akan dimulai setelah baris ini oleh file pemanggil -->

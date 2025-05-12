@@ -4,7 +4,7 @@
 class SewaAlat
 {
     private static $table_name = "sewa_alat";
-    private static $upload_dir_alat = __DIR__ . "/../../public/uploads/alat_sewa/"; // Pastikan direktori ini ada
+    private static $upload_dir_alat = __DIR__ . "/../../public/uploads/alat_sewa/";
 
     public static function create($data)
     {
@@ -23,6 +23,7 @@ class SewaAlat
         $stok_tersedia = isset($data['stok_tersedia']) ? (int)$data['stok_tersedia'] : 0;
         $gambar_alat = isset($data['gambar_alat']) && !empty($data['gambar_alat']) ? trim($data['gambar_alat']) : null;
         $kondisi_alat = trim($data['kondisi_alat'] ?? 'Baik');
+
 
         if (empty($nama_item) || $harga_sewa < 0 || $durasi_harga_sewa <= 0 || $stok_tersedia < 0) {
             error_log("SewaAlat::create() - Error: Nama item, harga, durasi, atau stok tidak valid. Nama: '{$nama_item}', Harga: {$harga_sewa}, Durasi: {$durasi_harga_sewa}, Stok: {$stok_tersedia}");
@@ -64,6 +65,11 @@ class SewaAlat
         }
     }
 
+    /**
+     * Mengambil semua item alat sewa.
+     * Diurutkan berdasarkan ID secara menaik.
+     * @return array Array of records, atau array kosong jika gagal/tidak ada records.
+     */
     public static function getAll()
     {
         global $conn;
@@ -71,7 +77,8 @@ class SewaAlat
             error_log("SewaAlat::getAll() - Koneksi database gagal.");
             return [];
         }
-        $sql = "SELECT * FROM " . self::$table_name . " ORDER BY kategori_alat ASC, nama_item ASC";
+        // === PERBAIKAN UTAMA ADA DI SINI ===
+        $sql = "SELECT * FROM " . self::$table_name . " ORDER BY id ASC"; // Diurutkan berdasarkan ID ASC
         $result = mysqli_query($conn, $sql);
         if ($result) {
             return mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -192,7 +199,7 @@ class SewaAlat
     }
 
     public static function delete($id)
-    {
+    { /* ... sama seperti sebelumnya, dengan pengecekan FK aktif ... */
         global $conn;
         if (!$conn) {
             error_log("SewaAlat::delete() - Koneksi database gagal.");
@@ -203,32 +210,27 @@ class SewaAlat
             error_log("SewaAlat::delete() - Error: ID tidak valid (" . e($id) . ").");
             return false;
         }
-
-        // AKTIFKAN DAN LENGKAPI PENGECEKAN FOREIGN KEY
         $sql_check = "SELECT COUNT(*) as total_pemesanan FROM pemesanan_sewa_alat WHERE sewa_alat_id = ?";
         $stmt_check = mysqli_prepare($conn, $sql_check);
         if (!$stmt_check) {
             error_log("SewaAlat::delete() - MySQLi Prepare Error (check pemesanan): " . mysqli_error($conn));
-            return false; // Gagal persiapan, tidak bisa melanjutkan
+            return false;
         }
         mysqli_stmt_bind_param($stmt_check, "i", $id_to_delete);
         if (!mysqli_stmt_execute($stmt_check)) {
             error_log("SewaAlat::delete() - MySQLi Execute Error (check pemesanan): " . mysqli_stmt_error($stmt_check));
             mysqli_stmt_close($stmt_check);
-            return false; // Gagal eksekusi, tidak bisa melanjutkan
+            return false;
         }
         $result_check = mysqli_stmt_get_result($stmt_check);
         $row_check = mysqli_fetch_assoc($result_check);
         mysqli_stmt_close($stmt_check);
-
         if ($row_check && $row_check['total_pemesanan'] > 0) {
             error_log("SewaAlat::delete() - Gagal: Alat ID " . $id_to_delete . " masih digunakan dalam " . $row_check['total_pemesanan'] . " pemesanan.");
-            // Controller akan menangani set_flash_message
+            set_flash_message('warning', 'Alat tidak dapat dihapus karena masih terkait dengan data pemesanan.');
             return false;
         }
-
         $item = self::getById($id_to_delete);
-
         $sql_delete = "DELETE FROM " . self::$table_name . " WHERE id = ?";
         $stmt_delete = mysqli_prepare($conn, $sql_delete);
         if (!$stmt_delete) {
@@ -236,7 +238,6 @@ class SewaAlat
             return false;
         }
         mysqli_stmt_bind_param($stmt_delete, "i", $id_to_delete);
-
         if (mysqli_stmt_execute($stmt_delete)) {
             $affected_rows = mysqli_stmt_affected_rows($stmt_delete);
             mysqli_stmt_close($stmt_delete);
@@ -257,9 +258,8 @@ class SewaAlat
             return false;
         }
     }
-
     public static function updateStok($alat_id, $jumlah_perubahan)
-    {
+    { /* ... sama seperti sebelumnya ... */
         global $conn;
         if (!$conn) {
             error_log("SewaAlat::updateStok() - Koneksi database gagal.");
@@ -267,23 +267,19 @@ class SewaAlat
         }
         $alat_id_val = (int)$alat_id;
         $jumlah_val = (int)$jumlah_perubahan;
-
+        if ($alat_id_val <= 0) {
+            error_log("SewaAlat::updateStok() - ID Alat tidak valid.");
+            return false;
+        }
         $sql = "UPDATE " . self::$table_name . " SET stok_tersedia = GREATEST(0, stok_tersedia + ?) WHERE id = ?";
-        // Menggunakan GREATEST(0, ...) untuk memastikan stok tidak menjadi negatif di DB
-        // Kondisi AND stok_tersedia + ? >= 0 dihilangkan karena GREATEST sudah menangani
-
         $stmt = mysqli_prepare($conn, $sql);
         if (!$stmt) {
             error_log("SewaAlat::updateStok() - MySQLi Prepare Error: " . mysqli_error($conn) . " | SQL: " . $sql);
             return false;
         }
         mysqli_stmt_bind_param($stmt, "ii", $jumlah_val, $alat_id_val);
-
         if (mysqli_stmt_execute($stmt)) {
-            $affected_rows = mysqli_stmt_affected_rows($stmt);
             mysqli_stmt_close($stmt);
-            // Berhasil jika query tereksekusi, bahkan jika affected_rows = 0 (misalnya, stok sudah 0 dan dikurangi)
-            // Jika ingin lebih ketat bahwa stok benar-benar berubah, cek affected_rows > 0
             return true;
         } else {
             error_log("SewaAlat::updateStok() - MySQLi Execute Error: " . mysqli_stmt_error($stmt) . " | SQL: " . $sql);
