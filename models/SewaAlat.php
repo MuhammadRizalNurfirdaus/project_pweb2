@@ -259,7 +259,7 @@ class SewaAlat
         }
     }
     public static function updateStok($alat_id, $jumlah_perubahan)
-    { /* ... sama seperti sebelumnya ... */
+    {
         global $conn;
         if (!$conn) {
             error_log("SewaAlat::updateStok() - Koneksi database gagal.");

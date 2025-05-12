@@ -44,12 +44,13 @@ if (!function_exists('isAdminSidebarActive')) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($page_title) ?> - Cilengkrang Admin</title>
+    <title><?= e($pageTitle) ?> - Cilengkrang Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
-    <!-- External CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="icon" href="<?= $base_url ?>public/img/favicon.ico" type="image/x-icon">
+    <!-- PASTIKAN BARIS INI ADA, TIDAK DIKOMENTARI, DAN URL-NYA BENAR -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="icon" href="<?= isset($base_url) ? e($base_url . 'public/img/favicon.ico') : '#' ?>" type="image/x-icon">
 
     <style>
         /* --- Variabel Warna Dasar Admin (Mode Terang) --- */
@@ -771,20 +772,20 @@ if (!function_exists('isAdminSidebarActive')) {
 
                     <li class="sidebar-heading mt-3">Manajemen Pemesanan</li>
                     <li class="nav-item">
-                        <a class="nav-link <?= (isAdminSidebarActive('pemesanan_tiket/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
-                            href="<?= e($base_url . 'admin/pemesanan_tiket/kelola_pemesanan.php') ?>">
+                        <a class="nav-link <?= (isAdminSidebarActive('pemesanan_tiket/', $base_url ?? '', $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= isset($base_url) ? e($base_url . 'admin/pemesanan_tiket/kelola_pemesanan.php') : '#' ?>">
                             <i class="fas fa-ticket-alt fa-fw"></i> Pemesanan Tiket
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?= (isAdminSidebarActive('pemesanan_sewa/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
-                            href="<?= e($base_url . 'admin/pemesanan_sewa/kelola_pemesanan_sewa.php') ?>">
-                            <i class="fas fa-dolly-flatbed fa-fw"></i> Pemesanan Sewa Alat
+                        <a class="nav-link <?= (isAdminSidebarActive('pemesanan_sewa/', $base_url ?? '', $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= isset($base_url) ? e($base_url . 'admin/pemesanan_sewa/kelola_pemesanan_sewa.php') : '#' ?>">
+                            <i class="fas fa-box-open fa-fw"></i> Pemesanan Sewa Alat
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?= (isAdminSidebarActive('pembayaran/', $base_url, $current_uri_admin)) ? 'active' : '' ?>"
-                            href="<?= e($base_url . 'admin/pembayaran/kelola_pembayaran.php') ?>">
+                        <a class="nav-link <?= (isAdminSidebarActive('pembayaran/', $base_url ?? '', $current_uri_admin)) ? 'active' : '' ?>"
+                            href="<?= isset($base_url) ? e($base_url . 'admin/pembayaran/kelola_pembayaran.php') : '#' ?>">
                             <i class="fas fa-money-check-alt fa-fw"></i> Kelola Pembayaran
                         </a>
                     </li>

@@ -1,112 +1,169 @@
 <?php
 // File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\Artikel.php
+
+/**
+ * Class Artikel
+ * Mengelola operasi database untuk tabel artikel.
+ * Menggunakan pendekatan statis dan koneksi global $conn.
+ */
 class Artikel
 {
-    private $conn;
-    private $table_name = "articles"; // Pastikan nama tabel ini benar
+    private static $table_name = "articles"; // Pastikan nama tabel ini benar
 
-    public $id;
-    public $judul;
-    public $isi;
-    public $gambar;
-    public $created_at;
-
-    public function __construct($db_connection)
+    /**
+     * Membuat artikel baru.
+     * @param array $data Harus berisi 'judul', 'isi'. Opsional: 'gambar'.
+     * @return int|false ID artikel baru atau false jika gagal.
+     */
+    public static function create($data)
     {
-        $this->conn = $db_connection;
-    }
+        global $conn;
+        if (!$conn) {
+            error_log("Artikel::create() - Koneksi database gagal.");
+            return false;
+        }
 
-    // ... (method create, getAll, getById, update, delete seperti di respons sebelumnya) ...
-    // Saya akan menyertakan kembali method-method tersebut untuk kelengkapan file ini
+        $judul = isset($data['judul']) ? htmlspecialchars(strip_tags(trim($data['judul']))) : '';
+        $isi = $data['isi'] ?? '';
+        $gambar = isset($data['gambar']) && !empty($data['gambar']) ? htmlspecialchars(strip_tags($data['gambar'])) : null;
 
-    public function create()
-    {
-        $query = "INSERT INTO " . $this->table_name . " (judul, isi, gambar) VALUES (?, ?, ?)";
-        $stmt = mysqli_prepare($this->conn, $query);
+        if (empty($judul) || empty($isi)) {
+            error_log("Artikel::create() - Judul dan Isi tidak boleh kosong.");
+            // set_flash_message di Controller
+            return false;
+        }
+
+        $sql = "INSERT INTO " . self::$table_name . " (judul, isi, gambar, created_at) VALUES (?, ?, ?, NOW())";
+        $stmt = mysqli_prepare($conn, $sql);
         if (!$stmt) {
-            error_log("MySQLi Prepare Error (Artikel Create): " . mysqli_error($this->conn));
+            error_log("Artikel::create() - MySQLi Prepare Error: " . mysqli_error($conn));
             return false;
         }
-        $this->judul = htmlspecialchars(strip_tags($this->judul ?? ''));
-        $this->isi = $this->isi ?? '';
-        $gambar_to_insert = !empty($this->gambar) ? htmlspecialchars(strip_tags($this->gambar)) : null;
-        mysqli_stmt_bind_param($stmt, "sss", $this->judul, $this->isi, $gambar_to_insert);
+        mysqli_stmt_bind_param($stmt, "sss", $judul, $isi, $gambar);
         if (mysqli_stmt_execute($stmt)) {
-            $this->id = mysqli_insert_id($this->conn);
+            $new_id = mysqli_insert_id($conn);
             mysqli_stmt_close($stmt);
-            return true;
+            return $new_id;
         } else {
-            error_log("MySQLi Execute Error (Artikel Create): " . mysqli_stmt_error($stmt));
+            error_log("Artikel::create() - MySQLi Execute Error: " . mysqli_stmt_error($stmt));
             mysqli_stmt_close($stmt);
             return false;
         }
     }
 
-    public function getAll()
+    /**
+     * Mengambil semua artikel.
+     * @return array Array data artikel atau array kosong jika gagal.
+     */
+    public static function getAll()
     {
-        $query = "SELECT id, judul, isi, gambar, created_at FROM " . $this->table_name . " ORDER BY created_at DESC";
-        $result = mysqli_query($this->conn, $query);
+        global $conn;
+        if (!$conn) {
+            error_log("Artikel::getAll() - Koneksi DB gagal.");
+            return [];
+        }
+        // PERUBAHAN DI SINI: Mengurutkan berdasarkan ID ASC
+        $sql = "SELECT id, judul, isi, gambar, created_at FROM " . self::$table_name . " ORDER BY id ASC";
+        $result = mysqli_query($conn, $sql);
         if ($result) {
-            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+            $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            mysqli_free_result($result);
+            return $data;
         } else {
-            error_log("MySQLi Error (Artikel getAll): " . mysqli_error($this->conn));
+            error_log("Artikel::getAll() - MySQLi Query Error: " . mysqli_error($conn));
             return [];
         }
     }
 
-    public function getById($id)
+    /**
+     * Mengambil satu artikel berdasarkan ID.
+     * @param int $id ID artikel.
+     * @return array|null Data artikel atau null jika tidak ditemukan/error.
+     */
+    public static function getById($id)
     {
-        $id_to_get = intval($id);
-        if ($id_to_get <= 0) return false;
-        $query = "SELECT id, judul, isi, gambar, created_at FROM " . $this->table_name . " WHERE id = ? LIMIT 1";
-        $stmt = mysqli_prepare($this->conn, $query);
-        if (!$stmt) {
-            error_log("MySQLi Prepare Error (Artikel getById): " . mysqli_error($this->conn));
-            return false;
+        global $conn;
+        if (!$conn) {
+            error_log("Artikel::getById() - Koneksi DB gagal.");
+            return null;
         }
-        mysqli_stmt_bind_param($stmt, "i", $id_to_get);
+        $id_val = filter_var($id, FILTER_VALIDATE_INT);
+        if ($id_val === false || $id_val <= 0) {
+            error_log("Artikel::getById() - ID tidak valid: " . e($id));
+            return null;
+        }
+        $sql = "SELECT id, judul, isi, gambar, created_at FROM " . self::$table_name . " WHERE id = ? LIMIT 1";
+        $stmt = mysqli_prepare($conn, $sql);
+        if (!$stmt) {
+            error_log("Artikel::getById() - Prepare Error: " . mysqli_error($conn));
+            return null;
+        }
+        mysqli_stmt_bind_param($stmt, "i", $id_val);
         if (mysqli_stmt_execute($stmt)) {
             $result = mysqli_stmt_get_result($stmt);
-            $row = mysqli_fetch_assoc($result);
+            $artikel = mysqli_fetch_assoc($result);
             mysqli_stmt_close($stmt);
-            if ($row) {
-                $this->id = $row['id'];
-                $this->judul = $row['judul'];
-                $this->isi = $row['isi'];
-                $this->gambar = $row['gambar'];
-                $this->created_at = $row['created_at'];
-                return true;
-            }
-            return false;
+            return $artikel ?: null;
         } else {
-            error_log("MySQLi Execute Error (Artikel getById): " . mysqli_stmt_error($stmt));
+            error_log("Artikel::getById() - Execute Error: " . mysqli_stmt_error($stmt));
             mysqli_stmt_close($stmt);
-            return false;
+            return null;
         }
     }
 
-    public function update()
+    /**
+     * Mengupdate artikel.
+     * @param array $data Harus berisi 'id'. Opsional: 'judul', 'isi', 'gambar'.
+     * @return bool True jika berhasil, false jika gagal.
+     */
+    public static function update($data)
     {
-        if (!$this->id || intval($this->id) <= 0) {
-            error_log("Artikel Update Error: ID not set or invalid.");
+        global $conn;
+        if (!$conn || !isset($data['id'])) {
+            error_log("Artikel::update() - Koneksi DB gagal atau ID tidak ada.");
             return false;
         }
-        $query = "UPDATE " . $this->table_name . " SET judul = ?, isi = ?";
-        $params = [];
-        $params[] = htmlspecialchars(strip_tags($this->judul ?? ''));
-        $params[] = $this->isi ?? '';
+        $id = filter_var($data['id'], FILTER_VALIDATE_INT);
+        if ($id === false || $id <= 0) {
+            error_log("Artikel::update() - ID artikel tidak valid.");
+            return false;
+        }
+
+        $current_artikel = self::getById($id); // Panggil metode statis
+        if (!$current_artikel) {
+            error_log("Artikel::update() - Artikel dengan ID {$id} tidak ditemukan.");
+            return false;
+        }
+
+        $judul = isset($data['judul']) ? htmlspecialchars(strip_tags(trim($data['judul']))) : $current_artikel['judul'];
+        $isi = $data['isi'] ?? $current_artikel['isi'];
+
+        $fields_to_update = ["judul = ?", "isi = ?"];
+        $params = [$judul, $isi];
         $types = "ss";
-        if (property_exists($this, 'gambar') && isset($this->gambar)) { // Cek jika properti gambar di-set untuk update
-            $query .= ", gambar = ?";
-            $params[] = !empty($this->gambar) ? htmlspecialchars(strip_tags($this->gambar)) : null;
+
+        // Handle gambar: hanya update jika 'gambar' ada di $data
+        // Jika 'gambar' di $data adalah string kosong, itu berarti menghapus gambar.
+        // Jika 'gambar' tidak ada di $data, gambar tidak diubah.
+        if (array_key_exists('gambar', $data)) {
+            $gambar_baru = !empty($data['gambar']) ? htmlspecialchars(strip_tags($data['gambar'])) : null;
+            $fields_to_update[] = "gambar = ?";
+            $params[] = $gambar_baru;
             $types .= "s";
         }
-        $query .= " WHERE id = ?";
-        $params[] = intval($this->id);
+
+        if (empty($judul) || empty($isi)) {
+            error_log("Artikel::update() - Judul dan Isi tidak boleh kosong.");
+            return false;
+        }
+
+        $sql = "UPDATE " . self::$table_name . " SET " . implode(', ', $fields_to_update) . " WHERE id = ?";
+        $params[] = $id;
         $types .= "i";
-        $stmt = mysqli_prepare($this->conn, $query);
+
+        $stmt = mysqli_prepare($conn, $sql);
         if (!$stmt) {
-            error_log("MySQLi Prepare Error (Artikel Update): " . mysqli_error($this->conn));
+            error_log("Artikel::update() - Prepare Error: " . mysqli_error($conn));
             return false;
         }
         mysqli_stmt_bind_param($stmt, $types, ...$params);
@@ -114,33 +171,70 @@ class Artikel
             mysqli_stmt_close($stmt);
             return true;
         } else {
-            error_log("MySQLi Execute Error (Artikel Update): " . mysqli_stmt_error($stmt));
+            error_log("Artikel::update() - Execute Error: " . mysqli_stmt_error($stmt));
             mysqli_stmt_close($stmt);
             return false;
         }
     }
 
-    public function delete()
+    /**
+     * Menghapus artikel berdasarkan ID.
+     * Juga menghapus feedback terkait.
+     * @param int $id ID artikel.
+     * @return bool True jika berhasil, false jika gagal.
+     */
+    public static function delete($id)
     {
-        if (!$this->id || intval($this->id) <= 0) {
-            error_log("Artikel Delete Error: ID not set or invalid.");
+        global $conn;
+        if (!$conn) {
+            error_log("Artikel::delete() - Koneksi DB gagal.");
             return false;
         }
-        $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
-        $stmt = mysqli_prepare($this->conn, $query);
-        if (!$stmt) {
-            error_log("MySQLi Prepare Error (Artikel Delete): " . mysqli_error($this->conn));
+        $id_val = filter_var($id, FILTER_VALIDATE_INT);
+        if ($id_val === false || $id_val <= 0) {
+            error_log("Artikel::delete() - ID tidak valid: " . e($id));
             return false;
         }
-        $id_to_delete = intval($this->id);
-        mysqli_stmt_bind_param($stmt, "i", $id_to_delete);
-        if (mysqli_stmt_execute($stmt)) {
-            $affected_rows = mysqli_stmt_affected_rows($stmt);
-            mysqli_stmt_close($stmt);
-            return $affected_rows > 0;
+
+        $artikel = self::getById($id_val); // Ambil info gambar
+        $gambar_to_delete_on_server = null;
+        if ($artikel && !empty($artikel['gambar'])) {
+            $gambar_to_delete_on_server = $artikel['gambar'];
+        }
+
+        // Hapus feedback terkait
+        $sql_delete_feedback = "DELETE FROM feedback WHERE artikel_id = ?";
+        $stmt_feedback = mysqli_prepare($conn, $sql_delete_feedback);
+        if ($stmt_feedback) {
+            mysqli_stmt_bind_param($stmt_feedback, "i", $id_val);
+            mysqli_stmt_execute($stmt_feedback); // Tidak krusial jika gagal, tapi log akan bagus
+            mysqli_stmt_close($stmt_feedback);
+        }
+
+        // Hapus artikel
+        $sql_delete_article = "DELETE FROM " . self::$table_name . " WHERE id = ?";
+        $stmt_article = mysqli_prepare($conn, $sql_delete_article);
+        if (!$stmt_article) {
+            error_log("Artikel::delete() - Prepare Error (artikel): " . mysqli_error($conn));
+            return false;
+        }
+        mysqli_stmt_bind_param($stmt_article, "i", $id_val);
+        if (mysqli_stmt_execute($stmt_article)) {
+            $affected_rows = mysqli_stmt_affected_rows($stmt_article);
+            mysqli_stmt_close($stmt_article);
+            if ($affected_rows > 0) {
+                if ($gambar_to_delete_on_server && defined('UPLOADS_ARTIKEL_PATH')) {
+                    $file_path = UPLOADS_ARTIKEL_PATH . DIRECTORY_SEPARATOR . basename($gambar_to_delete_on_server);
+                    if (file_exists($file_path) && is_file($file_path)) {
+                        @unlink($file_path);
+                    }
+                }
+                return true;
+            }
+            return false; // Tidak ada baris yang terhapus
         } else {
-            error_log("MySQLi Execute Error (Artikel Delete): " . mysqli_stmt_error($stmt));
-            mysqli_stmt_close($stmt);
+            error_log("Artikel::delete() - Execute Error (artikel): " . mysqli_stmt_error($stmt_article));
+            mysqli_stmt_close($stmt_article);
             return false;
         }
     }
@@ -148,37 +242,49 @@ class Artikel
     /**
      * Mengambil sejumlah artikel terbaru.
      * @param int $limit Jumlah artikel yang ingin diambil.
-     * @return array Array berisi data artikel terbaru, atau array kosong jika gagal/tidak ada.
+     * @return array Array data artikel atau array kosong.
      */
-    public function getLatest($limit = 3)
+    public static function getLatest($limit = 3)
     {
-        $limit = intval($limit);
-        if ($limit <= 0) {
-            $limit = 3; // Default limit
-        }
-
-        $query = "SELECT id, judul, isi, gambar, created_at 
-                  FROM " . $this->table_name . " 
-                  ORDER BY created_at DESC
-                  LIMIT ?";
-        $stmt = mysqli_prepare($this->conn, $query);
-
-        if (!$stmt) {
-            error_log("MySQLi Prepare Error (Artikel getLatest): " . mysqli_error($this->conn));
+        global $conn;
+        if (!$conn) {
             return [];
         }
-
-        mysqli_stmt_bind_param($stmt, "i", $limit);
-
+        $limit_val = filter_var($limit, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if ($limit_val === false) $limit_val = 3;
+        $sql = "SELECT id, judul, isi, gambar, created_at FROM " . self::$table_name . " ORDER BY created_at DESC LIMIT ?";
+        $stmt = mysqli_prepare($conn, $sql);
+        if (!$stmt) {
+            return [];
+        }
+        mysqli_stmt_bind_param($stmt, "i", $limit_val);
         if (mysqli_stmt_execute($stmt)) {
             $result = mysqli_stmt_get_result($stmt);
             $articles = mysqli_fetch_all($result, MYSQLI_ASSOC);
             mysqli_stmt_close($stmt);
             return $articles;
-        } else {
-            error_log("MySQLi Execute Error (Artikel getLatest): " . mysqli_stmt_error($stmt));
-            mysqli_stmt_close($stmt);
-            return [];
         }
+        mysqli_stmt_close($stmt);
+        return [];
+    }
+
+    /**
+     * Menghitung semua artikel.
+     * @return int Jumlah artikel atau 0 jika error.
+     */
+    public static function countAll()
+    {
+        global $conn;
+        if (!$conn) {
+            return 0;
+        }
+        $sql = "SELECT COUNT(id) as total FROM " . self::$table_name;
+        $result = mysqli_query($conn, $sql);
+        if ($result) {
+            $row = mysqli_fetch_assoc($result);
+            mysqli_free_result($result);
+            return (int)($row['total'] ?? 0);
+        }
+        return 0;
     }
 }
