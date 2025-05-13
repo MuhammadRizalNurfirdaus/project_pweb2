@@ -42,7 +42,9 @@ if (!@include_once __DIR__ . '/template/header.php') {
 
 <div class="main-page-content">
 
-  <section class="hero-video-background text-white text-center d-flex align-items-center">
+  <!-- MODIFIED SECTION: Added inline style for background-image -->
+  <section class="hero-video-background text-white text-center d-flex align-items-center" 
+           style="background-image: url('<?= $base_url ?>public/img/gajebo.jpg'); background-size: cover; background-position: center;">
     <!-- Video latar belakang dengan poster untuk browser yang tidak mendukung video autoplay -->
     <video playsinline autoplay muted loop poster="<?= $base_url ?>public/img/background_poster.jpg" id="bgvid" aria-label="Video latar pemandangan Lembah Cilengkrang">
       <source src="<?= $base_url ?>public/img/background.mp4" type="video/mp4">
@@ -50,7 +52,6 @@ if (!@include_once __DIR__ . '/template/header.php') {
     </video>
     <div class="hero-overlay"></div>
     <div class="container hero-content animate-on-scroll">
-      <!-- Logo di tengah hero sudah dihapus sesuai permintaan -->
 
       <h1 class="display-3 fw-bolder text-shadow-strong">Jelajahi Pesona Alam Cilengkrang</h1>
       <p class="lead my-4 col-lg-10 mx-auto text-shadow-soft">
@@ -66,6 +67,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
       </a>
     </div>
   </section>
+  <!-- END OF MODIFIED SECTION -->
 
   <section class="section-padding">
     <div class="container">
@@ -106,14 +108,14 @@ if (!@include_once __DIR__ . '/template/header.php') {
   <section class="section-padding bg-light-custom">
     <div class="container">
       <h2 class="section-title">Destinasi Populer Kami</h2>
-      <div class="row g-4">
+      <div class="row g-4 text-center">
         <?php
         // Data destinasi ini idealnya diambil dari database (tabel 'wisata')
         // Contoh data statis untuk sekarang:
         $destinasi_populer = [
           ['id_db' => 1, 'slug' => 'pemandian-air-panas', 'gambar' => 'air_panas.jpg', 'judul' => 'Pemandian Air Panas', 'deskripsi' => 'Rasakan relaksasi alami dengan berendam di air hangat pegunungan yang menyegarkan.'],
-          ['id_db' => 2, 'slug' => 'gazebo-area-santai', 'gambar' => 'gazebo.jpg', 'judul' => 'Gazebo & Area Santai', 'deskripsi' => 'Tempat ideal untuk bersantai bersama keluarga dengan pemandangan asri dan udara segar.'],
-          ['id_db' => 3, 'slug' => 'kolam-air-panas-keluarga', 'gambar' => 'kolam_air_panas.jpg', 'judul' => 'Kolam Air Panas Keluarga', 'deskripsi' => 'Nikmati momen relaksasi bersama keluarga di kolam air panas dengan suasana alam yang menenangkan.'],
+          ['id_db' => 2, 'slug' => 'bumi_perkemahan', 'gambar' => 'kemah.jpg', 'judul' => 'Bumi Perkemahan', 'deskripsi' => 'Tempat ideal untuk bersantai bersama keluarga dengan pemandangan asri dan udara segar.'],
+          ['id_db' => 3, 'slug' => 'air_terjun', 'gambar' => 'curug_cilengkrang.jpg', 'judul' => 'Air Terjun', 'deskripsi' => 'Air Terjun Cilengkarang, tersembunyi di balik pepohonan rindang, menyuguhkan keindahan alam yang menyejukkan.'],
         ];
         $delay_animasi = 0;
         foreach ($destinasi_populer as $dest) :
@@ -135,7 +137,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
       </div>
       <div class="text-center mt-5">
         <a href="<?= $base_url ?>wisata/semua_destinasi.php" class="btn btn-secondary btn-lg">
-          <i class="fas fa-th-large me-2"></i>Lihat Semua Destinasi
+          
         </a>
       </div>
     </div>

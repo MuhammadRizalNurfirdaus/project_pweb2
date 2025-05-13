@@ -562,7 +562,7 @@ body.dark-mode .navbar-public.navbar-transparent-on-top .btn.btn-warning:hover {
   box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
 }
 .btn:focus {
-  box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.5); 
+  box-shadow: 0 0 0 0.2rem rgba(30, 186, 56, 0.5); 
 }
 .btn-primary {
   background-color: var(--primary-color);
@@ -1296,5 +1296,5 @@ body.dark-mode {
   .testimonial-card-item blockquote { font-size: 1rem; }
   .hero-video-background { height: 70vh; min-height: 400px; }
   .theme-toggle-btn { width: 45px; height: 45px; font-size: 1rem; bottom: 20px; left: 20px;}
-  .back-to-top-btn { width: 45px; height: 45px; font-size: 1rem; bottom: 20px; right: 20px;}
+  .back-to-top-btn { width: 45px; height: 45px; font-size: 1rem; bottom: 20px; right: 20px;} 
 }
