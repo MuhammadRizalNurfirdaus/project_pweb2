@@ -2172,3 +2172,123 @@ Stack trace:
 [13-May-2025 14:04:06 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
 [13-May-2025 14:04:06 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
 [13-May-2025 14:04:06 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 14:49:00 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 14:49:04 Asia/Jakarta] Dashboard Error Artikel: MySQL server has gone away
+[13-May-2025 14:49:04 Asia/Jakarta] Dashboard Error Pemesanan Tiket: MySQL server has gone away
+[13-May-2025 14:49:04 Asia/Jakarta] Dashboard Error Pemesanan Sewa: MySQL server has gone away
+[13-May-2025 14:49:04 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 14:49:04 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 14:49:04 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 14:49:04 Asia/Jakarta] Dashboard Error Pendapatan: MySQL server has gone away
+[13-May-2025 14:49:08 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: No connection could be made because the target machine actively refused it in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php:7
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php(7): mysqli_connect('localhost', 'root', Object(SensitiveParameterValue), 'cilengkrang_web...')
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\config.php(82): require_once('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\Cilengkrang-Web-Wisata\index.php(5): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php on line 7
+[13-May-2025 14:49:12 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: No connection could be made because the target machine actively refused it in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php:7
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php(7): mysqli_connect('localhost', 'root', Object(SensitiveParameterValue), 'cilengkrang_web...')
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\config.php(82): require_once('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php(5): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php on line 7
+[13-May-2025 14:49:16 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: No connection could be made because the target machine actively refused it in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php:7
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php(7): mysqli_connect('localhost', 'root', Object(SensitiveParameterValue), 'cilengkrang_web...')
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\config.php(82): require_once('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\Cilengkrang-Web-Wisata\index.php(5): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php on line 7
+[13-May-2025 14:54:06 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: No connection could be made because the target machine actively refused it in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php:7
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php(7): mysqli_connect('localhost', 'root', Object(SensitiveParameterValue), 'cilengkrang_web...')
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\config.php(82): require_once('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php(5): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php on line 7
+[13-May-2025 14:54:10 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: No connection could be made because the target machine actively refused it in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php:7
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php(7): mysqli_connect('localhost', 'root', Object(SensitiveParameterValue), 'cilengkrang_web...')
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\config.php(82): require_once('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php(5): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php on line 7
+[13-May-2025 14:54:14 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: No connection could be made because the target machine actively refused it in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php:7
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php(7): mysqli_connect('localhost', 'root', Object(SensitiveParameterValue), 'cilengkrang_web...')
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\config.php(82): require_once('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php(5): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php on line 7
+[13-May-2025 14:54:48 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: No connection could be made because the target machine actively refused it in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php:7
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php(7): mysqli_connect('localhost', 'root', Object(SensitiveParameterValue), 'cilengkrang_web...')
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\config.php(82): require_once('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php(5): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php on line 7
+[13-May-2025 14:55:22 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: No connection could be made because the target machine actively refused it in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php:7
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php(7): mysqli_connect('localhost', 'root', Object(SensitiveParameterValue), 'cilengkrang_web...')
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\config.php(82): require_once('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\dashboard.php(5): require_once('C:\\xampp\\htdocs...')
+#3 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\config\Koneksi.php on line 7
+[13-May-2025 14:56:02 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 14:56:02 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 14:56:02 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 14:56:02 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 14:56:11 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 14:56:17 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 14:56:56 Asia/Jakarta] Peringatan: Fungsi getSewaStatusBadgeClass() tidak ditemukan.
+[13-May-2025 14:56:59 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function getStatusBadgeClassHTML() in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_tiket\detail_pemesanan.php:151
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_tiket\detail_pemesanan.php on line 151
+[13-May-2025 14:57:03 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 14:57:05 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 14:57:06 Asia/Jakarta] Peringatan: Fungsi getSewaStatusBadgeClass() tidak ditemukan.
+[13-May-2025 14:57:27 Asia/Jakarta] Peringatan: Fungsi getSewaStatusBadgeClass() tidak ditemukan.
+[13-May-2025 14:57:32 Asia/Jakarta] proses_update_status_sewa.php: Akan redirect ke: http://localhost/Cilengkrang-Web-Wisata/admin/pemesanan_sewa/kelola_pemesanan_sewa.php
+[13-May-2025 14:57:36 Asia/Jakarta] Peringatan: Fungsi getSewaStatusBadgeClass() tidak ditemukan.
+[13-May-2025 14:57:45 Asia/Jakarta] proses_update_status_sewa.php: Akan redirect ke: http://localhost/Cilengkrang-Web-Wisata/admin/pemesanan_sewa/kelola_pemesanan_sewa.php
+[13-May-2025 14:57:50 Asia/Jakarta] Peringatan: Fungsi getSewaStatusBadgeClass() tidak ditemukan.
+[13-May-2025 14:58:15 Asia/Jakarta] PHP Warning:  Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php:53) in C:\xampp\htdocs\Cilengkrang-Web-Wisata\includes\helpers.php on line 43
+[13-May-2025 14:58:20 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 14:58:20 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 14:58:20 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 14:58:20 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 14:58:30 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 14:58:30 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 14:58:30 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 14:58:30 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 15:02:33 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function redirect_if_not_logged_in() in C:\xampp\htdocs\Cilengkrang-Web-Wisata\user\riwayat_pemesanan.php:12
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\user\riwayat_pemesanan.php on line 12
+[13-May-2025 15:02:54 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 15:02:54 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 15:02:54 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 15:02:54 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 15:04:47 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function redirect_if_not_logged_in() in C:\xampp\htdocs\Cilengkrang-Web-Wisata\user\riwayat_pemesanan.php:12
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\user\riwayat_pemesanan.php on line 12
+[13-May-2025 15:05:06 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 15:05:06 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 15:05:06 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 15:05:06 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 15:05:15 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function getStatusBadgeClassHTML() in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_tiket\detail_pemesanan.php:151
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_tiket\detail_pemesanan.php on line 151
+[13-May-2025 15:09:07 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 15:09:07 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 15:09:07 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 15:09:07 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 15:10:24 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function getStatusBadgeClassHTML() in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_tiket\detail_pemesanan.php:151
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_tiket\detail_pemesanan.php on line 151

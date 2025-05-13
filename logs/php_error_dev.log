@@ -1,0 +1,76 @@
+[13-May-2025 15:36:18 Asia/Jakarta] Error mengambil detail pemesanan lengkap (ID: 1): Call to undefined method PemesananTiket::getById()
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_tiket\detail_pemesanan.php(44): PemesananTiketController::getDetailPemesananLengkap(1)
+#1 {main}
+[13-May-2025 15:36:18 Asia/Jakarta] PHP Warning:  Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php:53) in C:\xampp\htdocs\Cilengkrang-Web-Wisata\includes\helpers.php on line 43
+[13-May-2025 15:39:23 Asia/Jakarta] Error mengambil detail pemesanan lengkap (ID: 1): Call to undefined method PemesananTiket::getById()
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_tiket\detail_pemesanan.php(44): PemesananTiketController::getDetailPemesananLengkap(1)
+#1 {main}
+[13-May-2025 15:39:23 Asia/Jakarta] Peringatan di fungsi redirect(): Headers sudah terkirim. Output dimulai di C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php pada baris 53. Redirect ke 'http://localhost/Cilengkrang-Web-Wisata/admin/pemesanan_tiket/kelola_pemesanan.php' mungkin gagal di sisi server.
+[13-May-2025 15:39:33 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:39:37 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:39:37 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:39:44 Asia/Jakarta] Error mengambil detail pemesanan lengkap (ID: 1): Call to undefined method PemesananTiket::getById()
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_tiket\detail_pemesanan.php(44): PemesananTiketController::getDetailPemesananLengkap(1)
+#1 {main}
+[13-May-2025 15:39:44 Asia/Jakarta] Peringatan di fungsi redirect(): Headers sudah terkirim. Output dimulai di C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php pada baris 53. Redirect ke 'http://localhost/Cilengkrang-Web-Wisata/admin/pemesanan_tiket/kelola_pemesanan.php' mungkin gagal di sisi server.
+[13-May-2025 15:39:49 Asia/Jakarta] PembayaranController::getAllPembayaranForAdmin() - Model Pembayaran atau metode findAllWithKodePemesanan tidak ada.
+[13-May-2025 15:39:52 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:39:55 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:39:55 Asia/Jakarta] Dashboard Peringatan: Model/Metode SewaAlat::countAll tidak tersedia.
+[13-May-2025 15:39:55 Asia/Jakarta] Dashboard Peringatan: Model/Metode Feedback::countAll tidak tersedia.
+[13-May-2025 15:39:55 Asia/Jakarta] Dashboard Peringatan: Model/Metode User::countAll tidak tersedia.
+[13-May-2025 15:39:55 Asia/Jakarta] Pembayaran - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:40:08 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:40:08 Asia/Jakarta] Dashboard Peringatan: Model/Metode SewaAlat::countAll tidak tersedia.
+[13-May-2025 15:40:08 Asia/Jakarta] Dashboard Peringatan: Model/Metode Feedback::countAll tidak tersedia.
+[13-May-2025 15:40:08 Asia/Jakarta] Dashboard Peringatan: Model/Metode User::countAll tidak tersedia.
+[13-May-2025 15:40:08 Asia/Jakarta] Pembayaran - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:40:13 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:40:13 Asia/Jakarta] Dashboard Peringatan: Model/Metode SewaAlat::countAll tidak tersedia.
+[13-May-2025 15:40:13 Asia/Jakarta] Dashboard Peringatan: Model/Metode Feedback::countAll tidak tersedia.
+[13-May-2025 15:40:13 Asia/Jakarta] Dashboard Peringatan: Model/Metode User::countAll tidak tersedia.
+[13-May-2025 15:40:13 Asia/Jakarta] Pembayaran - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:40:25 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 15:40:33 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:40:33 Asia/Jakarta] Dashboard Peringatan: Model/Metode SewaAlat::countAll tidak tersedia.
+[13-May-2025 15:40:33 Asia/Jakarta] Dashboard Peringatan: Model/Metode Feedback::countAll tidak tersedia.
+[13-May-2025 15:40:33 Asia/Jakarta] Dashboard Peringatan: Model/Metode User::countAll tidak tersedia.
+[13-May-2025 15:40:33 Asia/Jakarta] Pembayaran - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:59:41 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset atau bukan objek mysqli.
+[13-May-2025 15:59:42 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset atau bukan objek mysqli.
+[13-May-2025 15:59:42 Asia/Jakarta] PemesananSewaAlat - Koneksi database tidak tersedia atau gagal: Koneksi belum diset atau bukan objek mysqli.
+[13-May-2025 15:59:42 Asia/Jakarta] SewaAlat - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:59:42 Asia/Jakarta] Feedback - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:59:42 Asia/Jakarta] User - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 15:59:42 Asia/Jakarta] Pembayaran - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 16:01:24 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset atau bukan objek mysqli.
+[13-May-2025 16:01:24 Asia/Jakarta] PemesananSewaAlat - Koneksi database tidak tersedia atau gagal: Koneksi belum diset atau bukan objek mysqli.
+[13-May-2025 16:01:24 Asia/Jakarta] SewaAlat - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 16:01:24 Asia/Jakarta] Feedback - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 16:01:24 Asia/Jakarta] User - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 16:01:24 Asia/Jakarta] Pembayaran - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 16:08:52 Asia/Jakarta] PembayaranController::getAllPembayaranForAdmin() - Model Pembayaran atau metode findAllWithKodePemesanan tidak ada.
+[13-May-2025 16:08:54 Asia/Jakarta] PemesananSewaAlat - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset.
+[13-May-2025 16:08:56 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 16:08:59 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset atau bukan objek mysqli.
+[13-May-2025 16:09:01 Asia/Jakarta] PemesananSewaAlat - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset.
+[13-May-2025 16:09:03 Asia/Jakarta] PembayaranController::getAllPembayaranForAdmin() - Model Pembayaran atau metode findAllWithKodePemesanan tidak ada.
+[13-May-2025 16:09:08 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset atau bukan objek mysqli.
+[13-May-2025 16:09:08 Asia/Jakarta] PemesananSewaAlat - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset.
+[13-May-2025 16:09:08 Asia/Jakarta] SewaAlat - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 16:09:08 Asia/Jakarta] Feedback - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 16:09:08 Asia/Jakarta] User - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 16:09:08 Asia/Jakarta] Pembayaran - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 16:09:12 Asia/Jakarta] PembayaranController::getAllPembayaranForAdmin() - Model Pembayaran atau metode findAllWithKodePemesanan tidak ada.
+[13-May-2025 16:09:16 Asia/Jakarta] PembayaranController::getAllPembayaranForAdmin() - Model Pembayaran atau metode findAllWithKodePemesanan tidak ada.
+[13-May-2025 16:09:22 Asia/Jakarta] PemesananTiket - Koneksi database tidak tersedia atau gagal: Koneksi belum diset atau bukan objek mysqli.
+[13-May-2025 16:09:22 Asia/Jakarta] PemesananSewaAlat - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset.
+[13-May-2025 16:09:22 Asia/Jakarta] SewaAlat - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 16:09:22 Asia/Jakarta] Feedback - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 16:09:22 Asia/Jakarta] User - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 16:09:22 Asia/Jakarta] Pembayaran - Koneksi database tidak tersedia atau gagal: Koneksi belum diset.
+[13-May-2025 16:53:55 Asia/Jakarta] Error di kelola_users.php saat User::getAll(): Unknown column 'nama_lengkap' in 'field list'
+[13-May-2025 17:13:02 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function generate_csrf_token() in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\kelola_users.php:124
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\kelola_users.php on line 124

@@ -26,24 +26,41 @@ if (!function_exists('e')) {
 if (!function_exists('redirect')) {
     /**
      * Mengarahkan pengguna ke URL lain dalam aplikasi.
-     * Selalu panggil exit() setelah header redirect untuk menghentikan eksekusi skrip.
-     * @param string $path Path tujuan relatif terhadap BASE_URL (misal: 'auth/login.php' atau 'admin/dashboard.php').
+     * @param string $path Path tujuan relatif terhadap BASE_URL (misal: 'auth/login.php') atau URL absolut.
      */
     function redirect($path)
     {
-        if (!defined('BASE_URL')) {
-            error_log("FATAL ERROR di fungsi redirect(): Konstanta BASE_URL tidak terdefinisi. Pastikan config.php dimuat dengan benar dan mendefinisikan BASE_URL.");
-            // Darurat jika BASE_URL tidak ada, coba redirect ke root path relatif.
-            // Ini mungkin tidak selalu bekerja tergantung konfigurasi server.
-            $fallback_path = '/' . ltrim((string)$path, '/'); // Pastikan path adalah string
-            header('Location: ' . $fallback_path);
-            exit("Kesalahan konfigurasi fatal: BASE_URL tidak ditemukan. Proses redirect dibatalkan.");
+        $path_str = (string)$path; // Pastikan path adalah string
+
+        if (preg_match('#^https?://#i', $path_str)) { // Cek jika path adalah URL absolut
+            $location = $path_str;
+        } else { // Jika path relatif
+            if (!defined('BASE_URL')) {
+                error_log("FATAL ERROR di fungsi redirect(): Konstanta BASE_URL tidak terdefinisi. Tidak dapat melakukan redirect ke path relatif: " . e($path_str));
+                // Jika BASE_URL tidak ada, ini adalah masalah konfigurasi serius.
+                http_response_code(500); // Internal Server Error
+                exit("Kesalahan Konfigurasi Server: URL dasar aplikasi tidak ditemukan. Proses redirect dibatalkan.");
+            }
+            // BASE_URL sudah dipastikan diakhiri dengan slash oleh config.php
+            // ltrim() untuk menghapus slash di awal path jika ada, agar tidak jadi double slash
+            $location = BASE_URL . ltrim($path_str, '/');
         }
-        // Hapus slash di awal $path jika ada, karena BASE_URL sudah diakhiri slash.
-        header('Location: ' . BASE_URL . ltrim((string)$path, '/'));
-        exit;
+
+        if (!headers_sent($file, $line)) {
+            header('Location: ' . $location);
+            exit; // Selalu exit setelah header redirect
+        } else {
+            // Jika header sudah terkirim, redirect via header tidak akan berfungsi.
+            error_log("Peringatan di fungsi redirect(): Headers sudah terkirim. Output dimulai di {$file} pada baris {$line}. Redirect ke '{$location}' mungkin gagal di sisi server.");
+            // Tampilkan link fallback ke pengguna
+            echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Redirecting...</title></head><body>";
+            echo "<p>Proses selesai. Jika Anda tidak diarahkan secara otomatis, silakan <a href=\"" . e($location) . "\">klik di sini</a>.</p>";
+            echo "</body></html>";
+            exit; // Tetap exit untuk menghentikan eksekusi skrip saat ini
+        }
     }
 }
+
 
 if (!function_exists('formatRupiah')) {
     /**
@@ -63,39 +80,34 @@ if (!function_exists('formatRupiah')) {
 if (!function_exists('formatTanggalIndonesia')) {
     /**
      * Mengubah format tanggal dari YYYY-MM-DD HH:MM:SS atau YYYY-MM-DD
-     * menjadi format Indonesia (contoh: 12 Mei 2024, 15:30 atau 12 Mei 2024).
+     * menjadi format Indonesia.
      * @param string|null $tanggal_mysql Tanggal dalam format MySQL.
-     * @param bool $dengan_waktu True untuk menyertakan waktu, false hanya tanggal.
-     * @param bool $hari_singkat True untuk nama hari singkat (Min, Sen), false untuk nama hari lengkap.
+     * @param bool $dengan_waktu True untuk menyertakan waktu (HH:MM).
+     * @param bool $dengan_hari True untuk menyertakan nama hari (Senin, Selasa, dst. atau Sen, Sel, dst.).
+     * @param bool $hari_singkat True jika $dengan_hari true, gunakan nama hari singkat (Sen, Sel), false untuk nama lengkap.
      * @return string Tanggal dalam format Indonesia atau '-' jika input tidak valid atau kosong.
      */
-    function formatTanggalIndonesia($tanggal_mysql, $dengan_waktu = false, $hari_singkat = false)
+    function formatTanggalIndonesia($tanggal_mysql, $dengan_waktu = false, $dengan_hari = false, $hari_singkat = false)
     {
-        if (empty($tanggal_mysql) || $tanggal_mysql === '0000-00-00' || $tanggal_mysql === '0000-00-00 00:00:00') {
-            return '-'; // Return placeholder untuk tanggal tidak valid/kosong
+        if (empty($tanggal_mysql) || $tanggal_mysql === '0000-00-00' || $tanggal_mysql === '0000-00-00 00:00:00' || $tanggal_mysql === null) {
+            return '-';
         }
 
         try {
-            // Pastikan timezone default sudah diset (seharusnya di config.php)
-            // Ini sebagai pengaman tambahan jika fungsi dipanggil dari konteks lain.
-            if (empty(date_default_timezone_get()) || date_default_timezone_get() === 'UTC') {
-                date_default_timezone_set('Asia/Jakarta'); // Set default jika belum atau UTC
+            // Zona waktu seharusnya sudah diset di config.php
+            if (empty(date_default_timezone_get()) || !in_array(date_default_timezone_get(), timezone_identifiers_list(DateTimeZone::ASIA))) {
+                error_log("Peringatan di formatTanggalIndonesia(): Timezone default belum diset atau bukan Asia. Menggunakan Asia/Jakarta.");
+                date_default_timezone_set('Asia/Jakarta');
             }
             $date_obj = new DateTime($tanggal_mysql);
         } catch (Exception $e) {
-            error_log("Error formatTanggalIndonesia: Tanggal input tidak valid - '" . e($tanggal_mysql) . "' - Pesan Exception: " . $e->getMessage());
-            return '-'; // Kembalikan placeholder jika tanggal tidak bisa diparsing
+            error_log("Error di formatTanggalIndonesia(): Tanggal input tidak valid - '" . e((string)$tanggal_mysql) . "' - Pesan: " . $e->getMessage());
+            return '-';
         }
 
-        $nama_hari_id = [
-            'Sunday'    => $hari_singkat ? 'Min' : 'Minggu',
-            'Monday'    => $hari_singkat ? 'Sen' : 'Senin',
-            'Tuesday'   => $hari_singkat ? 'Sel' : 'Selasa',
-            'Wednesday' => $hari_singkat ? 'Rab' : 'Rabu',
-            'Thursday'  => $hari_singkat ? 'Kam' : 'Kamis',
-            'Friday'    => $hari_singkat ? 'Jum' : 'Jumat',
-            'Saturday'  => $hari_singkat ? 'Sab' : 'Sabtu'
-        ];
+        $nama_hari_panjang_id = ['Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'];
+        $nama_hari_singkat_id = ['Sunday' => 'Min', 'Monday' => 'Sen', 'Tuesday' => 'Sel', 'Wednesday' => 'Rab', 'Thursday' => 'Kam', 'Friday' => 'Jum', 'Saturday' => 'Sab'];
+
         $nama_bulan_id = [
             1 => 'Januari',
             2 => 'Februari',
@@ -111,27 +123,30 @@ if (!function_exists('formatTanggalIndonesia')) {
             12 => 'Desember'
         ];
 
-        $hari_en = $date_obj->format('l'); // Nama hari lengkap dalam bahasa Inggris
-        $hari_id = $nama_hari_id[$hari_en] ?? $hari_en; // Fallback ke nama Inggris jika tidak ada
+        $hari_en = $date_obj->format('l');
+        $nama_hari_yang_dipakai = $hari_singkat ? $nama_hari_singkat_id : $nama_hari_panjang_id;
+        $hari_id = $nama_hari_yang_dipakai[$hari_en] ?? $hari_en;
 
-        $tanggal = $date_obj->format('j');    // Tanggal (1-31)
-        $bulan_idx = (int)$date_obj->format('n'); // Bulan (1-12)
-        $bulan_id = $nama_bulan_id[$bulan_idx] ?? $date_obj->format('M'); // Fallback ke nama bulan singkat Inggris
-        $tahun = $date_obj->format('Y');    // Tahun (4 digit)
+        $tanggal = $date_obj->format('j');
+        $bulan_idx = (int)$date_obj->format('n');
+        $bulan_id = $nama_bulan_id[$bulan_idx] ?? $date_obj->format('M');
+        $tahun = $date_obj->format('Y');
 
-        $format_indonesia = $tanggal . ' ' . $bulan_id . ' ' . $tahun;
+        $format_indonesia = '';
+        if ($dengan_hari) {
+            $format_indonesia .= $hari_id . ', ';
+        }
+        $format_indonesia .= $tanggal . ' ' . $bulan_id . ' ' . $tahun;
 
         if ($dengan_waktu) {
-            // Cek apakah string tanggal input mengandung ':' yang menandakan ada waktu
-            if (strpos($tanggal_mysql, ':') !== false) {
-                $format_indonesia .= ', ' . $date_obj->format('H:i'); // Tambah Jam:Menit
+            if (strpos($tanggal_mysql, ':') !== false && $tanggal_mysql !== $date_obj->format('Y-m-d')) {
+                $format_indonesia .= ', ' . $date_obj->format('H:i');
             }
         }
-        // Jika ingin menyertakan nama hari:
-        // return $hari_id . ', ' . $format_indonesia;
         return $format_indonesia;
     }
 }
+
 
 if (!function_exists('is_post')) {
     /**
@@ -157,34 +172,31 @@ if (!function_exists('is_get')) {
 
 if (!function_exists('input')) {
     /**
-     * Mengambil data input dari POST atau GET.
+     * Mengambil data input dari POST, GET, atau REQUEST.
      * Melakukan trim pada string.
-     * @param string $key Kunci dari data input (nama field form).
-     * @param mixed $default Nilai default jika kunci tidak ditemukan atau kosong setelah trim (opsional).
-     * @param string $method Metode 'post' atau 'get' (default 'post').
+     * @param string $key Kunci dari data input.
+     * @param mixed $default Nilai default jika kunci tidak ditemukan.
+     * @param string|null $method Metode 'post', 'get', atau null (untuk $_REQUEST).
      * @return mixed Nilai input yang sudah di-trim atau nilai default.
      */
-    function input($key, $default = null, $method = 'post')
+    function input($key, $default = null, $method = null)
     {
         $source = null;
-        if (strtolower($method) === 'post') {
+        $request_method = strtolower((string)$method);
+
+        if ($request_method === 'post') {
             $source = $_POST;
-        } elseif (strtolower($method) === 'get') {
+        } elseif ($request_method === 'get') {
             $source = $_GET;
+        } else {
+            $source = $_REQUEST;
         }
 
-        if ($source !== null && isset($source[$key])) {
+        if (isset($source[$key])) {
             if (is_string($source[$key])) {
-                $value = trim($source[$key]);
-                // Kembalikan default jika string menjadi kosong setelah trim,
-                // kecuali jika defaultnya memang string kosong dan itu yang diinginkan.
-                // Ini opsional, tergantung kebutuhan Anda.
-                // if ($value === '' && $default !== '') {
-                //     return $default;
-                // }
-                return $value;
+                return trim($source[$key]);
             }
-            return $source[$key]; // Kembalikan nilai asli jika bukan string (misal array)
+            return $source[$key];
         }
         return $default;
     }
@@ -201,33 +213,144 @@ if (!function_exists('excerpt')) {
      */
     function excerpt($text, $limit = 100, $ellipsis = '...')
     {
-        if ($text === null) {
+        if ($text === null || $text === '') {
             return '';
         }
-        $text_clean = strip_tags((string)$text); // Hapus tag HTML dan pastikan string
+        $text_clean = strip_tags((string)$text);
         if (mb_strlen($text_clean, 'UTF-8') > $limit) {
             $text_cut = mb_substr($text_clean, 0, $limit, 'UTF-8');
-            // Cari spasi terakhir dalam potongan teks
             $last_space = mb_strrpos($text_cut, ' ', 0, 'UTF-8');
             if ($last_space !== false) {
-                // Potong pada spasi terakhir jika ditemukan
-                $text_final = mb_substr($text_cut, 0, $last_space, 'UTF-8');
+                $text_final = rtrim(mb_substr($text_cut, 0, $last_space, 'UTF-8'));
             } else {
-                // Jika tidak ada spasi, potong langsung pada limit (mungkin memotong kata)
                 $text_final = $text_cut;
             }
             return $text_final . $ellipsis;
         }
-        return $text_clean; // Kembalikan teks bersih jika sudah di bawah limit
+        return $text_clean;
     }
 }
 
-// Tambahkan fungsi helper lain yang mungkin Anda perlukan
-// seperti fungsi untuk validasi email, URL, angka, dll.
-// Contoh:
 if (!function_exists('is_valid_email')) {
+    /**
+     * Memvalidasi apakah format email valid.
+     * @param string $email Email yang akan divalidasi.
+     * @return bool True jika valid, false jika tidak.
+     */
     function is_valid_email($email)
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 }
+
+if (!function_exists('getStatusBadgeClass')) {
+    /**
+     * Mengembalikan kelas CSS Bootstrap berdasarkan status umum.
+     * @param string $status Status.
+     * @return string Kelas CSS.
+     */
+    function getStatusBadgeClass($status)
+    {
+        switch (strtolower(trim((string)$status))) {
+            case 'success':
+            case 'paid':
+            case 'confirmed':
+            case 'completed':
+            case 'lunas':
+            case 'aktif':
+                return 'success';
+            case 'pending':
+            case 'waiting_payment':
+            case 'awaiting_confirmation':
+            case 'menunggu pembayaran':
+            case 'menunggu konfirmasi':
+                return 'warning text-dark';
+            case 'failed':
+            case 'expired':
+            case 'cancelled':
+            case 'refunded':
+            case 'gagal':
+            case 'kadaluarsa':
+            case 'dibatalkan':
+            case 'tidak aktif':
+                return 'danger';
+            case 'info':
+            case 'diproses':
+                return 'info text-dark';
+            default:
+                return 'secondary';
+        }
+    }
+}
+
+if (!function_exists('getStatusBadgeClassHTML')) {
+    /**
+     * Menghasilkan HTML untuk badge status umum.
+     * @param string $status_raw Status mentah.
+     * @param string $default_text Teks default jika status kosong.
+     * @return string HTML badge.
+     */
+    function getStatusBadgeClassHTML($status_raw, $default_text = 'Tidak Diketahui')
+    {
+        $status_clean = strtolower(trim((string)$status_raw));
+        $display_text = !empty($status_clean) ? ucfirst(str_replace('_', ' ', $status_clean)) : $default_text;
+        $badge_class_suffix = getStatusBadgeClass($status_clean);
+
+        return '<span class="badge rounded-pill bg-' . e($badge_class_suffix) . '">' . e($display_text) . '</span>';
+    }
+}
+
+if (!function_exists('getSewaStatusBadgeClass')) {
+    /**
+     * Mengembalikan kelas CSS Bootstrap berdasarkan status sewa.
+     * @param string $status Status sewa.
+     * @return string Kelas CSS.
+     */
+    function getSewaStatusBadgeClass($status)
+    {
+        switch (strtolower(trim((string)$status))) {
+            case 'dipesan':
+                return 'warning text-dark';
+            case 'diambil':
+            case 'disewa':
+                return 'info text-dark';
+            case 'dikembalikan':
+                return 'success';
+            case 'hilang':
+            case 'rusak':
+            case 'dibatalkan_sewa':
+                return 'danger';
+            default:
+                return 'secondary';
+        }
+    }
+}
+
+if (!function_exists('getSewaStatusBadgeClassHTML')) {
+    /**
+     * Menghasilkan HTML untuk badge status sewa.
+     * @param string $status_raw Status sewa mentah.
+     * @param string $default_text Teks default jika status kosong.
+     * @return string HTML badge.
+     */
+    function getSewaStatusBadgeClassHTML($status_raw, $default_text = 'Tidak Diketahui')
+    {
+        $status_clean = strtolower(trim((string)$status_raw));
+        $display_text = !empty($status_clean) ? ucfirst(str_replace('_', ' ', $status_clean)) : $default_text;
+        $badge_class_suffix = getSewaStatusBadgeClass($status_clean);
+
+        return '<span class="badge rounded-pill bg-' . e($badge_class_suffix) . '">' . e($display_text) . '</span>';
+    }
+}
+function generate_csrf_token()
+{
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+// Tidak ada tag PHP penutup jika ini adalah akhir dari file dan hanya berisi kode PHP.

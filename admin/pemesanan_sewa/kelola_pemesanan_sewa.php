@@ -1,71 +1,70 @@
 <?php
 // File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_sewa\kelola_pemesanan_sewa.php
 
-// 1. Sertakan config.php (memuat $conn, helpers, auth_helpers)
+// LANGKAH 1: Pastikan config.php dimuat PERTAMA dan TANPA ERROR
+// Pastikan config.php includes helpers.php EARLY, and defines BASE_URL and ADMIN_URL correctly.
 if (!require_once __DIR__ . '/../../config/config.php') {
     http_response_code(503);
-    error_log("FATAL: Gagal memuat config.php dari kelola_pemesanan_sewa.php");
-    exit("Kesalahan Server: Konfigurasi tidak dapat dimuat.");
-}
-
-// 2. Otentikasi Admin
-require_admin();
-$pageTitle = "Manajemen Pemesanan Sewa Alat";
-if (!include_once __DIR__ . '/../../template/header_admin.php') {
-    http_response_code(500);
-    error_log("FATAL: Gagal memuat template/header_admin.php dari kelola_pemesanan_sewa.php.");
-    echo "<p style='color:red; font-family: sans-serif, Arial; padding: 20px;'>Error Kritis: Gagal memuat komponen header halaman admin.</p>";
+    $config_path = realpath(__DIR__ . '/../../config/config.php');
+    $error_msg_config = "FATAL ERROR: Tidak dapat memuat file konfigurasi utama (config.php). Path: " . ($config_path ?: "Tidak valid/ada") . ". Periksa file dan log server.";
+    error_log($error_msg_config);
+    // It's better to use htmlspecialchars for displaying error messages if they might contain user input or special chars.
+    echo "<div style='font-family:Arial,sans-serif;border:2px solid red;padding:15px;margin:20px;background-color:#ffebee;color:#c62828;'><strong>Kesalahan Server Kritis</strong><br>Tidak dapat memuat konfigurasi. Aplikasi tidak dapat berjalan.<br><small>Detail: " . htmlspecialchars($error_msg_config, ENT_QUOTES, 'UTF-8') . "</small></div>";
     exit;
 }
-// 3. Sertakan Controller yang diperlukan
-if (!require_once __DIR__ . '/../../controllers/PemesananSewaAlatController.php') {
-    http_response_code(500);
-    error_log("FATAL: Gagal memuat PemesananSewaAlatController.php dari kelola_pemesanan_sewa.php");
-    set_flash_message('danger', 'Kesalahan sistem: Komponen pemesanan tidak dapat dimuat.');
-    redirect('admin/dashboard.php');
-}
 
-// 4. Pengambilan dan Pemfilteran Data
-$daftarPemesananSewa = [];
-$filter_status_sewa_url = isset($_GET['status']) ? trim(strtolower($_GET['status'])) : null;
-$page_subtitle = '';
-$pesan_error_saat_ambil_data = null;
-
-if (class_exists('PemesananSewaAlatController') && method_exists('PemesananSewaAlatController', 'getAllPemesananSewaForAdmin')) {
+// LANGKAH 2: Panggil Otentikasi Admin
+// This function might call redirect(). Ensure helpers.php (with corrected redirect) is loaded via config.php.
+if (function_exists('require_admin')) {
     try {
-        $semua_data_pemesanan_sewa = PemesananSewaAlatController::getAllPemesananSewaForAdmin(); // Ini akan memanggil model yg sudah di-JOIN
-
-        if ($filter_status_sewa_url && is_array($semua_data_pemesanan_sewa) && !empty($semua_data_pemesanan_sewa)) {
-            $daftarPemesananSewa = array_filter($semua_data_pemesanan_sewa, function ($ps) use ($filter_status_sewa_url) {
-                return isset($ps['status_item_sewa']) && strtolower($ps['status_item_sewa']) === $filter_status_sewa_url;
-            });
-            if (!empty($filter_status_sewa_url)) {
-                $page_subtitle = "(Filter Status: " . e(ucfirst($filter_status_sewa_url)) . ")";
-            }
+        require_admin();
+    } catch (Throwable $e) { // Catch potential errors from require_admin
+        error_log("ERROR di kelola_pemesanan_sewa.php saat memanggil require_admin(): " . $e->getMessage());
+        if (function_exists('set_flash_message') && function_exists('redirect')) {
+            set_flash_message('danger', 'Sesi tidak valid atau terjadi kesalahan otentikasi.');
+            redirect('auth/login.php'); // This should use the corrected redirect
         } else {
-            $daftarPemesananSewa = $semua_data_pemesanan_sewa;
-        }
-    } catch (Throwable $e) {
-        error_log("Error di kelola_pemesanan_sewa.php saat mengambil data: " . $e->getMessage() . "\n" . $e->getTraceAsString());
-        $pesan_error_saat_ambil_data = 'Terjadi kesalahan saat mencoba memuat data pemesanan sewa.';
-        if (!isset($_SESSION['flash_message'])) {
-            set_flash_message('danger', $pesan_error_saat_ambil_data);
+            http_response_code(403);
+            die("Error: Akses ditolak atau fungsi otentikasi tidak tersedia.");
         }
     }
 } else {
-    $pesan_error_saat_ambil_data = 'Kesalahan sistem: Controller atau metode untuk Pemesanan Sewa tidak ditemukan.';
-    error_log($pesan_error_saat_ambil_data);
-    if (!isset($_SESSION['flash_message'])) {
-        set_flash_message('danger', $pesan_error_saat_ambil_data);
+    error_log("FATAL ERROR di kelola_pemesanan_sewa.php: Fungsi require_admin() tidak ditemukan.");
+    if (function_exists('set_flash_message') && function_exists('redirect')) {
+        set_flash_message('danger', 'Kesalahan sistem otentikasi.');
+        redirect('auth/login.php'); // This should use the corrected redirect
+    } else {
+        http_response_code(500);
+        die("Error: Fungsi otentikasi sistem tidak tersedia.");
     }
 }
 
-// 5. Set judul halaman dan sertakan header admin
+// LANGKAH 3: Sertakan Controller yang diperlukan
+if (!require_once __DIR__ . '/../../controllers/PemesananSewaAlatController.php') {
+    http_response_code(500);
+    $controller_path = realpath(__DIR__ . '/../../controllers/PemesananSewaAlatController.php');
+    $error_msg_controller = "FATAL: Gagal memuat PemesananSewaAlatController.php. Path: " . ($controller_path ?: "Tidak valid/ada");
+    error_log($error_msg_controller . " dari kelola_pemesanan_sewa.php");
+    if (function_exists('set_flash_message') && function_exists('redirect')) {
+        set_flash_message('danger', 'Kesalahan sistem: Komponen pemesanan tidak dapat dimuat.');
+        redirect('admin/dashboard.php'); // This should use the corrected redirect
+    } else {
+        die("Error: Komponen penting tidak dapat dimuat.");
+    }
+}
+
+// LANGKAH 4: Set judul halaman dan SERTAKAN HEADER ADMIN
 $pageTitle = "Manajemen Pemesanan Sewa Alat";
 if (!include_once __DIR__ . '/../../template/header_admin.php') {
     http_response_code(500);
-    error_log("FATAL: Gagal memuat template/header_admin.php dari kelola_pemesanan_sewa.php.");
-    echo "<p style='color:red; font-family: sans-serif, Arial; padding: 20px;'>Error Kritis: Gagal memuat komponen header halaman admin.</p>";
+    $header_path = realpath(__DIR__ . '/../../template/header_admin.php');
+    $error_msg_header = "FATAL ERROR HALAMAN: Tidak dapat memuat file header admin (template/header_admin.php). Path: " . ($header_path ?: "Tidak valid/ada") . ". Periksa file dan log server.";
+    error_log($error_msg_header);
+    echo "<div style='font-family:Arial,sans-serif;border:2px solid red;padding:15px;margin:20px;background-color:#ffebee;color:#c62828;'><strong>Error Kritis Tampilan</strong><br>Gagal memuat template header.<br><small>Detail: " . htmlspecialchars($error_msg_header, ENT_QUOTES, 'UTF-8') . "</small></div>";
+    // Consider if exit is appropriate here or if footer should still be attempted. For fatal display errors, exit is often best.
+    if (function_exists('include_once') && @include_once __DIR__ . '/../../template/footer_admin.php') {
+        // Attempt to load footer for consistent page structure if possible
+    }
     exit;
 }
 ?>
@@ -79,30 +78,85 @@ if (!include_once __DIR__ . '/../../template/header_admin.php') {
 </nav>
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Manajemen Pemesanan Sewa Alat <small class="text-muted fs-5"><?= e($page_subtitle) ?></small></h1>
+    <h1 class="h2">Manajemen Pemesanan Sewa Alat
+        <small class="text-muted fs-6">
+            <?php
+            // Sanitize GET parameters
+            $filter_status_sewa_url_for_title = isset($_GET['status']) ? htmlspecialchars(trim(strtolower($_GET['status'])), ENT_QUOTES, 'UTF-8') : null;
+            if ($filter_status_sewa_url_for_title) {
+                echo "(Filter Status: " . e(ucfirst($filter_status_sewa_url_for_title)) . ")"; // e() already does htmlspecialchars
+            }
+            ?>
+        </small>
+    </h1>
 </div>
 
-<?php display_flash_message(); ?>
+<?php
+if (function_exists('display_flash_message')) {
+    display_flash_message();
+} else {
+    error_log("Peringatan: Fungsi display_flash_message() tidak ditemukan di kelola_pemesanan_sewa.php.");
+}
+?>
+
+<?php
+// Pengambilan Data
+$daftarPemesananSewa = [];
+$filter_status_sewa_url = isset($_GET['status']) ? trim(strtolower($_GET['status'])) : null; // Already sanitized for title, can reuse or re-sanitize if needed for DB
+$pesan_error_saat_ambil_data = null;
+
+if (isset($conn) && $conn instanceof mysqli && $conn->connect_error === null) { // Check connect_error explicitly for null for clarity
+    if (class_exists('PemesananSewaAlatController') && method_exists('PemesananSewaAlatController', 'getAllPemesananSewaForAdmin')) {
+        try {
+            $semua_data_pemesanan_sewa = PemesananSewaAlatController::getAllPemesananSewaForAdmin(); // Assuming controller needs $conn
+            if ($filter_status_sewa_url && is_array($semua_data_pemesanan_sewa) && !empty($semua_data_pemesanan_sewa)) {
+                $daftarPemesananSewa = array_filter($semua_data_pemesanan_sewa, function ($ps) use ($filter_status_sewa_url) {
+                    return isset($ps['status_item_sewa']) && strtolower(trim((string)$ps['status_item_sewa'])) === $filter_status_sewa_url;
+                });
+            } else {
+                $daftarPemesananSewa = $semua_data_pemesanan_sewa;
+            }
+        } catch (Throwable $e) { // Catch any type of error/exception
+            $pesan_error_saat_ambil_data = "Terjadi kesalahan saat mengambil data pemesanan: " . $e->getMessage();
+            error_log("ERROR getAllPemesananSewaForAdmin: " . $e->getMessage() . " Trace: " . $e->getTraceAsString());
+        }
+    } else {
+        $pesan_error_saat_ambil_data = "Komponen untuk mengambil data pemesanan tidak tersedia (controller/method missing).";
+        error_log("FATAL: PemesananSewaAlatController atau method getAllPemesananSewaForAdmin tidak ditemukan.");
+    }
+} else {
+    $db_error_msg = isset($conn) ? $conn->connect_error : "Objek koneksi tidak valid.";
+    $pesan_error_saat_ambil_data = "Tidak dapat terhubung ke database untuk mengambil data pemesanan. Detail: " . $db_error_msg;
+    error_log("FATAL: Gagal koneksi database di kelola_pemesanan_sewa.php. Error: " . $db_error_msg);
+}
+
+if ($pesan_error_saat_ambil_data && function_exists('set_flash_message')) {
+    // set_flash_message('danger', $pesan_error_saat_ambil_data); // Display as flash
+    // Or display directly:
+    echo '<div class="alert alert-danger" role="alert">' . e($pesan_error_saat_ambil_data) . '</div>';
+}
+?>
 
 <div class="card shadow mb-4">
-    <div class="card-header py-3">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-list me-2"></i>Daftar Pemesanan Sewa Alat</h6>
+        <!-- Optional: Add filter dropdown or refresh button here -->
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered table-hover table-striped align-middle" id="dataTablePemesananSewa" width="100%" cellspacing="0">
+            <table class="table table-bordered table-hover table-striped align-middle" id="dataTablePemesananSewa" style="width:100%;">
                 <thead class="table-dark">
                     <tr>
-                        <th scope="col" class="text-center" style="width:3%;">No.</th>
-                        <th scope="col" class="text-center" style="width:5%;">ID Sewa</th>
-                        <th scope="col" style="width:20%;">Pemesan (Tiket)</th>
-                        <th scope="col" style="width:15%;">Alat Disewa</th>
-                        <th scope="col" class="text-center" style="width:5%;">Jml</th>
-                        <th scope="col" style="width:15%;">Periode Sewa</th>
-                        <th scope="col" class="text-end" style="width:10%;">Total</th>
-                        <th scope="col" class="text-center" style="width:10%;">Status</th>
-                        <th scope="col" style="width:10%;">Tanggal Pesan Sewa</th> <!-- Perubahan Nama Kolom -->
-                        <th scope="col" class="text-center" style="width:12%;">Aksi</th>
+                        <th class="text-center" style="width:3%;">No.</th>
+                        <th class="text-center" style="width:5%;">ID Sewa</th>
+                        <th style="width:18%;">Pemesan (Info Tiket)</th>
+                        <th style="width:15%;">Alat Disewa</th>
+                        <th class="text-center" style="width:5%;">Jml</th>
+                        <th style="width:17%;">Periode Sewa</th>
+                        <th class="text-end" style="width:8%;">Total</th>
+                        <th class="text-center" style="width:10%;">Status</th>
+                        <th style="width:9%;">Tgl. Pesan</th>
+                        <th class="text-center" style="width:10%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -110,99 +164,102 @@ if (!include_once __DIR__ . '/../../template/header_admin.php') {
                         <?php $nomor_urut_visual = 1; ?>
                         <?php foreach ($daftarPemesananSewa as $pesanan): ?>
                             <?php
-                            $status_item = strtolower($pesanan['status_item_sewa'] ?? 'unknown');
+                            $status_item_display = strtolower(trim($pesanan['status_item_sewa'] ?? 'tidak diketahui'));
                             $rowClass = '';
-                            if (in_array($status_item, ['hilang', 'rusak', 'dibatalkan'])) {
+                            if (in_array($status_item_display, ['hilang', 'rusak', 'dibatalkan'])) {
                                 $rowClass = 'table-danger';
-                            } elseif ($status_item == 'dikembalikan') {
+                            } elseif ($status_item_display == 'dikembalikan') {
                                 $rowClass = 'table-success';
-                            } elseif ($status_item == 'diambil') {
+                            } elseif ($status_item_display == 'diambil') {
                                 $rowClass = 'table-info';
                             }
+                            // Ensure $pesanan['id'] exists for links and forms
+                            $pesanan_id_safe = e($pesanan['id'] ?? '');
                             ?>
                             <tr class="<?= e($rowClass) ?>">
                                 <td class="text-center"><?= $nomor_urut_visual++ ?></td>
                                 <td class="text-center"><strong><?= e($pesanan['id'] ?? '-') ?></strong></td>
                                 <td>
                                     <?php
-                                    // Menampilkan nama pemesan dari data JOIN yang diambil oleh Model PemesananSewaAlat::getAll()
-                                    // 'nama_pemesan' adalah alias dari COALESCE(u.nama, pt.nama_pemesan_tamu)
-                                    // 'id_user_pemesan_tiket' adalah alias dari pt.user_id
                                     $nama_pemesan_tiket_display = $pesanan['nama_pemesan'] ?? 'N/A';
                                     $id_user_pemesan_tiket_display = $pesanan['id_user_pemesan_tiket'] ?? null;
-
                                     if ($id_user_pemesan_tiket_display) {
-                                        echo '<i class="fas fa-user-check text-success me-1" title="Pengguna Terdaftar (Pemesanan Tiket)"></i> ';
-                                        echo e($nama_pemesan_tiket_display);
-                                        echo ' <small class="text-muted d-block">(User ID: ' . e($id_user_pemesan_tiket_display) . ')</small>';
-                                    } elseif (!empty($nama_pemesan_tiket_display) && $nama_pemesan_tiket_display !== 'N/A') { // Cek jika nama tamu ada
-                                        echo '<i class="fas fa-user-alt-slash text-muted me-1" title="Tamu (Pemesanan Tiket)"></i> ';
-                                        echo e($nama_pemesan_tiket_display);
+                                        echo '<i class="fas fa-user-check text-success me-1" title="Pengguna Terdaftar"></i> ';
                                     } else {
-                                        echo '<span class="text-muted">Pemesan Tiket Tidak Diketahui</span>';
+                                        echo '<i class="fas fa-user-alt-slash text-muted me-1" title="Tamu"></i> ';
                                     }
-
-                                    // Tampilkan Kode Pemesanan Tiket jika ada
-                                    // 'kode_pemesanan_tiket' adalah alias dari pt.kode_pemesanan
-                                    if (isset($pesanan['kode_pemesanan_tiket']) && !empty($pesanan['kode_pemesanan_tiket']) && isset($pesanan['pemesanan_tiket_id'])) {
-                                        echo '<small class="text-muted d-block">Kode Tiket: <a href="' . e(ADMIN_URL) . '/pemesanan_tiket/detail_pemesanan.php?id=' . e($pesanan['pemesanan_tiket_id']) . '" title="Lihat Detail Pemesanan Tiket">' . e($pesanan['kode_pemesanan_tiket']) . '</a></small>';
-                                    } elseif (isset($pesanan['pemesanan_tiket_id']) && !empty($pesanan['pemesanan_tiket_id'])) {
-                                        echo '<small class="text-muted d-block">Tiket ID: ' . e($pesanan['pemesanan_tiket_id']) . '</small>';
+                                    echo e($nama_pemesan_tiket_display);
+                                    if ($id_user_pemesan_tiket_display) {
+                                        echo ' <small class="text-muted d-block">(User ID: ' . e($id_user_pemesan_tiket_display) . ')</small>';
+                                    }
+                                    if (isset($pesanan['kode_pemesanan_tiket'], $pesanan['pemesanan_tiket_id']) && !empty($pesanan['kode_pemesanan_tiket'])) {
+                                        echo '<small class="text-muted d-block">Tiket: <a href="' . e(ADMIN_URL) . '/pemesanan_tiket/detail_pemesanan.php?id=' . e($pesanan['pemesanan_tiket_id']) . '">' . e($pesanan['kode_pemesanan_tiket']) . '</a></small>';
+                                    } elseif (isset($pesanan['pemesanan_tiket_id'])) {
+                                        echo '<small class="text-muted d-block">Tiket ID: ' . e($pesanan['pemesanan_ tiket_id']) . '</small>';
                                     }
                                     ?>
                                 </td>
                                 <td><?= e($pesanan['nama_alat'] ?? 'N/A') ?> <br><small class="text-muted">(Alat ID: <?= e($pesanan['sewa_alat_id'] ?? '-') ?>)</small></td>
                                 <td class="text-center"><?= e($pesanan['jumlah'] ?? '0') ?></td>
                                 <td>
-                                    <small>Mulai: <?= e(formatTanggalIndonesia($pesanan['tanggal_mulai_sewa'] ?? '', true)) ?></small><br>
-                                    <small>Akhir: <?= e(formatTanggalIndonesia($pesanan['tanggal_akhir_sewa_rencana'] ?? '', true)) ?></small>
+                                    <small>Mulai: <?= e(function_exists('formatTanggalIndonesia') ? formatTanggalIndonesia($pesanan['tanggal_mulai_sewa'] ?? null, true) : ($pesanan['tanggal_mulai_sewa'] ?? '-')) ?></small><br>
+                                    <small>Akhir: <?= e(function_exists('formatTanggalIndonesia') ? formatTanggalIndonesia($pesanan['tanggal_akhir_sewa_rencana'] ?? null, true) : ($pesanan['tanggal_akhir_sewa_rencana'] ?? '-')) ?></small>
                                 </td>
-                                <td class="text-end fw-bold"><?= formatRupiah($pesanan['total_harga_item'] ?? 0) ?></td>
+                                <td class="text-end fw-bold"><?= function_exists('formatRupiah') ? formatRupiah($pesanan['total_harga_item'] ?? 0) : e($pesanan['total_harga_item'] ?? 0) ?></td>
                                 <td class="text-center">
-                                    <span class="badge bg-<?php echo getSewaStatusBadgeClass($status_item); ?>">
-                                        <?= e(ucfirst($status_item)) ?>
-                                    </span>
+                                    <?php if (function_exists('getSewaStatusBadgeClass')): ?>
+                                        <span class="badge rounded-pill bg-<?php echo getSewaStatusBadgeClass($status_item_display); ?>">
+                                            <?= e(ucfirst($status_item_display)) ?>
+                                        </span>
+                                    <?php else:
+                                        echo e(ucfirst($status_item_display));
+                                        error_log("Peringatan: Fungsi getSewaStatusBadgeClass() tidak ditemukan.");
+                                    endif; ?>
                                 </td>
-                                <td>
-                                    <?= e(formatTanggalIndonesia($pesanan['created_at'] ?? '', false)) ?>
-                                </td>
+                                <td><?= e(function_exists('formatTanggalIndonesia') ? formatTanggalIndonesia($pesanan['created_at'] ?? null, false) : ($pesanan['created_at'] ?? '-')) ?></td>
                                 <td class="text-center">
-                                    <form action="<?= e(ADMIN_URL) ?>/pemesanan_sewa/proses_update_status_sewa.php" method="POST" style="display:inline-block; width:100%;">
-                                        <input type="hidden" name="pemesanan_id" value="<?= e($pesanan['id'] ?? '') ?>">
-                                        <div class="input-group input-group-sm mb-1">
-                                            <select name="new_status" class="form-select form-select-sm" aria-label="Ubah Status">
-                                                <option value="">-- Status --</option>
-                                                <?php $allowed_status_sewa = ['Dipesan', 'Diambil', 'Dikembalikan', 'Hilang', 'Rusak', 'Dibatalkan']; ?>
-                                                <?php foreach ($allowed_status_sewa as $status_option): ?>
-                                                    <?php if (strtolower($status_option) != $status_item): ?>
-                                                        <option value="<?= e($status_option) ?>"><?= e($status_option) ?></option>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            </select>
-                                            <button type="submit" class="btn btn-outline-primary btn-sm" title="Update Status"
-                                                onclick="return confirm('Anda yakin ingin mengubah status item sewa ini menjadi \'' + (this.form.new_status.value ? this.form.new_status.options[this.form.new_status.selectedIndex].text : '[Pilih Status Dulu]') + '\'?')">
-                                                <i class="fas fa-sync-alt"></i>
-                                            </button>
-                                        </div>
-                                    </form>
+                                    <div class="btn-group" role="group">
+                                        <a href="<?= e(ADMIN_URL) ?>/pemesanan_sewa/detail_pemesanan_sewa.php?id=<?= $pesanan_id_safe ?>" class="btn btn-info btn-sm" title="Detail & Edit Catatan/Denda">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Ubah Status">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <?php $allowed_status_sewa = ['Dipesan', 'Diambil', 'Dikembalikan', 'Hilang', 'Rusak', 'Dibatalkan']; ?>
+                                            <?php foreach ($allowed_status_sewa as $status_option): ?>
+                                                <?php if (strtolower($status_option) !== $status_item_display): // Use !== for strict comparison 
+                                                ?>
+                                                    <li>
+                                                        <form action="<?= e(ADMIN_URL) ?>/pemesanan_sewa/proses_update_status_sewa.php" method="POST" class="d-inline m-0">
+                                                            <input type="hidden" name="pemesanan_id" value="<?= $pesanan_id_safe ?>">
+                                                            <input type="hidden" name="new_status" value="<?= e($status_option) ?>">
+                                                            <button type="submit" name="update_status_sewa_submit" class="dropdown-item"
+                                                                onclick="return confirm('Anda yakin ingin mengubah status pemesanan #<?= $pesanan_id_safe ?> menjadi <?= e($status_option) ?>?')">
+                                                                Tandai <?= e($status_option) ?>
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                    <?php else: ?>
+                    <?php elseif (empty($pesan_error_saat_ambil_data)): ?>
                         <tr>
                             <td colspan="10" class="text-center py-4">
-                                <p class="mb-0 lead">
-                                    <?php if ($pesan_error_saat_ambil_data): ?>
-                                        <?= e($pesan_error_saat_ambil_data) ?>
-                                    <?php elseif ($filter_status_sewa_url && empty($daftarPemesananSewa)): ?>
-                                        Tidak ada data pemesanan sewa alat dengan status "<?= e(ucfirst($filter_status_sewa_url)) ?>". <a href="<?= e(ADMIN_URL) ?>/pemesanan_sewa/kelola_pemesanan_sewa.php">Lihat semua</a>.
-                                    <?php else: ?>
-                                        Belum ada data pemesanan sewa alat.
-                                    <?php endif; ?>
-                                </p>
+                                <i class="fas fa-info-circle me-2"></i>
+                                <?php if ($filter_status_sewa_url): ?>
+                                    Tidak ada data pemesanan sewa dengan status "<?= e(ucfirst($filter_status_sewa_url)) ?>". <a href="<?= e(ADMIN_URL) ?>/pemesanan_sewa/kelola_pemesanan_sewa.php">Lihat semua status</a>.
+                                <?php else: ?>
+                                    Belum ada data pemesanan sewa yang tersedia.
+                                <?php endif; ?>
                             </td>
                         </tr>
-                    <?php endif; ?>
+                    <?php endif; // End check for $daftarPemesananSewa and no error 
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -210,24 +267,11 @@ if (!include_once __DIR__ . '/../../template/header_admin.php') {
 </div>
 
 <?php
-if (!function_exists('getSewaStatusBadgeClass')) {
-    function getSewaStatusBadgeClass($status)
-    {
-        switch (strtolower($status)) {
-            case 'dipesan':
-                return 'secondary';
-            case 'diambil':
-                return 'info text-dark';
-            case 'dikembalikan':
-                return 'success';
-            case 'hilang':
-            case 'rusak':
-            case 'dibatalkan':
-                return 'danger';
-            default:
-                return 'light text-dark';
-        }
-    }
+// Hapus '@' dari include_once footer untuk debugging jika masih ada masalah, tapi sebaiknya path diverifikasi
+if (!include_once __DIR__ . '/../../template/footer_admin.php') {
+    $footer_path = realpath(__DIR__ . '/../../template/footer_admin.php');
+    $error_msg_footer = "ERROR HALAMAN: Gagal memuat template/footer_admin.php. Path: " . ($footer_path ?: "Tidak valid/ada") . ".";
+    error_log($error_msg_footer . " dari kelola_pemesanan_sewa.php.");
+    echo "<div style='font-family:Arial,sans-serif;border:1px solid orange;padding:10px;margin:20px;background-color:#fff3e0;color:#e65100;'><strong>Peringatan Tampilan</strong><br>Gagal memuat template footer.<br><small>Detail: " . htmlspecialchars($error_msg_footer, ENT_QUOTES, 'UTF-8') . "</small></div>";
 }
-include_once __DIR__ . '/../../template/footer_admin.php';
 ?>

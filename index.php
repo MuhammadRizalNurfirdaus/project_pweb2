@@ -247,7 +247,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
         <a href="<?= $base_url ?>user/pemesanan_tiket.php" class="btn btn-light btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn">
           <i class="fas fa-calendar-check me-2"></i> Rencanakan Kunjungan
         </a>
-        <a href="<?= $base_url ?>kontak.php" class="btn btn-outline-light btn-lg hero-btn">
+        <a href="<?= $base_url ?>contact.php" class="btn btn-outline-light btn-lg hero-btn">
           <i class="fas fa-envelope me-2"></i> Hubungi Kami
         </a>
       </div>

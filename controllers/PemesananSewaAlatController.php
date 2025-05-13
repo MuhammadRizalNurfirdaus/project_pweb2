@@ -1,59 +1,71 @@
 <?php
 // File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\PemesananSewaAlatController.php
 
-require_once __DIR__ . '/../models/PemesananSewaAlat.php';
-require_once __DIR__ . '/../models/SewaAlat.php'; // Untuk cek & update stok
-require_once __DIR__ . '/../models/PemesananTiket.php'; // Jika sewa terkait tiket
-// config.php diasumsikan sudah dimuat oleh file pemanggil, menyediakan $conn dan helpers
+// config.php diasumsikan sudah dimuat oleh file pemanggil (misal: kelola_pemesanan_sewa.php)
+// yang menyediakan $conn dan fungsi helpers (set_flash_message, e, redirect).
+
+require_once __DIR__ . '/../models/PemesananSewaAlat.php'; // Model utama (statis)
+require_once __DIR__ . '/../models/SewaAlat.php';         // Untuk cek & update stok (statis)
+require_once __DIR__ . '/../models/PemesananTiket.php';    // Jika sewa terkait tiket (statis)
 
 class PemesananSewaAlatController
 {
 
     /**
      * Membuat entri pemesanan sewa alat baru.
-     * Dipanggil dari sisi publik (form pemesanan) atau admin (pemesanan manual).
+     * Ini adalah metode utama yang bisa dipanggil dari form pemesanan publik
+     * atau jika admin membuat pemesanan sewa secara manual yang terkait dengan pemesanan tiket.
      * @param array $data Data lengkap pemesanan sewa.
-     *        Kunci yang diharapkan: 'pemesanan_tiket_id' (jika sewa terkait tiket),
-     *        'sewa_alat_id', 'jumlah', 'tanggal_mulai_sewa', 'tanggal_akhir_sewa_rencana',
-     *        'catatan_item_sewa' (opsional).
-     *        Harga akan diambil dari Model SewaAlat saat itu.
+     * Kunci yang diharapkan:
+     * 'pemesanan_tiket_id' (WAJIB, berdasarkan struktur tabel Anda),
+     * 'sewa_alat_id', 'jumlah', 'tanggal_mulai_sewa' (YYYY-MM-DD HH:MM:SS),
+     * 'tanggal_akhir_sewa_rencana' (YYYY-MM-DD HH:MM:SS),
+     * 'catatan_item_sewa' (opsional).
+     * Harga akan diambil dari Model SewaAlat saat itu.
      * @return int|false ID pemesanan sewa baru jika berhasil, false jika gagal.
      */
     public static function createPemesananSewa($data)
     {
-        global $conn; // Diperlukan untuk transaksi jika create melibatkan beberapa tabel
+        global $conn;
         if (!$conn) {
             set_flash_message('danger', 'Koneksi database tidak tersedia.');
             error_log("PemesananSewaAlatController::createPemesananSewa() - Koneksi DB gagal.");
             return false;
         }
 
-        // Validasi dasar
-        $pemesanan_tiket_id = isset($data['pemesanan_tiket_id']) ? filter_var($data['pemesanan_tiket_id'], FILTER_VALIDATE_INT) : null;
+        // Validasi input dasar
+        $pemesanan_tiket_id = isset($data['pemesanan_tiket_id']) ? filter_var($data['pemesanan_tiket_id'], FILTER_VALIDATE_INT) : 0;
         $sewa_alat_id = isset($data['sewa_alat_id']) ? filter_var($data['sewa_alat_id'], FILTER_VALIDATE_INT) : 0;
         $jumlah = isset($data['jumlah']) ? filter_var($data['jumlah'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) : 0;
         $tgl_mulai = trim($data['tanggal_mulai_sewa'] ?? '');
         $tgl_akhir = trim($data['tanggal_akhir_sewa_rencana'] ?? '');
 
+        if ($pemesanan_tiket_id <= 0) {
+            set_flash_message('danger', 'ID Pemesanan Tiket terkait wajib diisi dan valid.');
+            return false;
+        }
         if ($sewa_alat_id <= 0 || $jumlah <= 0) {
             set_flash_message('danger', 'ID Alat Sewa atau Jumlah tidak valid.');
             return false;
         }
-        if (empty($tgl_mulai) || !DateTime::createFromFormat('Y-m-d H:i:s', $tgl_mulai) || empty($tgl_akhir) || !DateTime::createFromFormat('Y-m-d H:i:s', $tgl_akhir) || (new DateTime($tgl_mulai) >= new DateTime($tgl_akhir))) {
-            set_flash_message('danger', 'Format atau rentang tanggal sewa tidak valid.');
-            return false;
-        }
-        // Jika pemesanan_tiket_id wajib dan ada, validasi keberadaannya
-        if ($pemesanan_tiket_id !== null && $pemesanan_tiket_id > 0) {
-            if (!PemesananTiket::getById($pemesanan_tiket_id)) { // Panggil statis
-                set_flash_message('danger', 'ID Pemesanan Tiket terkait tidak valid.');
-                return false;
+        // Validasi format tanggal dan rentang
+        try {
+            $dtMulai = new DateTime($tgl_mulai);
+            $dtAkhir = new DateTime($tgl_akhir);
+            if (empty($tgl_mulai) || $dtMulai->format('Y-m-d H:i:s') !== $tgl_mulai || empty($tgl_akhir) || $dtAkhir->format('Y-m-d H:i:s') !== $tgl_akhir || $dtMulai >= $dtAkhir) {
+                throw new Exception("Format atau rentang tanggal sewa tidak valid.");
             }
-        } elseif ($pemesanan_tiket_id === 0 && !empty($data['pemesanan_tiket_id'])) { // Jika dikirim tapi tidak valid
-            set_flash_message('danger', 'ID Pemesanan Tiket terkait tidak valid.');
+        } catch (Exception $e) {
+            set_flash_message('danger', 'Format atau rentang tanggal sewa tidak valid. Pastikan formatnya YYYY-MM-DD HH:MM:SS dan tanggal mulai sebelum tanggal akhir.');
+            error_log("PemesananSewaAlatController::createPemesananSewa() - Validasi Tanggal: " . $e->getMessage());
             return false;
         }
 
+        // Validasi keberadaan Pemesanan Tiket
+        if (!PemesananTiket::getById($pemesanan_tiket_id)) { // Panggil statis
+            set_flash_message('danger', 'ID Pemesanan Tiket terkait tidak ditemukan di database.');
+            return false;
+        }
 
         // Ambil info alat untuk harga dan stok
         $alatInfo = SewaAlat::getById($sewa_alat_id); // Panggil statis
@@ -61,90 +73,114 @@ class PemesananSewaAlatController
             set_flash_message('danger', 'Informasi alat sewa tidak ditemukan.');
             return false;
         }
-        if ($alatInfo['stok_tersedia'] < $jumlah) {
-            set_flash_message('danger', 'Stok untuk alat "' . e($alatInfo['nama_item']) . '" tidak mencukupi (tersisa: ' . e($alatInfo['stok_tersedia']) . ').');
+        if (!isset($alatInfo['stok_tersedia']) || $alatInfo['stok_tersedia'] < $jumlah) {
+            set_flash_message('danger', 'Stok untuk alat "' . e($alatInfo['nama_item'] ?? 'ID: ' . $sewa_alat_id) . '" tidak mencukupi (tersisa: ' . ($alatInfo['stok_tersedia'] ?? 0) . ').');
             return false;
         }
 
         // Persiapkan data untuk Model PemesananSewaAlat::create()
         $data_to_model = [
-            'pemesanan_tiket_id' => $pemesanan_tiket_id, // Bisa null jika sewa mandiri & tabel mengizinkan
+            'pemesanan_tiket_id' => $pemesanan_tiket_id,
             'sewa_alat_id' => $sewa_alat_id,
             'jumlah' => $jumlah,
-            'harga_satuan_saat_pesan' => (float)$alatInfo['harga_sewa'],
-            'durasi_satuan_saat_pesan' => (int)$alatInfo['durasi_harga_sewa'],
-            'satuan_durasi_saat_pesan' => $alatInfo['satuan_durasi_harga'],
+            'harga_satuan_saat_pesan' => (float)($alatInfo['harga_sewa'] ?? 0),
+            'durasi_satuan_saat_pesan' => (int)($alatInfo['durasi_harga_sewa'] ?? 1),
+            'satuan_durasi_saat_pesan' => $alatInfo['satuan_durasi_harga'] ?? 'Peminjaman',
             'tanggal_mulai_sewa' => $tgl_mulai,
             'tanggal_akhir_sewa_rencana' => $tgl_akhir,
             'status_item_sewa' => 'Dipesan', // Status awal
             'catatan_item_sewa' => $data['catatan_item_sewa'] ?? null,
-            'denda' => 0.0 // Denda awal 0
+            'denda' => 0.0
         ];
+        // Logika perhitungan total_harga_item sudah ada di Model PemesananSewaAlat::create()
 
-        // Logika perhitungan total harga bisa di sini atau di Model::create()
-        // Untuk konsistensi, biarkan Model::create() menghitung total_harga_item
-        // berdasarkan harga satuan, jumlah, dan durasi.
-
+        // Transaksi database disarankan jika create melibatkan update stok juga
         mysqli_begin_transaction($conn);
         try {
             $new_pemesanan_sewa_id = PemesananSewaAlat::create($data_to_model); // Panggil statis
             if (!$new_pemesanan_sewa_id) {
-                throw new Exception("Gagal menyimpan pemesanan sewa ke database.");
+                // Pesan flash mungkin sudah diset di Model jika ada validasi gagal
+                throw new Exception("Gagal menyimpan pemesanan sewa ke database (Model return false).");
             }
 
-            // Kurangi stok alat (logika ini juga ada di Model PemesananSewaAlat::create(), jadi pilih salah satu tempat)
-            // Jika tidak ada di Model::create(), lakukan di sini:
-            // if (!SewaAlat::updateStok($sewa_alat_id, -$jumlah)) {
-            //     throw new Exception("Gagal mengupdate stok alat sewa.");
-            // }
+            // Logika pengurangan stok sudah ada di Model PemesananSewaAlat::create(),
+            // jadi tidak perlu dipanggil lagi di sini kecuali jika ingin dipisahkan.
 
             mysqli_commit($conn);
-            set_flash_message('success', 'Pemesanan sewa alat berhasil dibuat.');
+            // Jangan set flash message sukses di sini jika ini bagian dari prosesPemesananLengkap
+            // Biarkan prosesPemesananLengkap yang set flash message akhir.
+            // Jika ini dipanggil mandiri, baru set flash di sini.
+            // set_flash_message('success', 'Pemesanan sewa alat berhasil dibuat dengan ID: ' . $new_pemesanan_sewa_id);
             return $new_pemesanan_sewa_id;
         } catch (Exception $e) {
             mysqli_rollback($conn);
             error_log("PemesananSewaAlatController::createPemesananSewa() - Exception: " . $e->getMessage());
-            if (!isset($_SESSION['flash_message'])) { // Hindari menimpa pesan flash yang lebih spesifik
-                set_flash_message('danger', 'Terjadi kesalahan saat membuat pemesanan sewa: ' . $e->getMessage());
+            if (!isset($_SESSION['flash_message'])) {
+                set_flash_message('danger', 'Terjadi kesalahan sistem saat membuat pemesanan sewa.');
             }
             return false;
         }
     }
 
-
+    /**
+     * Mengambil semua data pemesanan sewa untuk ditampilkan di admin.
+     * @return array Array data pemesanan atau array kosong.
+     */
     public static function getAllPemesananSewaForAdmin()
     {
-        $data = PemesananSewaAlat::getAll();
+        // Model PemesananSewaAlat::getAll() sudah melakukan JOIN yang diperlukan
+        $data = PemesananSewaAlat::getAll(); // Panggil statis
         return $data ?: [];
     }
 
-    public static function getPemesananSewaById($id_pemesanan_sewa)
+    /**
+     * Mengambil detail satu pemesanan sewa alat berdasarkan ID-nya.
+     * @param int $id_pemesanan_sewa
+     * @return array|null Data detail pemesanan sewa atau null.
+     */
+    public static function getDetailSewaByIdForAdmin($id_pemesanan_sewa)
     {
         $id_val = filter_var($id_pemesanan_sewa, FILTER_VALIDATE_INT);
         if ($id_val === false || $id_val <= 0) {
             set_flash_message('danger', 'ID Pemesanan Sewa tidak valid.');
             return null;
         }
-        return PemesananSewaAlat::getById($id_val);
+        // Model PemesananSewaAlat::getById() sudah melakukan JOIN yang diperlukan
+        return PemesananSewaAlat::getById($id_val); // Panggil statis
     }
 
-
+    /**
+     * Mengambil semua pemesanan sewa alat yang terkait dengan user ID tertentu
+     * (melalui pemesanan tiket).
+     * @param int $user_id
+     * @return array
+     */
     public static function getPemesananSewaByUserIdForUser($user_id)
     {
-        // ... (implementasi seperti sebelumnya, query melalui pemesanan_tiket) ...
         global $conn;
         if (!$conn) {
+            error_log("PemesananSewaAlatController::getPemesananSewaByUserIdForUser() - Koneksi DB gagal.");
             return [];
         }
+
         $user_id_val = filter_var($user_id, FILTER_VALIDATE_INT);
         if ($user_id_val === false || $user_id_val <= 0) {
             return [];
         }
-        $sql = "SELECT psa.*, sa.nama_item AS nama_alat, pt.kode_pemesanan FROM pemesanan_sewa_alat psa JOIN sewa_alat sa ON psa.sewa_alat_id = sa.id JOIN pemesanan_tiket pt ON psa.pemesanan_tiket_id = pt.id WHERE pt.user_id = ? ORDER BY psa.created_at DESC";
+
+        // Query ini mengambil item sewa berdasarkan user_id di tabel pemesanan_tiket
+        $sql = "SELECT psa.*, sa.nama_item AS nama_alat, pt.kode_pemesanan AS kode_pemesanan_tiket
+                FROM pemesanan_sewa_alat psa 
+                JOIN sewa_alat sa ON psa.sewa_alat_id = sa.id 
+                JOIN pemesanan_tiket pt ON psa.pemesanan_tiket_id = pt.id 
+                WHERE pt.user_id = ? 
+                ORDER BY psa.created_at DESC";
         $stmt = mysqli_prepare($conn, $sql);
         if (!$stmt) {
+            error_log("PemesananSewaAlatController::getPemesananSewaByUserIdForUser() - Prepare failed: " . mysqli_error($conn));
             return [];
         }
+
         mysqli_stmt_bind_param($stmt, "i", $user_id_val);
         if (mysqli_stmt_execute($stmt)) {
             $result = mysqli_stmt_get_result($stmt);
@@ -152,10 +188,17 @@ class PemesananSewaAlatController
             mysqli_stmt_close($stmt);
             return $data;
         }
+        error_log("PemesananSewaAlatController::getPemesananSewaByUserIdForUser() - Execute failed: " . mysqli_stmt_error($stmt));
         mysqli_stmt_close($stmt);
         return [];
     }
 
+    /**
+     * Mengupdate status item sewa.
+     * @param int $id_pemesanan_sewa
+     * @param string $new_status
+     * @return bool
+     */
     public static function updateStatusSewa($id_pemesanan_sewa, $new_status)
     {
         $id_val = filter_var($id_pemesanan_sewa, FILTER_VALIDATE_INT);
@@ -170,18 +213,39 @@ class PemesananSewaAlatController
         }
 
         // Model PemesananSewaAlat::updateStatus() sudah menghandle logika update stok
-        $success = PemesananSewaAlat::updateStatus($id_val, $new_status);
+        $success = PemesananSewaAlat::updateStatus($id_val, $new_status); // Panggil statis
         if (!$success) {
             if (!isset($_SESSION['flash_message'])) {
                 set_flash_message('danger', 'Gagal memperbarui status pemesanan sewa.');
             }
             return false;
         }
-        // Pesan sukses bisa diset di sini atau di file proses yang memanggilnya
-        // set_flash_message('success', 'Status pemesanan sewa berhasil diperbarui.');
+        // Pesan sukses diset oleh proses_update_status_sewa.php
         return true;
     }
 
+    /**
+     * Mengupdate catatan dan denda untuk item sewa.
+     * @param array $data Harus berisi 'id', 'catatan_item_sewa', 'denda'.
+     * @return bool
+     */
+    public static function updateCatatanDanDenda($data)
+    {
+        global $conn;
+        if (!$conn || !isset($data['id'])) {
+            set_flash_message('danger', 'Data tidak lengkap atau koneksi gagal.');
+            return false;
+        }
+        // Validasi lebih lanjut bisa ditambahkan di sini jika perlu
+        return PemesananSewaAlat::update($data); // Panggil metode update statis di Model
+    }
+
+
+    /**
+     * Menghapus pemesanan sewa alat.
+     * @param int $id_pemesanan_sewa
+     * @return bool
+     */
     public static function deletePemesananSewa($id_pemesanan_sewa)
     {
         $id_val = filter_var($id_pemesanan_sewa, FILTER_VALIDATE_INT);
@@ -190,7 +254,7 @@ class PemesananSewaAlatController
             return false;
         }
         // Model PemesananSewaAlat::delete() akan menghandle pengembalian stok jika perlu
-        if (PemesananSewaAlat::delete($id_val)) {
+        if (PemesananSewaAlat::delete($id_val)) { // Panggil statis
             set_flash_message('success', 'Pemesanan sewa alat berhasil dihapus.');
             return true;
         } else {
@@ -199,11 +263,16 @@ class PemesananSewaAlatController
         }
     }
 
+    /**
+     * Menghitung jumlah pemesanan sewa berdasarkan status (untuk dashboard).
+     * @param string $status_item_sewa
+     * @return int
+     */
     public static function countByStatus($status_item_sewa)
     {
         if (empty(trim($status_item_sewa))) {
             return 0;
         }
-        return PemesananSewaAlat::countByStatus(trim($status_item_sewa));
+        return PemesananSewaAlat::countByStatus(trim($status_item_sewa)); // Panggil statis
     }
 }

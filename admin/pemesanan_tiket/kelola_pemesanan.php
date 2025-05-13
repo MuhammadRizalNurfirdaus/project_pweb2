@@ -12,7 +12,6 @@ if (!require_once __DIR__ . '/../../config/config.php') {
 require_admin();
 
 // 3. Sertakan Controller PemesananTiket
-// Controller akan membuat instance Model PemesananTiket dan memanggil metodenya secara non-statis
 if (!require_once __DIR__ . '/../../controllers/PemesananTiketController.php') {
     http_response_code(500);
     error_log("FATAL: Gagal memuat controllers/PemesananTiketController.php");
@@ -24,55 +23,55 @@ if (!require_once __DIR__ . '/../../controllers/PemesananTiketController.php') {
 $pageTitle = "Kelola Pemesanan Tiket";
 if (!include_once __DIR__ . '/../../template/header_admin.php') {
     http_response_code(500);
-    error_log("FATAL: Gagal memuat template/header_admin.php.");
+    error_log("FATAL: Gagal memuat template/header_admin.php dari kelola_pemesanan.php.");
     echo "<p style='color:red; font-family: sans-serif, Arial; padding: 20px;'>Error Kritis: Gagal memuat komponen header halaman admin.</p>";
-    // exit;
+    exit;
 }
 
 // 5. Ambil data pemesanan tiket
 $daftar_pemesanan = [];
-$filter_status = isset($_GET['status']) ? trim(strtolower($_GET['status'])) : null; // Ambil dan bersihkan filter status
-
-// Inisialisasi controller di sini karena akan digunakan
-$pemesananTiketController = null;
-if (class_exists('PemesananTiketController')) {
-    // Jika controller Anda membutuhkan koneksi di constructor (misal untuk membuat instance model di sana)
-    // $pemesananTiketController = new PemesananTiketController($conn);
-    // Namun, jika semua metode controller statis dan membuat instance model di dalam metode, ini tidak perlu.
-    // Untuk saat ini, kita asumsikan metode Controller adalah statis dan membuat instance Model di dalamnya.
-}
+$filter_status_url = isset($_GET['status']) ? trim(strtolower($_GET['status'])) : null;
+$page_subtitle = '';
+$pesan_error_data = null;
 
 
-if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error && class_exists('PemesananTiketController')) {
-    try {
-        // Panggil metode statis dari Controller yang akan mengambil data dari Model
-        // Idealnya, Controller memiliki metode untuk mengambil data berdasarkan filter status
-        if ($filter_status && method_exists('PemesananTiketController', 'getPemesananByStatusForAdmin')) {
-            // $daftar_pemesanan = PemesananTiketController::getPemesananByStatusForAdmin($filter_status);
-            // Jika belum ada metode spesifik, kita filter setelah getAll()
-            $semua_pemesanan = PemesananTiketController::getAll(); // Ini memanggil Model secara non-statis di dalamnya
-            if (is_array($semua_pemesanan)) {
-                $daftar_pemesanan = array_filter($semua_pemesanan, function ($p) use ($filter_status) {
-                    // PERBAIKAN DI SINI: Gunakan 'status'
-                    return isset($p['status']) && strtolower($p['status']) === $filter_status;
+if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
+    if (class_exists('PemesananTiketController') && method_exists('PemesananTiketController', 'getAll')) {
+        try {
+            // Panggil metode statis dari Controller
+            $semua_pemesanan = PemesananTiketController::getAll();
+
+            if ($filter_status_url && is_array($semua_pemesanan) && !empty($semua_pemesanan)) {
+                $daftar_pemesanan = array_filter($semua_pemesanan, function ($p) use ($filter_status_url) {
+                    // Gunakan 'status_pemesanan' sesuai dengan Model PemesananTiket Anda
+                    return isset($p['status_pemesanan']) && strtolower($p['status_pemesanan']) === $filter_status_url;
                 });
+                if (!empty($filter_status_url)) {
+                    $page_subtitle = "(Filter Status: " . e(ucfirst(str_replace('_', ' ', $filter_status_url))) . ")";
+                }
             } else {
-                $daftar_pemesanan = [];
+                $daftar_pemesanan = $semua_pemesanan;
             }
-        } else {
-            $daftar_pemesanan = PemesananTiketController::getAll();
+        } catch (Throwable $e) {
+            error_log("Error ambil daftar pemesanan tiket: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+            $pesan_error_data = 'Gagal memuat daftar pemesanan tiket.';
+            if (!isset($_SESSION['flash_message'])) {
+                set_flash_message('danger', $pesan_error_data);
+            }
         }
-    } catch (Throwable $e) {
-        error_log("Error mengambil daftar pemesanan tiket di kelola_pemesanan.php: " . $e->getMessage() . "\n" . $e->getTraceAsString());
-        set_flash_message('danger', 'Gagal memuat daftar pemesanan tiket. Silakan coba lagi nanti.');
-        $daftar_pemesanan = []; // Pastikan tetap array kosong jika error
+    } else {
+        $pesan_error_data = 'Kesalahan sistem: Controller atau metode Pemesanan Tiket tidak ditemukan.';
+        error_log($pesan_error_data);
+        if (!isset($_SESSION['flash_message'])) {
+            set_flash_message('danger', $pesan_error_data);
+        }
     }
-} elseif (!isset($conn) || !($conn instanceof mysqli) || $conn->connect_error) {
-    set_flash_message('danger', 'Koneksi database tidak tersedia untuk memuat data.');
+} else {
+    $pesan_error_data = 'Koneksi database tidak tersedia.';
     error_log("Koneksi database tidak tersedia di kelola_pemesanan.php.");
-} elseif (!class_exists('PemesananTiketController')) {
-    set_flash_message('danger', 'Kesalahan sistem: Komponen Pemesanan Tiket tidak ditemukan.');
-    error_log("Controller PemesananTiketController tidak ditemukan.");
+    if (!isset($_SESSION['flash_message'])) {
+        set_flash_message('danger', $pesan_error_data);
+    }
 }
 ?>
 
@@ -85,7 +84,15 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error && class_ex
 </nav>
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Daftar Pemesanan Tiket <?php if ($filter_status) echo "(Status: " . e(ucfirst($filter_status)) . ")" ?></h1>
+    <h1 class="h2">Daftar Pemesanan Tiket <small class="text-muted fs-6"><?= e($page_subtitle) ?></small></h1>
+    <!-- Tombol Tambah Pemesanan Tiket Manual (jika diperlukan) -->
+    <!-- 
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="<?= e(ADMIN_URL) ?>/pemesanan_tiket/tambah_pemesanan.php" class="btn btn-sm btn-success shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Pemesanan Tiket
+        </a>
+    </div>
+     -->
 </div>
 
 <?php display_flash_message(); ?>
@@ -96,22 +103,22 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error && class_ex
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered table-hover table-striped align-middle">
+            <table class="table table-bordered table-hover table-striped align-middle" id="dataTablePemesananTiket">
                 <thead class="table-dark">
                     <tr>
                         <th scope="col" style="width: 3%;" class="text-center">No.</th>
                         <th scope="col" style="width: 5%;" class="text-center">ID</th>
-                        <th scope="col" style="width: 15%;">Kode Pesan</th>
-                        <th scope="col" style="width: 20%;">Nama Pemesan</th>
-                        <th scope="col" style="width: 12%;">Tgl. Kunjungan</th>
-                        <th scope="col" class="text-end" style="width: 12%;">Total Harga</th>
+                        <th scope="col" style="width: 12%;">Kode Pesan</th>
+                        <th scope="col" style="width: 18%;">Nama Pemesan</th>
+                        <th scope="col" style="width: 10%;">Tgl. Kunjungan</th>
+                        <th scope="col" class="text-end" style="width: 10%;">Total Harga</th>
                         <th scope="col" class="text-center" style="width: 10%;">Status</th>
-                        <th scope="col" style="width: 13%;">Tgl. Dibuat</th>
-                        <th scope="col" style="width: 10%;" class="text-center">Aksi</th>
+                        <th scope="col" style="width: 12%;">Tgl. Dibuat</th>
+                        <th scope="col" style="width: 15%;" class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($daftar_pemesanan) && is_array($daftar_pemesanan)): ?>
+                    <?php if (empty($pesan_error_data) && !empty($daftar_pemesanan) && is_array($daftar_pemesanan)): ?>
                         <?php $nomor_urut_visual = 1; ?>
                         <?php foreach ($daftar_pemesanan as $pemesanan): ?>
                             <tr>
@@ -119,43 +126,36 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error && class_ex
                                 <td class="text-center"><strong><?= e($pemesanan['id'] ?? '-') ?></strong></td>
                                 <td><strong><?= e($pemesanan['kode_pemesanan'] ?? '-') ?></strong></td>
                                 <td>
-                                    <?php if (!empty($pemesanan['user_id']) && !empty($pemesanan['user_nama'])): ?>
-                                        <i class="fas fa-user-check text-success me-1" title="Pengguna Terdaftar"></i>
-                                        <?= e($pemesanan['user_nama']) ?>
-                                        <?php if (!empty($pemesanan['user_email'])): ?>
-                                            <br><small class="text-muted" title="<?= e($pemesanan['user_email']) ?>"><i class="fas fa-envelope fa-fw"></i> <?= e(mb_strimwidth($pemesanan['user_email'], 0, 20, "...")) ?></small>
-                                        <?php endif; ?>
-                                    <?php elseif (!empty($pemesanan['nama_pemesan_tamu'])): ?>
-                                        <i class="fas fa-user-alt-slash text-muted me-1" title="Tamu"></i>
-                                        <?= e($pemesanan['nama_pemesan_tamu']) ?>
-                                        <?php if (!empty($pemesanan['email_pemesan_tamu'])): ?>
-                                            <br><small class="text-muted" title="<?= e($pemesanan['email_pemesan_tamu']) ?>"><i class="fas fa-envelope fa-fw"></i> <?= e(mb_strimwidth($pemesanan['email_pemesan_tamu'], 0, 20, "...")) ?></small>
-                                        <?php endif; ?>
-                                        <?php if (!empty($pemesanan['nohp_pemesan_tamu'])): ?>
-                                            <br><small class="text-muted" title="<?= e($pemesanan['nohp_pemesan_tamu']) ?>"><i class="fas fa-phone fa-fw"></i> <?= e($pemesanan['nohp_pemesan_tamu']) ?></small>
-                                        <?php endif; ?>
-                                    <?php else: ?>
-                                        <span class="text-muted">N/A</span>
-                                    <?php endif; ?>
+                                    <?php
+                                    // Model PemesananTiket::getAll() sudah melakukan JOIN dan alias yang benar
+                                    $nama_display = $pemesanan['user_nama'] ?? ($pemesanan['nama_pemesan_tamu'] ?? 'N/A');
+                                    $is_user_terdaftar = !empty($pemesanan['user_id']);
+
+                                    if ($is_user_terdaftar) {
+                                        echo '<i class="fas fa-user-check text-success me-1" title="Pengguna Terdaftar"></i>';
+                                    } else {
+                                        echo '<i class="fas fa-user-alt-slash text-muted me-1" title="Tamu"></i>';
+                                    }
+                                    echo e($nama_display);
+
+                                    if ($is_user_terdaftar && !empty($pemesanan['user_email'])) {
+                                        echo '<br><small class="text-muted" title="' . e($pemesanan['user_email']) . '"><i class="fas fa-envelope fa-fw"></i> ' . e(mb_strimwidth($pemesanan['user_email'], 0, 20, "...")) . '</small>';
+                                    } elseif (!$is_user_terdaftar && !empty($pemesanan['email_pemesan_tamu'])) {
+                                        echo '<br><small class="text-muted" title="' . e($pemesanan['email_pemesan_tamu']) . '"><i class="fas fa-envelope fa-fw"></i> ' . e(mb_strimwidth($pemesanan['email_pemesan_tamu'], 0, 20, "...")) . '</small>';
+                                    }
+                                    if (!$is_user_terdaftar && !empty($pemesanan['nohp_pemesan_tamu'])) {
+                                        echo '<br><small class="text-muted" title="' . e($pemesanan['nohp_pemesan_tamu']) . '"><i class="fas fa-phone fa-fw"></i> ' . e($pemesanan['nohp_pemesan_tamu']) . '</small>';
+                                    }
+                                    ?>
                                 </td>
                                 <td>
-                                    <?php
-                                    $tgl_kunjungan_formatted = '-';
-                                    if (!empty($pemesanan['tanggal_kunjungan']) && $pemesanan['tanggal_kunjungan'] !== '0000-00-00') {
-                                        try {
-                                            $date_obj_kunjungan = new DateTime($pemesanan['tanggal_kunjungan']);
-                                            $tgl_kunjungan_formatted = $date_obj_kunjungan->format('d M Y');
-                                        } catch (Exception $e) { /* biarkan default */
-                                        }
-                                    }
-                                    echo e($tgl_kunjungan_formatted);
-                                    ?>
+                                    <?= e(formatTanggalIndonesia($pemesanan['tanggal_kunjungan'] ?? '', false)) ?>
                                 </td>
                                 <td class="text-end fw-bold"><?= formatRupiah($pemesanan['total_harga_akhir'] ?? 0) ?></td>
                                 <td class="text-center">
                                     <?php
-                                    // PERBAIKAN DI SINI: Gunakan 'status'
-                                    $status_pesan_raw = $pemesanan['status'] ?? 'unknown'; // Default jika tidak ada
+                                    // Pastikan nama kolom status adalah 'status_pemesanan' sesuai model
+                                    $status_pesan_raw = $pemesanan['status_pemesanan'] ?? 'unknown';
                                     $status_pesan = strtolower($status_pesan_raw);
                                     $status_class = 'bg-secondary';
                                     if ($status_pesan == 'pending') $status_class = 'bg-warning text-dark';
@@ -166,31 +166,27 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error && class_ex
                                     elseif ($status_pesan == 'cancelled') $status_class = 'bg-danger';
                                     elseif ($status_pesan == 'expired') $status_class = 'bg-light text-dark border';
                                     ?>
-                                    <span class="badge <?= $status_class ?>"><?= e(ucfirst(str_replace('_', ' ', $status_pesan_raw))) ?></span>
+                                    <span class="badge rounded-pill <?= $status_class ?>"><?= e(ucfirst(str_replace('_', ' ', $status_pesan_raw))) ?></span>
                                 </td>
                                 <td>
-                                    <?php
-                                    $tgl_dibuat_formatted = '-';
-                                    if (!empty($pemesanan['created_at']) && $pemesanan['created_at'] !== '0000-00-00 00:00:00') {
-                                        try {
-                                            $date_obj_dibuat = new DateTime($pemesanan['created_at']);
-                                            $tgl_dibuat_formatted = $date_obj_dibuat->format('d M Y, H:i');
-                                        } catch (Exception $e) { /* biarkan default */
-                                        }
-                                    }
-                                    echo e($tgl_dibuat_formatted);
-                                    ?>
+                                    <?= e(formatTanggalIndonesia($pemesanan['created_at'] ?? '', true)) ?>
                                 </td>
                                 <td class="text-center">
-                                    <a href="<?= e(ADMIN_URL) ?>/pemesanan_tiket/detail_pemesanan.php?id=<?= e($pemesanan['id'] ?? '') ?>" class="btn btn-primary btn-sm me-1 mb-1" title="Lihat Detail & Kelola Status">
-                                        <i class="fas fa-eye"></i> <span class="d-none d-md-inline">Detail</span>
-                                    </a>
-                                    <form action="<?= e(ADMIN_URL) ?>/pemesanan_tiket/hapus_pemesanan.php" method="POST" style="display:inline;" onsubmit="return confirm('PERHATIAN: Menghapus pemesanan (<?= e(addslashes($pemesanan['kode_pemesanan'] ?? '')) ?>) juga akan menghapus detail terkait. Yakin?');">
-                                        <input type="hidden" name="id_pemesanan" value="<?= e($pemesanan['id'] ?? '') ?>">
-                                        <button type="submit" name="hapus_pemesanan_submit" class="btn btn-danger btn-sm mb-1" title="Hapus Pemesanan">
-                                            <i class="fas fa-trash-alt"></i> <span class="d-none d-md-inline">Hapus</span>
-                                        </button>
-                                    </form>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="<?= e(ADMIN_URL) ?>/pemesanan_tiket/detail_pemesanan.php?id=<?= e($pemesanan['id'] ?? '') ?>" class="btn btn-primary" title="Lihat Detail & Kelola Status">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="<?= e(ADMIN_URL) ?>/pemesanan_tiket/cetak_pesanan_tiket.php?id=<?= e($pemesanan['id'] ?? '') ?>" class="btn btn-secondary" title="Cetak Bukti Pesanan" target="_blank">
+                                            <i class="fas fa-print"></i>
+                                        </a>
+                                        <form action="<?= e(ADMIN_URL) ?>/pemesanan_tiket/hapus_pemesanan.php" method="POST" class="d-inline">
+                                            <input type="hidden" name="id_pemesanan" value="<?= e($pemesanan['id'] ?? '') ?>">
+                                            <button type="submit" name="hapus_pemesanan_submit" class="btn btn-danger" title="Hapus Pemesanan"
+                                                onclick="return confirm('PERHATIAN: Menghapus pemesanan (<?= e(addslashes($pemesanan['kode_pemesanan'] ?? '')) ?>) juga akan menghapus semua detail tiket, sewa terkait, dan pembayarannya. Yakin?');">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -198,11 +194,10 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error && class_ex
                         <tr>
                             <td colspan="9" class="text-center py-4">
                                 <p class="mb-2 lead">
-                                    <?php if ($filter_status): ?>
-                                        Tidak ada data pemesanan tiket dengan status "<?= e(ucfirst($filter_status)) ?>".
-                                    <?php else: ?>
-                                        Belum ada data pemesanan tiket.
-                                    <?php endif; ?>
+                                    <?php if ($pesan_error_data): echo e($pesan_error_data);
+                                    elseif ($filter_status_url): echo 'Tidak ada data pemesanan tiket dengan status "' . e(ucfirst($filter_status_url)) . '". <a href="' . e(ADMIN_URL) . '/pemesanan_tiket/kelola_pemesanan.php">Lihat semua</a>.';
+                                    else: echo 'Belum ada data pemesanan tiket.';
+                                    endif; ?>
                                 </p>
                             </td>
                         </tr>
