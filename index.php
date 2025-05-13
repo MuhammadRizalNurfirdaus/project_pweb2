@@ -45,7 +45,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
   <!-- MODIFIED SECTION: Added inline style for background-image -->
   <section class="hero-video-background text-white text-center d-flex align-items-center" 
            style="background-image: url('<?= $base_url ?>public/img/gajebo.jpg'); background-size: cover; background-position: center;">
-    <!-- Video latar belakang dengan poster untuk browser yang tidak mendukung video autoplay -->
+    <! -- Video latar belakang dengan poster untuk browser yang tidak mendukung video autoplay -->
     <video playsinline autoplay muted loop poster="<?= $base_url ?>public/img/background_poster.jpg" id="bgvid" aria-label="Video latar pemandangan Lembah Cilengkrang">
       <source src="<?= $base_url ?>public/img/background.mp4" type="video/mp4">
       Browser Anda tidak mendukung tag video.
@@ -94,7 +94,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
         </div>
         <div class="col-md-6 col-lg-4">
           <div class="card feature-card text-center p-lg-4 p-3 h-100 animate-on-scroll" data-animation-delay="200ms">
-            <div class="icon text-info display-1 mb-3"><i class="fas fa-tree"></i></div>
+            <div class="icon text-success display-1 mb-3"><i class="fas fa-tree"></i></div>
             <div class="card-body p-0">
               <h5 class="card-title h4">Keindahan Hutan Pinus</h5>
               <p class="card-text">Nikmati trekking santai atau piknik di tengah keteduhan hutan pinus yang asri, hirup udara segar khas pegunungan.</p>
@@ -136,7 +136,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
         endforeach; ?>
       </div>
       <div class="text-center mt-5">
-        <a href="<?= $base_url ?>wisata/semua_destinasi.php" class="btn btn-secondary btn-lg">
+  
           
         </a>
       </div>
@@ -154,7 +154,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
             <div class="col-md-6 col-lg-4 animate-on-scroll" data-animation-delay="<?= $delay_animasi_artikel ?>ms">
               <div class="card article-card-home h-100 shadow-sm">
                 <?php
-                $gambar_url_artikel = $base_url . 'public/img/default_artikel_thumbnail.jpg'; // Pastikan gambar ini ada
+                $gambar_url_artikel = $base_url . 'public/img/lembah_cilengkrang.jpg'; // Pastikan gambar ini ada
                 if (!empty($artikel['gambar'])) {
                   $gambar_url_artikel = $base_url . 'public/uploads/artikel/' . e($artikel['gambar']);
                 }
