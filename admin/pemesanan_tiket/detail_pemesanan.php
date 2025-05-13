@@ -1,27 +1,35 @@
 <?php
 // File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\pemesanan_tiket\detail_pemesanan.php
 
-// 1. Sertakan config.php (memuat $conn, helpers, auth_helpers, dll)
+// 1. Sertakan config.php (memuat $conn, helpers, auth_helpers, konstanta, dll)
+// config.php sudah menjalankan session_start() di awal.
 if (!require_once __DIR__ . '/../../config/config.php') {
     http_response_code(503); // Service Unavailable
-    error_log("FATAL: Gagal memuat config.php dari admin/pemesanan_tiket/detail_pemesanan.php");
-    $errorMessage = (defined('IS_DEVELOPMENT') && IS_DEVELOPMENT) ? "Gagal memuat config.php." : "Kesalahan konfigurasi server.";
-    exit("Kesalahan konfigurasi server. Aplikasi tidak dapat memuat file penting. " . $errorMessage);
+    $logMessage = "FATAL: Gagal memuat config.php dari admin/pemesanan_tiket/detail_pemesanan.php";
+    error_log($logMessage);
+    $displayMessage = "Kesalahan konfigurasi server. Aplikasi tidak dapat memuat file penting.";
+    if (defined('IS_DEVELOPMENT') && IS_DEVELOPMENT) {
+        $displayMessage .= " Detail: Gagal memuat config.php.";
+    }
+    exit($displayMessage); // Keluar secepatnya
 }
 
 // 2. Panggil fungsi otentikasi admin
+// Asumsikan require_admin() akan redirect dan exit jika tidak terotentikasi.
 require_admin();
 
 // 3. Sertakan Controller PemesananTiket
-$controllerPath = CONTROLLERS_PATH . '/PemesananTiketController.php';
-if (!file_exists($controllerPath)) {
+// CONTROLLERS_PATH sudah didefinisikan di config.php
+// PemesananTiketController.php juga sudah di-require_once di config.php bagian 7.b
+// jadi pengecekan file dan require ulang di sini tidak krusial, tapi bisa untuk keamanan ganda.
+if (!class_exists('PemesananTiketController')) {
     http_response_code(500);
-    error_log("FATAL: File PemesananTiketController.php tidak ditemukan di " . $controllerPath);
+    error_log("FATAL: Class PemesananTiketController tidak ditemukan setelah config.php dimuat. Path: " . (defined('CONTROLLERS_PATH') ? CONTROLLERS_PATH . '/PemesananTiketController.php' : 'Tidak diketahui'));
     set_flash_message('danger', 'Kesalahan sistem: Komponen Pemesanan Tiket inti tidak dapat ditemukan.');
-    redirect('admin/dashboard.php');
+    redirect(ADMIN_URL . '/dashboard.php'); // Redirect ke halaman yang lebih aman
     exit;
 }
-require_once $controllerPath;
+
 
 // 4. Set judul halaman untuk template header
 $pageTitle = "Detail Pemesanan Tiket";
@@ -39,38 +47,50 @@ if (!$pemesanan_id || $pemesanan_id <= 0) {
 $data_pemesanan_lengkap = null;
 $error_saat_ambil_data = null;
 
-if (class_exists('PemesananTiketController') && method_exists('PemesananTiketController', 'getDetailPemesananLengkap')) {
+// Class PemesananTiketController sudah pasti ada karena dicek di atas (dan dimuat di config.php)
+if (method_exists('PemesananTiketController', 'getDetailPemesananLengkap')) {
     try {
         $data_pemesanan_lengkap = PemesananTiketController::getDetailPemesananLengkap($pemesanan_id);
-    } catch (Throwable $e) {
-        $error_saat_ambil_data = 'Terjadi kesalahan saat memuat detail pemesanan: ' . $e->getMessage();
+    } catch (Throwable $e) { // Menangkap semua jenis error/exception
+        $error_saat_ambil_data = 'Terjadi kesalahan saat memuat detail pemesanan.';
+        if (defined('IS_DEVELOPMENT') && IS_DEVELOPMENT) {
+            $error_saat_ambil_data .= ' Detail: ' . $e->getMessage();
+        }
         error_log("Error mengambil detail pemesanan lengkap (ID: {$pemesanan_id}): " . $e->getMessage() . "\n" . $e->getTraceAsString());
     }
 } else {
-    $error_saat_ambil_data = 'Kesalahan sistem: Komponen untuk mengambil detail pemesanan tidak tersedia.';
-    error_log("FATAL: Controller PemesananTiketController atau method getDetailPemesananLengkap tidak ditemukan.");
+    $error_saat_ambil_data = 'Kesalahan sistem: Fungsi untuk mengambil detail pemesanan tidak tersedia.';
+    error_log("FATAL: Metode getDetailPemesananLengkap tidak ditemukan di PemesananTiketController. (ID Pemesanan: {$pemesanan_id})");
 }
 
+
 // 7. Sertakan header admin
-$header_admin_path = ROOT_PATH . '/template/header_admin.php';
+// header_admin.php diharapkan memanggil display_flash_message() di dalamnya.
+// VIEWS_PATH (alias dari TEMPLATE_PATH di config Anda) sudah didefinisikan di config.php
+$header_admin_path = VIEWS_PATH . '/header_admin.php';
 if (!file_exists($header_admin_path)) {
     http_response_code(500);
     error_log("FATAL: Gagal memuat template/header_admin.php dari detail_pemesanan.php. Path: " . $header_admin_path);
+    // Tidak bisa menggunakan set_flash_message atau redirect jika header gagal, tampilkan pesan error dasar
     echo "<p style='color:red; font-family: sans-serif, Arial; padding: 20px; background-color: #fff0f0; border: 1px solid red;'>Error Kritis: Gagal memuat komponen header halaman admin. Halaman tidak dapat ditampilkan.</p>";
-    exit; // Tidak bisa melanjutkan tanpa header
+    exit;
 }
-require_once $header_admin_path;
+require_once $header_admin_path; // Ini akan mengirim output, termasuk flash message yang mungkin sudah ada
 
 // 8. Tangani error pengambilan data atau jika data tidak ditemukan SETELAH header dimuat
+// Jika ada error saat ambil data, pesan akan diset dan redirect.
+// Flash message yang diset di sini akan muncul di halaman tujuan redirect (kelola_pemesanan.php)
 if ($error_saat_ambil_data) {
     set_flash_message('danger', $error_saat_ambil_data);
-    redirect(ADMIN_URL . '/pemesanan_tiket/kelola_pemesanan.php');
+    // Menggunakan JavaScript untuk redirect jika header sudah terkirim
+    echo "<script>window.location.href='" . e(ADMIN_URL . '/pemesanan_tiket/kelola_pemesanan.php') . "';</script>";
     exit;
 }
 
+// Jika tidak ada error, tapi data utama (header pemesanan) kosong
 if (!$data_pemesanan_lengkap || empty($data_pemesanan_lengkap['header'])) {
-    set_flash_message('danger', 'Data pemesanan tiket untuk ID #' . e($pemesanan_id) . ' tidak ditemukan atau tidak dapat dimuat.');
-    redirect(ADMIN_URL . '/pemesanan_tiket/kelola_pemesanan.php');
+    set_flash_message('danger', 'Data pemesanan tiket untuk ID #' . e($pemesanan_id) . ' tidak ditemukan atau tidak dapat dimuat dengan benar.');
+    echo "<script>window.location.href='" . e(ADMIN_URL . '/pemesanan_tiket/kelola_pemesanan.php') . "';</script>";
     exit;
 }
 
@@ -81,6 +101,15 @@ $detail_sewa_items  = $data_pemesanan_lengkap['detail_sewa'] ?? [];
 $info_pembayaran    = $data_pemesanan_lengkap['pembayaran'] ?? null;
 
 $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
+
+// Asumsikan helpers.php (dimuat oleh config.php) menyediakan fungsi-fungsi berikut:
+// - e($string) : untuk escaping output HTML
+// - formatTanggalIndonesia($date, $withTime = false, $withDayName = false)
+// - formatRupiah($number)
+// - getStatusBadgeClassHTML($status) : untuk status pemesanan & pembayaran
+// - getSewaStatusBadgeClassHTML($status) : untuk status item sewa
+// - generate_csrf_token_input() : menghasilkan input hidden CSRF token
+// - display_flash_message() : dipanggil di header_admin.php
 
 ?>
 
@@ -94,9 +123,7 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
 </nav>
 
 <?php
-// display_flash_message() idealnya dipanggil di header_admin.php
-// Jika belum, bisa dipanggil di sini.
-// display_flash_message(); 
+// display_flash_message(); // Sudah dipanggil di dalam template/header_admin.php berdasarkan asumsi
 ?>
 
 <div class="row">
@@ -113,7 +140,7 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
                         <h6>Informasi Pemesan:</h6>
                         <p class="mb-1">
                             <strong>Nama:</strong>
-                            <?php if (!empty($header_pemesanan['user_id']) && !empty($header_pemesanan['user_nama_lengkap'])): ?>
+                            <?php if (!empty($header_pemesanan['user_id']) && isset($header_pemesanan['user_nama_lengkap'])): ?>
                                 <?= e($header_pemesanan['user_nama_lengkap']) ?> (ID User: <?= e($header_pemesanan['user_id']) ?>)
                             <?php elseif (!empty($header_pemesanan['nama_pemesan_tamu'])): ?>
                                 <?= e($header_pemesanan['nama_pemesan_tamu']) ?> <span class="badge bg-info text-dark">Tamu</span>
@@ -121,12 +148,12 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
                                 <span class="text-muted">N/A</span>
                             <?php endif; ?>
                         </p>
-                        <?php if (!empty($header_pemesanan['user_id']) && !empty($header_pemesanan['user_email'])): ?>
+                        <?php if (!empty($header_pemesanan['user_id']) && isset($header_pemesanan['user_email'])): ?>
                             <p class="mb-1"><i class="fas fa-envelope fa-fw me-1 text-muted"></i><?= e($header_pemesanan['user_email']) ?></p>
                         <?php elseif (!empty($header_pemesanan['email_pemesan_tamu'])): ?>
                             <p class="mb-1"><i class="fas fa-envelope fa-fw me-1 text-muted"></i><?= e($header_pemesanan['email_pemesan_tamu']) ?></p>
                         <?php endif; ?>
-                        <?php if (!empty($header_pemesanan['user_id']) && !empty($header_pemesanan['user_no_hp'])): ?>
+                        <?php if (!empty($header_pemesanan['user_id']) && isset($header_pemesanan['user_no_hp'])): ?>
                             <p class="mb-0"><i class="fas fa-phone fa-fw me-1 text-muted"></i><?= e($header_pemesanan['user_no_hp']) ?></p>
                         <?php elseif (!empty($header_pemesanan['nohp_pemesan_tamu'])): ?>
                             <p class="mb-0"><i class="fas fa-phone fa-fw me-1 text-muted"></i><?= e($header_pemesanan['nohp_pemesan_tamu']) ?></p>
@@ -138,14 +165,15 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
                         <p class="mb-1"><strong>Tanggal Pesan:</strong> <?= e(formatTanggalIndonesia($header_pemesanan['created_at'] ?? null, true, true)) ?></p>
                         <p class="mb-1"><strong>Status Pemesanan:</strong>
                             <?php
-                            $status_pemesanan_raw = $header_pemesanan['status'] ?? 'unknown';
+                            $status_pemesanan_raw = $header_pemesanan['status'] ?? 'unknown'; // Kolom 'status' dari tabel pemesanan_tiket
                             echo getStatusBadgeClassHTML($status_pemesanan_raw);
                             ?>
                         </p>
                         <p class="mb-0"><strong>Total Harga:</strong> <strong class="text-success fs-5"><?= formatRupiah($header_pemesanan['total_harga_akhir'] ?? 0) ?></strong></p>
                     </div>
                 </div>
-                <?php if (!empty($header_pemesanan['catatan_umum_pemesanan'])): ?>
+                <?php if (!empty($header_pemesanan['catatan_umum_pemesanan'])): // Sesuaikan nama kolom dari controller jika berbeda, misal 'catatan_pemesanan' atau 'catatan' 
+                ?>
                     <hr class="my-3">
                     <h6>Catatan dari Pemesan:</h6>
                     <p class="text-muted fst-italic mb-0"><em><?= nl2br(e($header_pemesanan['catatan_umum_pemesanan'])) ?></em></p>
@@ -174,7 +202,8 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
                                 <?php foreach ($detail_tiket_items as $item_t): ?>
                                     <tr>
                                         <td>
-                                            <?= e($item_t['nama_layanan_display'] ?? $item_t['jenis_tiket_nama'] ?? 'N/A') ?>
+                                            <?= e($item_t['nama_layanan_display'] ?? $item_t['jenis_tiket_nama'] ?? 'N/A') // Pilih nama yang sesuai dari controller 
+                                            ?>
                                             <?= isset($item_t['tipe_hari']) ? ' <small class="text-muted">(' . e($item_t['tipe_hari']) . ')</small>' : '' ?>
                                             <?php if (!empty($item_t['nama_wisata_terkait'])): ?>
                                                 <br><small class="text-muted">Destinasi: <?= e($item_t['nama_wisata_terkait']) ?></small>
@@ -182,7 +211,8 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
                                         </td>
                                         <td class="text-center"><?= e($item_t['jumlah'] ?? 0) ?></td>
                                         <td class="text-end"><?= formatRupiah($item_t['harga_satuan_saat_pesan'] ?? 0) ?></td>
-                                        <td class="text-end fw-bold"><?= formatRupiah($item_t['subtotal_item'] ?? 0) ?></td>
+                                        <td class="text-end fw-bold"><?= formatRupiah($item_t['subtotal_item'] ?? ($item_t['jumlah'] * $item_t['harga_satuan_saat_pesan'])) // Fallback subtotal jika tidak ada dari controller 
+                                                                        ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -258,7 +288,8 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
                     <p class="mb-1"><strong>Waktu Pembayaran:</strong> <?= !empty($info_pembayaran['waktu_pembayaran']) ? e(formatTanggalIndonesia($info_pembayaran['waktu_pembayaran'], true, true)) : 'Belum ada' ?></p>
                     <?php if (!empty($info_pembayaran['bukti_pembayaran'])): ?>
                         <p class="mb-1"><strong>Bukti Bayar:</strong>
-                            <a href="<?= e(BASE_URL . '/public/uploads/bukti_pembayaran/' . $info_pembayaran['bukti_pembayaran']) ?>" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-1">
+                            <a href="<?= e(ASSETS_URL . '/uploads/bukti_pembayaran/' . $info_pembayaran['bukti_pembayaran']) // Gunakan ASSETS_URL 
+                                        ?>" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-1">
                                 <i class="fas fa-receipt me-1"></i>Lihat Bukti
                             </a>
                         </p>
@@ -270,23 +301,15 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
                     <p class="text-muted">Belum ada informasi pembayaran untuk pemesanan ini.</p>
                 <?php endif; ?>
 
-                <?php if ($id_pembayaran_terkait): ?>
+                <?php if ($id_pembayaran_terkait): // Form update status pembayaran jika ada pembayaran 
+                ?>
                     <hr class="my-3">
                     <h6>Update Status Pembayaran:</h6>
-                    <form action="<?= e(ADMIN_URL) ?>/pembayaran/proses_update_status_pembayaran.php" method="POST"> <!-- Arahkan ke controller pembayaran -->
-                        <?php 
-                        if (!function_exists('generate_csrf_token_input')) {
-                            function generate_csrf_token_input() {
-                                $csrf_token = bin2hex(random_bytes(32)); // Generate a random CSRF token
-                                $_SESSION['csrf_token'] = $csrf_token; // Store it in the session
-                                return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($csrf_token) . '">';
-                            }
-                        }
-                        echo generate_csrf_token_input();
-                        endif; ?>
+                    <form action="<?= e(ADMIN_URL) ?>/pembayaran/proses_update_status_pembayaran.php" method="POST">
+                        <?= generate_csrf_token_input() ?>
                         <input type="hidden" name="pemesanan_id" value="<?= e($pemesanan_id) ?>">
                         <input type="hidden" name="pembayaran_id" value="<?= e($id_pembayaran_terkait) ?>">
-                        <input type="hidden" name="redirect_url" value="<?= e(ADMIN_URL . '/pemesanan_tiket/detail_pemesanan.php?id=' . $pemesanan_id) ?>"> <!-- URL untuk kembali -->
+                        <input type="hidden" name="redirect_url" value="<?= e(ADMIN_URL . '/pemesanan_tiket/detail_pemesanan.php?id=' . $pemesanan_id) ?>">
 
                         <div class="mb-2">
                             <label for="status_pembayaran_baru" class="form-label visually-hidden">Status Pembayaran Baru:</label>
@@ -303,16 +326,16 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
                             <i class="fas fa-sync-alt me-2"></i>Update Status Pembayaran
                         </button>
                     </form>
-                <?php if (!$info_pembayaran && !in_array(strtolower($header_pemesanan['status'] ?? ''), ['cancelled', 'expired', 'failed', 'refunded'])): ?>
+                <?php elseif (!$info_pembayaran && !in_array(strtolower($header_pemesanan['status'] ?? ''), ['cancelled', 'expired', 'failed', 'refunded', 'completed'])): // Form buat entri pembayaran jika belum ada & status pesanan memungkinkan 
+                ?>
                     <hr class="my-3">
-                    <p class="text-muted">Pembayaran belum dibuat.</p>
-                    <form action="<?= e(ADMIN_URL) ?>/pembayaran/proses_update_status_pembayaran.php" method="POST"> <!-- Arahkan ke controller pembayaran -->
-                        <?php if (function_exists('generate_csrf_token_input')): echo generate_csrf_token_input();
-                        endif; ?>
+                    <p class="text-muted small">Belum ada entri pembayaran. Buat entri manual jika pembayaran diterima di luar sistem.</p>
+                    <form action="<?= e(ADMIN_URL) ?>/pembayaran/proses_update_status_pembayaran.php" method="POST">
+                        <?= generate_csrf_token_input() ?>
                         <input type="hidden" name="pemesanan_id_for_create_payment" value="<?= e($pemesanan_id) ?>">
                         <input type="hidden" name="action" value="create_manual_payment_entry">
                         <input type="hidden" name="redirect_url" value="<?= e(ADMIN_URL . '/pemesanan_tiket/detail_pemesanan.php?id=' . $pemesanan_id) ?>">
-                        <button type="submit" name="submit_create_manual_payment" class="btn btn-outline-success btn-sm w-100" onclick="return confirm('Ini akan membuat entri pembayaran baru dengan status Menunggu Pembayaran untuk pemesanan ini. Lanjutkan?')">
+                        <button type="submit" name="submit_create_manual_payment" class="btn btn-outline-success btn-sm w-100" onclick="return confirm('Ini akan membuat entri pembayaran baru dengan status MENUNGGU PEMBAYARAN (pending) untuk pemesanan ini. Lanjutkan?')">
                             <i class="fas fa-plus-circle me-2"></i>Buat Entri Pembayaran Manual
                         </button>
                     </form>
@@ -326,10 +349,10 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
             </div>
             <div class="card-body">
                 <form action="<?= e(ADMIN_URL) ?>/pemesanan_tiket/proses_pemesanan.php" method="POST">
-                    <?php if (function_exists('generate_csrf_token_input')): echo generate_csrf_token_input();
-                    endif; ?>
+                    <?= generate_csrf_token_input() ?>
                     <input type="hidden" name="pemesanan_id" value="<?= e($pemesanan_id) ?>">
                     <input type="hidden" name="action" value="update_status_pemesanan">
+                    <input type="hidden" name="redirect_url" value="<?= e(ADMIN_URL . '/pemesanan_tiket/detail_pemesanan.php?id=' . $pemesanan_id) ?>">
                     <div class="mb-2">
                         <label for="status_pemesanan_baru_header" class="form-label visually-hidden">Status Pemesanan Baru:</label>
                         <select class="form-select form-select-sm" id="status_pemesanan_baru_header" name="new_order_status" required>
@@ -355,7 +378,8 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
 </div>
 
 <?php
-$footer_admin_path = ROOT_PATH . '/template/footer_admin.php';
+// VIEWS_PATH (alias dari TEMPLATE_PATH di config Anda) sudah didefinisikan di config.php
+$footer_admin_path = VIEWS_PATH . '/footer_admin.php';
 if (!file_exists($footer_admin_path)) {
     error_log("PERINGATAN: Gagal memuat template/footer_admin.php dari detail_pemesanan.php. Path: " . $footer_admin_path);
 } else {

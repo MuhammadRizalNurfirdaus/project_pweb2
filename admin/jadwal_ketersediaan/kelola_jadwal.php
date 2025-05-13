@@ -9,7 +9,7 @@ $page_title = "Kelola Jadwal Ketersediaan Tiket";
 include_once __DIR__ . '/../../template/header_admin.php';
 
 // Data sekarang akan diurutkan berdasarkan ID ASC dari Model
-$daftar_jadwal = JadwalKetersediaanTiketController::getAll();
+$daftar_jadwal = JadwalKetersediaanTiketController::getAllForAdmin();
 ?>
 
 <!-- Breadcrumb -->

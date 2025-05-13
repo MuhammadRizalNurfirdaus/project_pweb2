@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($new_id) {
         unset($_SESSION['form_data_jadwal']);
         require_once __DIR__ . '/../../models/JenisTiket.php'; // Diperlukan untuk getById
-        $jenisTiketInfo = JenisTiket::getById((int)$jenis_tiket_id);
+        $jenisTiketInfo = JenisTiket::findById((int)$jenis_tiket_id);
         $namaJenisTiketDisplay = $jenisTiketInfo ? (e($jenisTiketInfo['nama_layanan_display']) . ' - ' . e($jenisTiketInfo['tipe_hari'])) : "ID Jenis Tiket: " . e($jenis_tiket_id);
 
         set_flash_message('success', 'Jadwal ketersediaan untuk "' . $namaJenisTiketDisplay . '" pada tanggal ' . e($tanggal) . ' berhasil ditambahkan.');

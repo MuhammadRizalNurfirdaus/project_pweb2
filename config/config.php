@@ -14,7 +14,9 @@ if (session_status() == PHP_SESSION_NONE) {
         session_start();
     } else {
         $error_message_session = "FATAL ERROR di config.php: Tidak dapat memulai session karena headers sudah terkirim.";
-        $error_message_session .= " Output dimulai dari file: {$file} pada baris: {$line}.";
+        if (isset($file) && isset($line)) {
+            $error_message_session .= " Output dimulai dari file: {$file} pada baris: {$line}.";
+        }
         error_log($error_message_session);
         exit("Kesalahan kritis: Tidak dapat memulai sesi aplikasi. Detail: " . htmlspecialchars($error_message_session));
     }
@@ -38,9 +40,9 @@ if (!empty($document_root_norm) && strpos($project_root_on_disk_norm, $document_
     } elseif (in_array($script_directory, ['/', '\\', ''], true) && $project_dir_name !== '') {
         $base_path_relative = '/' . $project_dir_name;
     } else {
-        $base_path_relative = $script_directory;
+        $base_path_relative = ($script_directory === '/' || $script_directory === '\\') ? '' : $script_directory;
     }
-    error_log("Peringatan config.php: Menggunakan SCRIPT_NAME untuk base_path_relative. Hasil: '" . $base_path_relative . "' dari script_dir: '" . $script_directory . "'");
+    // error_log("Peringatan config.php: Menggunakan SCRIPT_NAME untuk base_path_relative. Hasil: '" . $base_path_relative . "' dari script_dir: '" . $script_directory . "'");
 } else {
     error_log("Peringatan config.php: Tidak dapat menentukan base_path_relative otomatis. BASE_URL mungkin tidak akurat.");
 }
@@ -65,7 +67,7 @@ if (IS_DEVELOPMENT) {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
 } else {
-    error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT & ~E_NOTICE);
+    error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT & ~E_NOTICE & ~E_WARNING);
     ini_set('display_errors', 0);
 }
 
@@ -82,7 +84,7 @@ $error_log_filename = IS_DEVELOPMENT ? 'php_error_dev.log' : 'php_error_prod.log
 ini_set('error_log', $logs_dir_path . '/' . $error_log_filename);
 
 
-// 4. Definisi Konstanta Path Aplikasi (SEBELUM memuat model dan helper)
+// 4. Definisi Konstanta Path Aplikasi
 if (!defined('ROOT_PATH')) define('ROOT_PATH', dirname(__DIR__));
 if (!defined('CONFIG_PATH')) define('CONFIG_PATH', ROOT_PATH . '/config');
 if (!defined('CONTROLLERS_PATH')) define('CONTROLLERS_PATH', ROOT_PATH . '/controllers');
@@ -126,57 +128,75 @@ if (!isset($conn) || !($conn instanceof mysqli) || $conn->connect_error) {
 // 7. Memuat SEMUA Model dan Menginisialisasi Koneksi Database serta Path Upload untuk Model
 $model_files = glob(MODELS_PATH . '/*.php');
 if ($model_files === false) {
-    error_log("Peringatan config.php: Gagal membaca direktori models atau tidak ada file model ditemukan.");
+    error_log("Peringatan config.php: Gagal membaca direktori models ('" . MODELS_PATH . "') atau tidak ada file model ditemukan.");
 } else {
     foreach ($model_files as $model_file) {
         require_once $model_file;
-        $class_name = basename($model_file, '.php'); // Mendapatkan nama kelas dari nama file
+        $class_name = basename($model_file, '.php');
 
         if (class_exists($class_name)) {
-            // Coba panggil init(koneksi, path_upload_spesifik) jika ada dan relevan
+            $model_initialized = false;
+
             if (method_exists($class_name, 'init')) {
-                $model_initialized_with_init = false;
                 if ($class_name === 'SewaAlat' && defined('UPLOADS_ALAT_SEWA_PATH')) {
                     $class_name::init($conn, UPLOADS_ALAT_SEWA_PATH);
-                    $model_initialized_with_init = true;
+                    $model_initialized = true;
                 } elseif ($class_name === 'Artikel' && defined('UPLOADS_ARTIKEL_PATH')) {
                     $class_name::init($conn, UPLOADS_ARTIKEL_PATH);
-                    $model_initialized_with_init = true;
+                    $model_initialized = true;
                 } elseif ($class_name === 'Galeri' && defined('UPLOADS_GALERI_PATH')) {
                     $class_name::init($conn, UPLOADS_GALERI_PATH);
-                    $model_initialized_with_init = true;
+                    $model_initialized = true;
+                } elseif ($class_name === 'Wisata' && defined('UPLOADS_WISATA_PATH')) { // PASTIKAN INI ADA DAN BENAR
+                    $class_name::init($conn, UPLOADS_WISATA_PATH);
+                    $model_initialized = true;
+                    error_log("INFO config.php: Model {$class_name} diinisialisasi dengan init(\$conn, UPLOADS_WISATA_PATH)."); // Log untuk verifikasi
+                } elseif ($class_name === 'BuktiPembayaran' && defined('UPLOADS_BUKTI_PEMBAYARAN_PATH')) {
+                    $class_name::init($conn, UPLOADS_BUKTI_PEMBAYARAN_PATH);
+                    $model_initialized = true;
                 }
-                // Tambahkan elseif untuk model lain yang spesifik menggunakan init() dengan path
+                // ... (elseif untuk model lain dengan init spesifik) ...
 
-                // Jika model memiliki init() tapi tidak cocok dengan kondisi di atas
-                // DAN juga memiliki setDbConnection(), maka setDbConnection akan dipanggil di blok berikutnya.
-                // Jika model memiliki init() tapi tidak ada path spesifik (misal init($conn) saja),
-                // Anda bisa tambahkan kondisi:
-                // elseif (!$model_initialized_with_init && method_exists($class_name, 'init') && (new ReflectionMethod($class_name, 'init'))->getNumberOfParameters() === 1) {
-                //     $class_name::init($conn);
-                //     $model_initialized_with_init = true;
-                // }
-
-                // Jika init() spesifik tidak dipanggil dan model punya setDbConnection(), gunakan itu.
-                if (!$model_initialized_with_init && method_exists($class_name, 'setDbConnection')) {
-                    $class_name::setDbConnection($conn);
-                } elseif (!$model_initialized_with_init && !method_exists($class_name, 'setDbConnection')) {
-                    // Jika model punya init tapi tidak cocok kondisi di atas dan tidak punya setDbConnection
-                    // error_log("Info config.php: Model {$class_name} memiliki metode init() tetapi tidak ada kondisi inisialisasi yang cocok dan tidak ada setDbConnection().");
+                if (!$model_initialized) {
+                    try {
+                        $reflectionMethod = new ReflectionMethod($class_name, 'init');
+                        if ($reflectionMethod->getNumberOfParameters() === 1) {
+                            $paramsReflection = $reflectionMethod->getParameters();
+                            if ($paramsReflection[0]->getType() && $paramsReflection[0]->getType()->getName() === 'mysqli') {
+                                $class_name::init($conn);
+                                $model_initialized = true;
+                                // error_log("Info config.php: Model {$class_name} diinisialisasi dengan init(\$conn).");
+                            }
+                        }
+                    } catch (ReflectionException $e) { /* Abaikan */
+                    }
                 }
             }
-            // Jika tidak ada metode 'init', coba panggil 'setDbConnection'
-            elseif (method_exists($class_name, 'setDbConnection')) {
+
+            if (!$model_initialized && method_exists($class_name, 'setDbConnection')) {
                 $class_name::setDbConnection($conn);
-            } else {
-                error_log("Info config.php: Model {$class_name} tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.");
+                $model_initialized = true;
+                // error_log("Info config.php: Model {$class_name} diinisialisasi dengan setDbConnection(\$conn).");
+            }
+
+            if (!$model_initialized) {
+                error_log("Peringatan config.php: Model {$class_name} tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis.");
             }
         } else {
-            error_log("Peringatan config.php: Kelas {$class_name} tidak ditemukan setelah require file model {$model_file}. Periksa nama kelas dan file.");
+            error_log("Peringatan config.php: Kelas {$class_name} tidak ditemukan setelah require file model '{$model_file}'.");
         }
     }
 }
 
+// (Opsional) 7.b. Memuat SEMUA Controller
+$controller_files = glob(CONTROLLERS_PATH . '/*.php');
+if ($controller_files !== false) {
+    foreach ($controller_files as $controller_file) {
+        require_once $controller_file;
+    }
+} else {
+    error_log("Peringatan config.php: Gagal membaca direktori controllers atau tidak ada file controller ditemukan.");
+}
 
 // 8. Otomatis Membuat Direktori Uploads Jika Belum Ada
 $upload_paths_to_create_if_not_exist = [
@@ -189,7 +209,7 @@ $upload_paths_to_create_if_not_exist = [
 ];
 
 foreach ($upload_paths_to_create_if_not_exist as $path) {
-    if (!empty($path) && defined('UPLOADS_PATH')) { // Pastikan path tidak kosong & UPLOADS_PATH terdefinisi
+    if (!empty($path) && defined('UPLOADS_PATH')) {
         if (!is_dir($path)) {
             if (!@mkdir($path, 0775, true) && !is_dir($path)) {
                 error_log("Peringatan config.php: Gagal membuat direktori {$path}. Periksa izin folder induk: " . dirname($path));
@@ -201,7 +221,7 @@ foreach ($upload_paths_to_create_if_not_exist as $path) {
             error_log("Peringatan config.php: Direktori {$path} ada tetapi tidak writable. Periksa izin folder.");
         }
     } elseif (empty($path)) {
-        error_log("Peringatan config.php: Path upload kosong terdeteksi dalam array pembuatan direktori.");
+        error_log("Peringatan config.php: Path upload kosong terdeteksi dalam array pembuatan direktori. Periksa definisi konstanta path upload yang relevan.");
     }
 }
 

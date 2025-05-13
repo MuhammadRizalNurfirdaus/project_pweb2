@@ -1,118 +1,164 @@
 <?php
 // File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\JadwalKetersediaanTiketController.php
 
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../models/JadwalKetersediaanTiket.php';
-require_once __DIR__ . '/../models/JenisTiket.php'; // Untuk validasi jenis_tiket_id
+// Diasumsikan config.php sudah memuat Model dan menginisialisasinya.
+// if (!class_exists('JadwalKetersediaanTiket')) require_once __DIR__ . '/../models/JadwalKetersediaanTiket.php';
+// if (!class_exists('JenisTiket')) require_once __DIR__ . '/../models/JenisTiket.php';
 
 class JadwalKetersediaanTiketController
 {
-    public static function create($data)
+    /**
+     * Memproses pembuatan jadwal ketersediaan tiket baru.
+     * @param array $data Data dari form.
+     * @return int|string|false ID jadwal baru, string kode error, atau false jika gagal.
+     */
+    public static function create(array $data)
     {
+        // Validasi dasar di Controller
         $jenis_tiket_id = isset($data['jenis_tiket_id']) ? filter_var($data['jenis_tiket_id'], FILTER_VALIDATE_INT) : null;
         $tanggal = trim($data['tanggal'] ?? '');
-        $jumlah_total = isset($data['jumlah_total_tersedia']) ? filter_var($data['jumlah_total_tersedia'], FILTER_VALIDATE_INT) : null;
-        $jumlah_saat_ini = isset($data['jumlah_saat_ini_tersedia']) ? filter_var($data['jumlah_saat_ini_tersedia'], FILTER_VALIDATE_INT) : $jumlah_total;
+        $jumlah_total = isset($data['jumlah_total_tersedia']) ? filter_var($data['jumlah_total_tersedia'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]) : null;
+        // Default jumlah saat ini sama dengan jumlah total jika tidak dispesifikkan
+        $jumlah_saat_ini = isset($data['jumlah_saat_ini_tersedia']) ?
+            filter_var($data['jumlah_saat_ini_tersedia'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]) :
+            $jumlah_total;
         $aktif = isset($data['aktif']) ? (int)$data['aktif'] : 1;
 
         if (!$jenis_tiket_id || $jenis_tiket_id <= 0) {
-            set_flash_message('danger', 'Jenis Tiket harus dipilih.');
-            return false;
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Jenis Tiket harus dipilih.');
+            return 'invalid_jenis_tiket_id';
         }
-        if (!JenisTiket::getById($jenis_tiket_id)) {
-            set_flash_message('danger', 'Jenis Tiket yang dipilih tidak valid atau tidak ditemukan.');
-            return false;
+        if (class_exists('JenisTiket') && method_exists('JenisTiket', 'findById')) { // Pastikan Model JenisTiket ada
+            if (!JenisTiket::findById($jenis_tiket_id)) { // Menggunakan findById
+                if (function_exists('set_flash_message')) set_flash_message('danger', 'Jenis Tiket yang dipilih tidak valid atau tidak ditemukan.');
+                return 'jenis_tiket_not_found';
+            }
+        } else {
+            error_log("JadwalKetersediaanTiketController::create() - Model JenisTiket atau metode findById tidak tersedia untuk validasi.");
         }
+
         if (empty($tanggal) || !DateTime::createFromFormat('Y-m-d', $tanggal) || $tanggal < date('Y-m-d')) {
-            set_flash_message('danger', 'Format tanggal tidak valid (YYYY-MM-DD) atau tanggal sudah lewat.');
-            return false;
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Format tanggal tidak valid (YYYY-MM-DD) atau tanggal sudah lewat.');
+            return 'invalid_tanggal';
         }
-        if ($jumlah_total === null || $jumlah_total === false || $jumlah_total < 0) {
-            set_flash_message('danger', 'Jumlah Total Tiket Tersedia harus angka non-negatif.');
-            return false;
+        if ($jumlah_total === null || $jumlah_total === false) { // Harga 0 diizinkan
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Jumlah Total Tiket Tersedia harus berupa angka (minimal 0).');
+            return 'invalid_jumlah_total';
         }
-        if ($jumlah_saat_ini === null || $jumlah_saat_ini === false || $jumlah_saat_ini < 0 || $jumlah_saat_ini > $jumlah_total) {
-            set_flash_message('danger', 'Jumlah Tiket Saat Ini Tersedia tidak valid, tidak boleh negatif, atau melebihi Jumlah Total Tersedia.');
-            return false;
+        if ($jumlah_saat_ini === null || $jumlah_saat_ini === false || $jumlah_saat_ini > $jumlah_total) {
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Jumlah Tiket Saat Ini Tersedia tidak valid atau melebihi Jumlah Total.');
+            return 'invalid_jumlah_saat_ini';
         }
+        if (!in_array($aktif, [0, 1])) $aktif = 1; // Default ke aktif jika tidak valid
 
-        // Pengecekan duplikasi sudah ada di Model, tapi bisa juga dicek di sini jika ingin pesan flash lebih awal.
-        // Model akan return false jika duplikat dan log error.
-        // Controller bisa menambahkan flash message berdasarkan return false dari model.
-
-        $data_to_save = [
+        $data_to_model = [
             'jenis_tiket_id' => $jenis_tiket_id,
             'tanggal' => $tanggal,
             'jumlah_total_tersedia' => $jumlah_total,
-            'jumlah_saat_ini_tersedia' => $jumlah_saat_ini,
+            'jumlah_saat_ini_tersedia' => $jumlah_saat_ini, // Model akan mengoreksi jika > total
             'aktif' => $aktif
         ];
 
-        $new_id = JadwalKetersediaanTiket::create($data_to_save);
-        if ($new_id) {
-            return $new_id;
+        if (!class_exists('JadwalKetersediaanTiket') || !method_exists('JadwalKetersediaanTiket', 'create') || !method_exists('JadwalKetersediaanTiket', 'getLastError')) {
+            error_log("JadwalKetersediaanTiketController::create() - Model/Metode JadwalKetersediaanTiket tidak siap.");
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan sistem: Komponen data tidak siap (JKTC-C01).');
+            return false;
         }
-        // Jika Model create() return false karena duplikasi, pesan flash sudah di-set di Model.
-        // Jika karena validasi lain di Model dan belum ada flash, set di sini.
-        if (!isset($_SESSION['flash_message'])) {
-            set_flash_message('danger', 'Gagal menyimpan jadwal ketersediaan. Periksa log untuk detail.');
+
+        $result = JadwalKetersediaanTiket::create($data_to_model);
+
+        if (is_numeric($result) && $result > 0) {
+            return $result; // Sukses, kembalikan ID
+        } elseif ($result === 'duplicate') {
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Gagal: Jadwal untuk jenis tiket dan tanggal tersebut sudah ada.');
+            return 'duplicate';
+        } else {
+            if (function_exists('set_flash_message') && !isset($_SESSION['flash_message'])) {
+                set_flash_message('danger', 'Gagal menyimpan jadwal ketersediaan. ' . JadwalKetersediaanTiket::getLastError());
+            }
+            error_log("JadwalKetersediaanTiketController::create() - JadwalKetersediaanTiket::create gagal. Error: " . JadwalKetersediaanTiket::getLastError());
+            return false;
         }
-        return false;
     }
 
-    public static function getAll()
+    /**
+     * Mengambil semua jadwal ketersediaan.
+     * @return array|false Daftar jadwal atau false jika error.
+     */
+    public static function getAllForAdmin() // Nama metode disesuaikan
     {
+        if (!class_exists('JadwalKetersediaanTiket') || !method_exists('JadwalKetersediaanTiket', 'getAll')) {
+            error_log("JadwalKetersediaanTiketController::getAllForAdmin() - Model/Metode tidak ada.");
+            return false;
+        }
         return JadwalKetersediaanTiket::getAll();
     }
 
-    public static function getById($id)
+    /**
+     * Mengambil satu jadwal berdasarkan ID.
+     * @param int $id ID Jadwal.
+     * @return array|null Data jadwal atau null.
+     */
+    public static function getById($id) // Nama metode ini sudah benar
     {
         $id_val = filter_var($id, FILTER_VALIDATE_INT);
         if ($id_val === false || $id_val <= 0) {
+            error_log("JadwalKetersediaanTiketController::getById() - ID tidak valid: " . $id);
             return null;
         }
-        return JadwalKetersediaanTiket::getById($id_val);
+        // PERBAIKAN: Panggil findById jika itu nama metode di Model
+        if (!class_exists('JadwalKetersediaanTiket') || !method_exists('JadwalKetersediaanTiket', 'findById')) {
+            error_log("JadwalKetersediaanTiketController::getById() - Model/Metode JadwalKetersediaanTiket::findById tidak ada.");
+            return null;
+        }
+        return JadwalKetersediaanTiket::findById($id_val); // Menggunakan findById
     }
 
-    public static function update($data)
+    /**
+     * Memproses pembaruan data jadwal ketersediaan.
+     * @param array $data Array data yang akan diupdate.
+     * @return bool|string True jika berhasil, string kode error, atau false jika gagal umum.
+     */
+    public static function update(array $data)
     {
         $id = isset($data['id']) ? filter_var($data['id'], FILTER_VALIDATE_INT) : null;
         if (!$id || $id <= 0) {
-            set_flash_message('danger', 'ID Jadwal tidak valid untuk pembaruan.');
-            return false;
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'ID Jadwal tidak valid untuk pembaruan.');
+            return 'invalid_id';
         }
 
+        // Validasi lain seperti di metode create()
         $jenis_tiket_id = isset($data['jenis_tiket_id']) ? filter_var($data['jenis_tiket_id'], FILTER_VALIDATE_INT) : null;
         $tanggal = trim($data['tanggal'] ?? '');
-        $jumlah_total = isset($data['jumlah_total_tersedia']) ? filter_var($data['jumlah_total_tersedia'], FILTER_VALIDATE_INT) : null;
-        $jumlah_saat_ini = isset($data['jumlah_saat_ini_tersedia']) ? filter_var($data['jumlah_saat_ini_tersedia'], FILTER_VALIDATE_INT) : null;
-        $aktif = isset($data['aktif']) ? (int)$data['aktif'] : 0; // Jika checkbox tidak dikirim, value="0" dari hidden input
+        $jumlah_total = isset($data['jumlah_total_tersedia']) ? filter_var($data['jumlah_total_tersedia'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]) : null;
+        $jumlah_saat_ini = isset($data['jumlah_saat_ini_tersedia']) ? filter_var($data['jumlah_saat_ini_tersedia'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]) : null;
+        $aktif = isset($data['aktif']) ? (int)$data['aktif'] : 0;
 
         if (!$jenis_tiket_id || $jenis_tiket_id <= 0) {
-            set_flash_message('danger', 'Jenis Tiket harus dipilih.');
-            return false;
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Jenis Tiket harus dipilih.');
+            return 'invalid_jenis_tiket_id';
         }
-        if (!JenisTiket::getById($jenis_tiket_id)) {
-            set_flash_message('danger', 'Jenis Tiket yang dipilih tidak valid atau tidak ditemukan.');
-            return false;
+        if (class_exists('JenisTiket') && method_exists('JenisTiket', 'findById')) {
+            if (!JenisTiket::findById($jenis_tiket_id)) {
+                if (function_exists('set_flash_message')) set_flash_message('danger', 'Jenis Tiket tidak valid.');
+                return 'jenis_tiket_not_found';
+            }
         }
-        if (empty($tanggal) || !DateTime::createFromFormat('Y-m-d', $tanggal)) { // Tidak perlu cek tanggal lampau saat update, admin mungkin perlu
-            set_flash_message('danger', 'Format tanggal tidak valid (YYYY-MM-DD).');
-            return false;
+        if (empty($tanggal) || !DateTime::createFromFormat('Y-m-d', $tanggal)) {
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Format tanggal tidak valid.');
+            return 'invalid_tanggal';
         }
-        if ($jumlah_total === null || $jumlah_total === false || $jumlah_total < 0) {
-            set_flash_message('danger', 'Jumlah Total Tiket Tersedia harus angka non-negatif.');
-            return false;
+        if ($jumlah_total === null || $jumlah_total === false) {
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Jumlah Total harus angka.');
+            return 'invalid_jumlah_total';
         }
-        if ($jumlah_saat_ini === null || $jumlah_saat_ini === false || $jumlah_saat_ini < 0 || $jumlah_saat_ini > $jumlah_total) {
-            set_flash_message('danger', 'Jumlah Tiket Saat Ini Tersedia tidak valid, tidak boleh negatif, atau melebihi Jumlah Total Tersedia.');
-            return false;
+        if ($jumlah_saat_ini === null || $jumlah_saat_ini === false || $jumlah_saat_ini > $jumlah_total) {
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Jumlah Saat Ini tidak valid.');
+            return 'invalid_jumlah_saat_ini';
         }
+        if (!in_array($aktif, [0, 1])) $aktif = 0;
 
-        // Pengecekan duplikasi (kecuali untuk ID yg sama) ada di Model.
-        // Controller bisa set flash message jika Model return false karena duplikasi.
-
-        $data_to_update = [
+        $data_to_model = [
             'id' => $id,
             'jenis_tiket_id' => $jenis_tiket_id,
             'tanggal' => $tanggal,
@@ -121,11 +167,29 @@ class JadwalKetersediaanTiketController
             'aktif' => $aktif
         ];
 
-        $success = JadwalKetersediaanTiket::update($data_to_update);
-        if (!$success && !isset($_SESSION['flash_message'])) {
-            // Jika Model return false karena duplikasi, pesan flash sudah di-set di Model.
-            set_flash_message('danger', 'Gagal memperbarui jadwal ketersediaan. Periksa log untuk detail.');
+        if (!class_exists('JadwalKetersediaanTiket') || !method_exists('JadwalKetersediaanTiket', 'update') || !method_exists('JadwalKetersediaanTiket', 'getLastError')) {
+            error_log("JadwalKetersediaanTiketController::update() - Model/Metode tidak siap.");
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan sistem: Komponen update tidak siap (JKTC-U01).');
+            return false;
         }
-        return $success;
+
+        $result = JadwalKetersediaanTiket::update($data_to_model);
+
+        if ($result === true) {
+            return true;
+        } elseif ($result === 'duplicate') {
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Gagal: Jadwal untuk jenis tiket dan tanggal tersebut sudah ada (untuk entri lain).');
+            return 'duplicate';
+        } else {
+            if (function_exists('set_flash_message') && !isset($_SESSION['flash_message'])) {
+                set_flash_message('danger', 'Gagal memperbarui jadwal. ' . JadwalKetersediaanTiket::getLastError());
+            }
+            error_log("JadwalKetersediaanTiketController::update() - JadwalKetersediaanTiket::update gagal. Error: " . JadwalKetersediaanTiket::getLastError());
+            return false;
+        }
     }
-}
+
+    // Metode delete, dll. bisa ditambahkan di sini jika ada logika bisnis tambahan
+    // sebelum memanggil Model. Jika tidak, bisa dipanggil langsung dari skrip proses.
+
+} // End of class JadwalKetersediaanTiketController
