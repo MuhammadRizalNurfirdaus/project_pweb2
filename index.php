@@ -115,7 +115,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
         $destinasi_populer = [
           ['id_db' => 1, 'slug' => 'pemandian-air-panas', 'gambar' => 'air_panas.jpg', 'judul' => 'Pemandian Air Panas', 'deskripsi' => 'Rasakan relaksasi alami dengan berendam di air hangat pegunungan yang menyegarkan.'],
           ['id_db' => 2, 'slug' => 'bumi_perkemahan', 'gambar' => 'kemah.jpg', 'judul' => 'Bumi Perkemahan', 'deskripsi' => 'Tempat ideal untuk bersantai bersama keluarga dengan pemandangan asri dan udara segar.'],
-          ['id_db' => 3, 'slug' => 'air_terjun', 'gambar' => 'curug_cilengkrang.jpg', 'judul' => 'Air Terjun', 'deskripsi' => 'Air Terjun Cilengkarang, tersembunyi di balik pepohonan rindang, menyuguhkan keindahan alam yang menyejukkan.'],
+          ['id_db' => 3, 'slug' => 'air_terjun', 'gambar' => 'terjun2.jpg', 'judul' => 'Air Terjun', 'deskripsi' => 'Air Terjun Cilengkarang, tersembunyi di balik pepohonan rindang, menyuguhkan keindahan alam yang menyejukkan.'],
         ];
         $delay_animasi = 0;
         foreach ($destinasi_populer as $dest) :

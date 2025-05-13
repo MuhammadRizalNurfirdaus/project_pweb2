@@ -20,10 +20,13 @@ $gallery_items = [
 ?>
 
 <div class="main-page-content">
-    <section class="hero-small" style="background-image: url('<?= $base_url ?>public/img/air_panas_polos.jpg');">
+    <section class="hero-small" style="background-image: url('<?= $base_url ?>public/img/pohon.jpg');">
         <div class="container">
-            <h1 class="display-4">Galeri Foto Cilengkrang</h1>
-            <p class="lead">Saksikan Keindahan Destinasi Kami Melalui Lensa Kamera.</p>
+            <div class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+        <h1 class="display-4 text-center text-white fw-bold">Galeri Foto Cilengkrang</h1>
+
+
+            </div>
         </div>
     </section>
 

@@ -58,7 +58,7 @@ include_once __DIR__ . '/../template/header_user.php'; // Header sudah diupdate 
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="card shadow-lg">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-success text-white">
                         <h2 class="mb-0 text-center section-title" style="color:white; margin-bottom:0; margin-top:0;">Form Pemesanan Tiket Wisata</h2>
                     </div>
                     <div class="card-body p-4 p-md-5">

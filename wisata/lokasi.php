@@ -21,9 +21,9 @@ $google_maps_direction_url = "https://www.google.com/maps/dir/?api=1&destination
 ?>
 
 <div class="main-page-content">
-    <section class="hero-small" style="background-image: url('<?= $base_url ?>public/img/peta_ilustrasi.jpg');"> <!-- Sediakan gambar public/img/peta_ilustrasi.jpg -->
+    <section class="hero-small" style="background-image: url('<?= $base_url ?>public/img/mobil.jpg');"> <!-- Sediakan gambar public/img/peta_ilustrasi.jpg -->
         <div class="container">
-            <h1 class="display-4">Lokasi Kami</h1>
+            <h1 class="display-4 text-white fw-bold">Lokasi Kami</h1>
             <p class="lead">Temukan Rute Terbaik Menuju Petualangan Anda di Lembah Cilengkrang.</p>
         </div>
     </section>
@@ -70,7 +70,7 @@ $google_maps_direction_url = "https://www.google.com/maps/dir/?api=1&destination
                 <div class="col-md-4">
                     <div class="card alert-light-custom border text-center h-100 p-3">
                         <div class="icon-feature-tip mb-3">
-                            <i class="fas fa-cloud-sun fa-3x text-secondary"></i>
+                            <i class="fas fa-cloud-sun fa-3x text-success"></i>
                         </div>
                         <h5 class="h6">Cek Cuaca</h5>
                         <p class="small mb-0">Periksa prakiraan cuaca sebelum berangkat, terutama jika berencana aktivitas outdoor seperti berkemah atau trekking.</p>
@@ -79,16 +79,16 @@ $google_maps_direction_url = "https://www.google.com/maps/dir/?api=1&destination
                 <div class="col-md-4">
                     <div class="card alert-light-custom border text-center h-100 p-3">
                         <div class="icon-feature-tip mb-3">
-                            <i class="fas fa-gas-pump fa-3x text-secondary"></i>
+                            <i class="fas fa-gas-pump fa-3x text-success"></i>
                         </div>
                         <h5 class="h6">Bahan Bakar</h5>
                         <p class="small mb-0">Pastikan bahan bakar kendaraan Anda cukup. Pom bensin mungkin lebih jarang ditemui di area dekat wisata alam.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card alert-light-custom border text-center h-100 p-3">
-                        <div class="icon-feature-tip mb-3">
-                            <i class="fas fa-camera-retro fa-3x text-secondary"></i>
+                    <div class="card alert-light-custom border text-center h-100 p-3"> 
+                        <div class=" icon-feature-tip mb-3">
+                            <i class="fas fa-camera-retro fa-3x text-success"></i>
                         </div>
                         <h5 class="h6">Abadikan Momen</h5>
                         <p class="small mb-0">Bawa kamera atau ponsel dengan baterai penuh untuk mengabadikan keindahan alam dan momen spesial Anda!</p>
