@@ -97,3 +97,145 @@ Stack trace:
 #1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\proses_user.php(86): User::register(Array)
 #2 {main}
   thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\User.php on line 115
+[13-May-2025 18:44:34 Asia/Jakarta] CSRF Verify Error: Token dari request atau session tidak ditemukan.
+[13-May-2025 18:51:46 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function redirect_if_not_logged_in() in C:\xampp\htdocs\Cilengkrang-Web-Wisata\user\riwayat_pemesanan.php:12
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\user\riwayat_pemesanan.php on line 12
+[13-May-2025 18:53:38 Asia/Jakarta] Peringatan di fungsi redirect(): Headers sudah terkirim. Output dimulai di C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php pada baris 53. Redirect ke 'http://localhost/Cilengkrang-Web-Wisata/admin/artikel/kelola_artikel.php' mungkin gagal di sisi server.
+[13-May-2025 18:54:59 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 18:55:07 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 18:55:14 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 18:55:21 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 18:55:44 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 18:55:48 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 18:55:52 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 18:55:52 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'w.nama_wisata' in 'field list' in C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\JenisTiket.php:162
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\JenisTiket.php(162): mysqli_query(Object(mysqli), 'SELECT jt.*, w....')
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\JenisTiketController.php(72): JenisTiket::getAll()
+#2 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\jenis_tiket\kelola_jenis_tiket.php(12): JenisTiketController::getAll()
+#3 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\JenisTiket.php on line 162
+[13-May-2025 19:06:53 Asia/Jakarta] CSRF Verify Error: Token dari request atau session tidak ditemukan.
+[13-May-2025 19:06:53 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:06:53 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:06:56 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:06:56 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:01 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:01 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:02 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:02 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:02 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:02 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:03 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:03 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:03 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:03 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:06 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:06 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:07 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:07 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:08 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:08 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:51 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:51 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:53 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:53 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:54 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:07:54 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:09 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:09:09 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:10 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:10 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:12 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:09:12 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:17 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:19 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:09:19 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:20 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:09:20 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'w.nama_wisata' in 'field list' in C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\JenisTiket.php:162
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\JenisTiket.php(162): mysqli_query(Object(mysqli), 'SELECT jt.*, w....')
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\JenisTiketController.php(72): JenisTiket::getAll()
+#2 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\jenis_tiket\kelola_jenis_tiket.php(12): JenisTiketController::getAll()
+#3 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\JenisTiket.php on line 162
+[13-May-2025 19:09:20 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:22 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:09:22 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:28 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:28 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:30 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:30 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:30 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:31 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:31 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:31 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:31 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:31 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:31 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:31 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:31 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:31 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:47 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:09:47 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:48 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:09:48 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:10:07 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:10:07 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:10:08 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:10:08 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:10:09 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:10:09 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:10:10 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:10:10 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:10:11 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:10:11 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:12:49 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:12:49 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:12:50 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:13:48 Asia/Jakarta] Peringatan: GaleriController::update() tidak ditemukan, update disimulasikan.
+[13-May-2025 19:13:48 Asia/Jakarta] Simulasi: Menghapus file lama: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\galeri/../../public/img/galeri_68205a0898c802.84297583.jpg
+[13-May-2025 19:13:48 Asia/Jakarta] Peringatan di fungsi redirect(): Headers sudah terkirim. Output dimulai di C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php pada baris 53. Redirect ke 'http://localhost/Cilengkrang-Web-Wisata/admin/galeri/kelola_galeri.php' mungkin gagal di sisi server.
+[13-May-2025 19:13:48 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:14:12 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:14:15 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:14:15 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:16:49 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:16:49 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:16:54 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:16:54 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:16:55 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:16:55 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:16:55 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:16:55 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:18:40 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:18:40 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:18:44 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:18:46 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:18:50 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:18:54 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:19:07 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:19:22 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:19:22 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:19:25 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:19:25 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:21 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:21 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:22 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:22 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:23 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:23 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:23 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:23 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:23 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:23 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:23 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:23 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:24 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:25 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:26 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:26 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:29 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:21:29 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().

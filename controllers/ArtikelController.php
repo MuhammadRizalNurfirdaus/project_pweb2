@@ -1,383 +1,255 @@
 <?php
 // File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\ArtikelController.php
 
-// TIDAK PERLU: require_once __DIR__ . '/../config/config.php';
-// config.php seharusnya sudah di-include oleh file yang memanggil metode controller ini (misal: kelola_artikel.php)
+/**
+ * ArtikelController
+ * Bertanggung jawab untuk logika bisnis terkait Artikel.
+ * Berinteraksi dengan Model Artikel dan Feedback.
+ * 
+ * PENTING:
+ * - Diasumsikan config.php sudah memuat SEMUA file Model yang diperlukan
+ *   DAN sudah memanggil metode statis `ModelName::setDbConnection($conn)` atau `ModelName::init()` 
+ *   untuk setiap Model (Artikel, Feedback).
+ * - Fungsi helper (set_flash_message, e, redirect) diasumsikan tersedia dari config.php.
+ */
 
-// Jika controller ini perlu berinteraksi dengan model lain (misal FeedbackModel),
-// maka require_once model tersebut di sini.
-// Untuk saat ini, query ke tabel feedback dilakukan langsung.
+// Tidak perlu require_once Model di sini jika config.php sudah menangani pemuatan dan inisialisasi Model.
+// Jika belum, uncomment ini:
+/*
+if (!class_exists('Artikel')) { require_once __DIR__ . '/../models/Artikel.php'; }
+if (!class_exists('Feedback')) { require_once __DIR__ . '/../models/Feedback.php'; }
+*/
 
 class ArtikelController
 {
     /**
-     * Tambah artikel baru.
-     * @param string $judul Judul artikel.
-     * @param string $isi Isi artikel.
-     * @param string|null $gambar Nama file gambar (opsional).
-     * @return int|false ID artikel baru jika berhasil, false jika gagal.
+     * Membuat artikel baru.
+     * @param array $data Data dari form, diharapkan memiliki 'judul', 'isi'. Opsional: 'gambar_filename'.
+     * @return int|false ID artikel baru jika berhasil, false jika gagal. Flash message akan diatur.
      */
-    public static function create($judul, $isi, $gambar = null)
+    public static function create(array $data)
     {
-        global $conn;
-        if (!$conn) {
-            error_log("ArtikelController::create() - Koneksi database tidak tersedia.");
+        // Validasi input dasar
+        $judul = trim($data['judul'] ?? '');
+        $isi = trim($data['isi'] ?? ''); // Biarkan HTML jika dari WYSIWYG, escape saat output
+        $gambar_filename = isset($data['gambar_filename']) && !empty($data['gambar_filename']) ? trim($data['gambar_filename']) : null;
+
+        if (empty($judul)) {
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Judul artikel tidak boleh kosong.');
+            return false;
+        }
+        if (empty($isi)) {
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Isi artikel tidak boleh kosong.');
             return false;
         }
 
-        // Validasi input
-        $judul_bersih = htmlspecialchars(strip_tags(trim($judul)));
-        // Isi bisa mengandung HTML, jadi tidak di strip_tags, tapi pastikan validasi/sanitasi di frontend/sebelum simpan
-        $isi_artikel = trim($isi);
-        $gambar_bersih = (!empty($gambar) && is_string($gambar)) ? htmlspecialchars(strip_tags($gambar)) : null;
-
-        if (empty($judul_bersih)) {
-            set_flash_message('danger', 'Judul artikel tidak boleh kosong.');
-            return false;
-        }
-        if (empty($isi_artikel)) {
-            set_flash_message('danger', 'Isi artikel tidak boleh kosong.');
+        // Pastikan Model Artikel dan metodenya tersedia
+        if (!class_exists('Artikel') || !method_exists('Artikel', 'create')) {
+            error_log("ArtikelController::create() - Model Artikel atau metode create tidak ditemukan.");
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan sistem: Komponen artikel tidak siap (M01C).');
             return false;
         }
 
-        $sql = "INSERT INTO articles (judul, isi, gambar, created_at) VALUES (?, ?, ?, NOW())";
-        $stmt = mysqli_prepare($conn, $sql);
+        $data_to_model = [
+            'judul' => $judul,
+            'isi' => $isi,
+            'gambar' => $gambar_filename
+        ];
 
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "sss", $judul_bersih, $isi_artikel, $gambar_bersih);
-            if (mysqli_stmt_execute($stmt)) {
-                $new_id = mysqli_insert_id($conn);
-                mysqli_stmt_close($stmt);
-                return $new_id;
-            } else {
-                error_log("ArtikelController::create execute failed: " . mysqli_stmt_error($stmt) . " | SQL: " . $sql);
-                mysqli_stmt_close($stmt);
-                set_flash_message('danger', 'Gagal menyimpan artikel ke database.');
-                return false;
-            }
+        $new_artikel_id = Artikel::create($data_to_model);
+
+        if ($new_artikel_id) {
+            if (function_exists('set_flash_message')) set_flash_message('success', 'Artikel baru berhasil ditambahkan dengan ID: ' . $new_artikel_id);
+            return $new_artikel_id;
         } else {
-            error_log("ArtikelController::create prepare failed: " . mysqli_error($conn) . " | SQL: " . $sql);
-            set_flash_message('danger', 'Terjadi kesalahan saat persiapan database untuk artikel.');
+            if (function_exists('set_flash_message') && !isset($_SESSION['flash_message'])) { // Hanya set jika Model belum
+                $db_error = method_exists('Artikel', 'getLastError') ? Artikel::getLastError() : 'Tidak diketahui';
+                set_flash_message('danger', 'Gagal menyimpan artikel ke database. ' . $db_error);
+            }
+            error_log("ArtikelController::create() - Artikel::create gagal. DB Error: " . (method_exists('Artikel', 'getLastError') ? Artikel::getLastError() : 'N/A'));
             return false;
         }
     }
 
     /**
-     * Ambil semua artikel.
-     * @return array Array data artikel atau array kosong jika gagal/tidak ada.
+     * Mengambil semua artikel untuk tampilan admin.
+     * @return array Array data artikel atau array kosong.
      */
-    public static function getAll()
+    public static function getAllForAdmin()
     {
-        global $conn;
-        if (!$conn) {
-            error_log("ArtikelController::getAll() - Koneksi database tidak tersedia.");
+        if (!class_exists('Artikel') || !method_exists('Artikel', 'getAll')) {
+            error_log("ArtikelController::getAllForAdmin() - Model Artikel atau metode getAll tidak ditemukan.");
             return [];
         }
-        $result = mysqli_query($conn, "SELECT id, judul, isi, gambar, created_at FROM articles ORDER BY created_at DESC");
-        if ($result) {
-            $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
-            mysqli_free_result($result);
-            return $data;
-        }
-        error_log("ArtikelController::getAll query failed: " . mysqli_error($conn));
-        return []; // Kembalikan array kosong jika gagal
+        return Artikel::getAll('created_at DESC'); // Urutkan terbaru dulu untuk admin
     }
 
     /**
-     * Ambil satu artikel berdasarkan ID.
+     * Mengambil satu artikel berdasarkan ID.
      * @param int $id ID Artikel.
-     * @return array|null Data artikel atau null jika tidak ditemukan/error.
+     * @return array|null Data artikel atau null.
      */
     public static function getById($id)
     {
-        global $conn;
-        if (!$conn) {
-            error_log("ArtikelController::getById() - Koneksi database tidak tersedia.");
-            return null;
-        }
         $id_val = filter_var($id, FILTER_VALIDATE_INT);
         if ($id_val === false || $id_val <= 0) {
             error_log("ArtikelController::getById() - ID artikel tidak valid: " . $id);
             return null;
         }
-
-        $sql = "SELECT id, judul, isi, gambar, created_at FROM articles WHERE id = ?";
-        $stmt = mysqli_prepare($conn, $sql);
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "i", $id_val);
-            if (mysqli_stmt_execute($stmt)) {
-                $result_get = mysqli_stmt_get_result($stmt);
-                $artikel = mysqli_fetch_assoc($result_get);
-                mysqli_free_result($result_get); // Bebaskan hasil
-                mysqli_stmt_close($stmt);
-                return $artikel ?: null;
-            } else {
-                error_log("ArtikelController::getById execute failed for ID $id_val: " . mysqli_stmt_error($stmt));
-                mysqli_stmt_close($stmt);
-                return null;
-            }
+        if (!class_exists('Artikel') || !method_exists('Artikel', 'getById')) {
+            error_log("ArtikelController::getById() - Model Artikel atau metode getById tidak ditemukan.");
+            return null;
         }
-        error_log("ArtikelController::getById prepare failed for ID $id_val: " . mysqli_error($conn));
-        return null;
+        return Artikel::getById($id_val);
     }
 
     /**
-     * Update artikel.
-     * @param int $id ID Artikel.
-     * @param string $judul Judul baru.
-     * @param string $isi Isi baru.
-     * @param string|null $gambar_new_name Nama file gambar baru (null jika tidak diubah, "REMOVE_IMAGE" jika ingin dihapus).
-     * @param string|null $gambar_old_name Nama file gambar lama (untuk dihapus dari server jika diganti/dihapus).
-     * @return bool True jika berhasil, false jika gagal.
+     * Menangani proses update artikel.
+     * @param array $data Data dari form edit, HARUS berisi 'id'.
+     *                    Kunci lain yang diharapkan: 'judul', 'isi', 
+     *                    'gambar_baru' (nama file baru, atau null, atau "REMOVE_IMAGE_FLAG"),
+     *                    'gambar_lama' (nama file gambar saat ini sebelum update).
+     * @return bool|string True jika berhasil, string pesan error spesifik, atau false jika gagal umum.
      */
-    public static function update($id, $judul, $isi, $gambar_new_name = null, $gambar_old_name = null)
+    public static function handleUpdateArtikel(array $data)
     {
-        global $conn;
-        if (!$conn) {
-            error_log("ArtikelController::update() - Koneksi database tidak tersedia.");
-            set_flash_message('danger', 'Koneksi database gagal.');
-            return false;
+        $artikel_id = isset($data['id']) ? filter_var($data['id'], FILTER_VALIDATE_INT) : 0;
+        if ($artikel_id <= 0) {
+            return "ID Artikel tidak valid untuk update.";
         }
 
-        $id_val = filter_var($id, FILTER_VALIDATE_INT);
-        if ($id_val === false || $id_val <= 0) {
-            set_flash_message('danger', 'ID Artikel tidak valid untuk update.');
-            return false;
+        $judul = trim($data['judul'] ?? '');
+        $isi = trim($data['isi'] ?? '');
+        $gambar_baru_filename = $data['gambar_baru'] ?? null; // Bisa null, nama file, atau "REMOVE_IMAGE_FLAG"
+        $gambar_lama_filename = $data['gambar_lama'] ?? null;
+
+        if (empty($judul)) return "Judul artikel tidak boleh kosong.";
+        if (empty($isi)) return "Isi artikel tidak boleh kosong.";
+
+        if (!class_exists('Artikel') || !method_exists('Artikel', 'update') || !method_exists('Artikel', 'getById')) {
+            error_log("ArtikelController::handleUpdateArtikel() - Model Artikel atau metode yang dibutuhkan tidak ditemukan.");
+            return "Kesalahan sistem: Komponen update artikel tidak siap (M02U).";
         }
 
-        // Validasi input
-        $judul_bersih = htmlspecialchars(strip_tags(trim($judul)));
-        $isi_artikel = trim($isi); // Isi bisa HTML
+        $data_to_update_model = [
+            'id' => $artikel_id,
+            'judul' => $judul,
+            'isi' => $isi,
+        ];
 
-        if (empty($judul_bersih)) {
-            set_flash_message('danger', 'Judul artikel tidak boleh kosong saat update.');
-            return false;
-        }
-        if (empty($isi_artikel)) {
-            set_flash_message('danger', 'Isi artikel tidak boleh kosong saat update.');
-            return false;
-        }
+        $gambar_final_for_db = null;
+        $delete_old_image_on_success = false;
 
-
-        // Logika untuk menentukan query berdasarkan ada/tidaknya gambar baru
-        $params = [$judul_bersih, $isi_artikel];
-        $types = "ss";
-
-        if ($gambar_new_name === "REMOVE_IMAGE") {
-            $sql_set_gambar = "gambar = NULL";
-        } elseif ($gambar_new_name && is_string($gambar_new_name)) { // Gambar baru diupload
-            $sql_set_gambar = "gambar = ?";
-            $params[] = htmlspecialchars(strip_tags($gambar_new_name));
-            $types .= "s";
-        } else { // Tidak ada perubahan gambar
-            $sql_set_gambar = null;
+        if ($gambar_baru_filename === "REMOVE_IMAGE_FLAG") {
+            $data_to_update_model['gambar'] = ""; // Kirim string kosong untuk di-set NULL oleh Model::update
+            if (!empty($gambar_lama_filename)) {
+                $delete_old_image_on_success = true;
+            }
+        } elseif (!empty($gambar_baru_filename) && is_string($gambar_baru_filename)) {
+            $data_to_update_model['gambar'] = $gambar_baru_filename;
+            if (!empty($gambar_lama_filename) && $gambar_lama_filename !== $gambar_baru_filename) {
+                $delete_old_image_on_success = true;
+            }
+        } else {
+            // Tidak ada perubahan gambar, jangan sertakan 'gambar' di $data_to_update_model
+            // agar Model::update tidak mengubahnya. Atau Model::update bisa handle jika $data['gambar'] null.
+            // Jika Model::update selalu mengharapkan 'gambar', kirim gambar lama:
+            // $data_to_update_model['gambar'] = $gambar_lama_filename;
         }
 
-        $sql = "UPDATE articles SET judul = ?, isi = ?";
-        if ($sql_set_gambar) {
-            $sql .= ", " . $sql_set_gambar;
-        }
-        $sql .= " WHERE id = ?";
-        $params[] = $id_val;
-        $types .= "i";
+        $update_success = Artikel::update($data_to_update_model);
 
-
-        $stmt = mysqli_prepare($conn, $sql);
-        if (!$stmt) {
-            error_log("ArtikelController::update prepare failed for ID $id_val: " . mysqli_error($conn) . " | SQL: " . $sql);
-            set_flash_message('danger', 'Terjadi kesalahan saat persiapan update database.');
-            return false;
-        }
-
-        mysqli_stmt_bind_param($stmt, $types, ...$params);
-
-        if (mysqli_stmt_execute($stmt)) {
-            $affected_rows = mysqli_stmt_affected_rows($stmt);
-            mysqli_stmt_close($stmt);
-
-            // Logika penghapusan file lama setelah update DB berhasil
-            // Pastikan UPLOADS_ARTIKEL_PATH sudah didefinisikan di config.php
-            if (defined('UPLOADS_ARTIKEL_PATH')) {
-                if (($gambar_new_name === "REMOVE_IMAGE" || ($gambar_new_name && $gambar_new_name !== $gambar_old_name)) && !empty($gambar_old_name)) {
-                    $old_file_path = UPLOADS_ARTIKEL_PATH . DIRECTORY_SEPARATOR . basename($gambar_old_name); // Keamanan path
+        if ($update_success) {
+            if ($delete_old_image_on_success && !empty($gambar_lama_filename)) {
+                // Pastikan UPLOADS_ARTIKEL_PATH sudah didefinisikan dan Model Artikel sudah di-init dengan path ini
+                // atau Controller mengambil path dari konstanta.
+                if (defined('UPLOADS_ARTIKEL_PATH')) {
+                    $old_file_path = UPLOADS_ARTIKEL_PATH . DIRECTORY_SEPARATOR . basename($gambar_lama_filename);
                     if (file_exists($old_file_path) && is_file($old_file_path)) {
                         if (!@unlink($old_file_path)) {
-                            error_log("ArtikelController::update Warning: Gagal menghapus file gambar lama: " . $old_file_path);
-                            // Jangan set flash error di sini karena update DB sudah berhasil
+                            error_log("ArtikelController::handleUpdateArtikel Peringatan: Gagal menghapus file gambar lama: " . $old_file_path);
+                            // Tidak menggagalkan operasi utama, hanya log
                         }
                     }
+                } else {
+                    error_log("ArtikelController::handleUpdateArtikel Peringatan: Konstanta UPLOADS_ARTIKEL_PATH tidak terdefinisi. Gambar lama mungkin tidak terhapus.");
                 }
-            } else {
-                error_log("ArtikelController::update Warning: Konstanta UPLOADS_ARTIKEL_PATH tidak terdefinisi.");
             }
-
-            // Mengembalikan true bahkan jika tidak ada baris yang terpengaruh (misal data sama)
-            // karena query eksekusinya berhasil. Atau bisa `return $affected_rows > 0;`
             return true;
         } else {
-            error_log("ArtikelController::update execute failed for ID $id_val: " . mysqli_stmt_error($stmt));
-            mysqli_stmt_close($stmt);
-            set_flash_message('danger', 'Gagal mengupdate artikel di database.');
-            return false;
+            $db_error = method_exists('Artikel', 'getLastError') ? Artikel::getLastError() : 'Tidak diketahui';
+            error_log("ArtikelController::handleUpdateArtikel() - Artikel::update gagal untuk ID {$artikel_id}. DB Error: " . $db_error);
+            return "Gagal memperbarui artikel di database. " . $db_error;
         }
     }
 
+
     /**
-     * Hapus artikel berdasarkan ID.
-     * Ini juga akan menghapus semua feedback yang terkait dengan artikel tersebut.
+     * Menghapus artikel berdasarkan ID.
+     * Ini juga akan menghapus semua feedback yang terkait dan file gambar.
      * @param int $id ID Artikel.
      * @return bool True jika berhasil, false jika gagal.
      */
     public static function delete($id)
     {
-        global $conn;
-        if (!$conn) {
-            error_log("ArtikelController::delete() - Koneksi database tidak tersedia.");
-            set_flash_message('danger', 'Koneksi database gagal.');
-            return false;
-        }
-
         $id_val = filter_var($id, FILTER_VALIDATE_INT);
         if ($id_val === false || $id_val <= 0) {
-            error_log("ArtikelController::delete Error: ID artikel tidak valid ($id).");
-            set_flash_message('danger', 'ID Artikel tidak valid untuk dihapus.');
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'ID Artikel tidak valid untuk dihapus.');
+            error_log("ArtikelController::delete() - ID artikel tidak valid: " . $id);
             return false;
         }
 
-        // Ambil nama file gambar artikel untuk dihapus nanti
-        $artikel = self::getById($id_val); // Gunakan getById yang sudah ada
-        $gambar_to_delete_on_server = null;
-        if ($artikel && !empty($artikel['gambar'])) {
-            $gambar_to_delete_on_server = $artikel['gambar'];
-        }
-
-        // LANGKAH 1: Hapus semua feedback yang terkait dengan artikel_id ini
-        $sql_delete_feedback = "DELETE FROM feedback WHERE artikel_id = ?";
-        $stmt_feedback = mysqli_prepare($conn, $sql_delete_feedback);
-
-        if (!$stmt_feedback) {
-            error_log("ArtikelController::delete prepare failed (feedback) for artikel ID $id_val: " . mysqli_error($conn));
-            set_flash_message('danger', 'Gagal persiapan penghapusan feedback terkait.');
+        if (
+            !class_exists('Artikel') || !method_exists('Artikel', 'delete') ||
+            !class_exists('Feedback') || !method_exists('Feedback', 'deleteByArtikelId')
+        ) {
+            error_log("ArtikelController::delete() - Model Artikel/Feedback atau metode yang dibutuhkan tidak ditemukan.");
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan sistem: Komponen hapus artikel tidak lengkap (M03D).');
             return false;
         }
 
-        mysqli_stmt_bind_param($stmt_feedback, "i", $id_val);
-        // Eksekusi penghapusan feedback, tidak perlu cek affected_rows di sini, lanjutkan meski tidak ada feedback
-        if (!mysqli_stmt_execute($stmt_feedback)) {
-            error_log("ArtikelController::delete execute failed (feedback) for artikel ID $id_val: " . mysqli_stmt_error($stmt_feedback));
-            // Lanjutkan untuk menghapus artikel utama, feedback mungkin tidak ada
-        }
-        mysqli_stmt_close($stmt_feedback);
+        // Model Artikel::delete() yang direvisi sudah menangani penghapusan feedback dan gambar.
+        $delete_result = Artikel::delete($id_val);
 
-
-        // LANGKAH 2: Hapus artikel itu sendiri
-        $sql_delete_article = "DELETE FROM articles WHERE id = ?";
-        $stmt_article = mysqli_prepare($conn, $sql_delete_article);
-
-        if (!$stmt_article) {
-            error_log("ArtikelController::delete prepare failed (article) for ID $id_val: " . mysqli_error($conn));
-            set_flash_message('danger', 'Gagal persiapan penghapusan artikel.');
-            return false;
-        }
-
-        mysqli_stmt_bind_param($stmt_article, "i", $id_val);
-        if (mysqli_stmt_execute($stmt_article)) {
-            $affected_rows = mysqli_stmt_affected_rows($stmt_article);
-            mysqli_stmt_close($stmt_article);
-
-            if ($affected_rows > 0) {
-                // LANGKAH 3: Hapus file gambar artikel jika ada dan record DB berhasil dihapus
-                if ($gambar_to_delete_on_server && defined('UPLOADS_ARTIKEL_PATH')) {
-                    $file_path = UPLOADS_ARTIKEL_PATH . DIRECTORY_SEPARATOR . basename($gambar_to_delete_on_server);
-                    if (file_exists($file_path) && is_file($file_path)) {
-                        if (!@unlink($file_path)) {
-                            error_log("ArtikelController::delete Warning: Gagal menghapus file gambar artikel " . $file_path);
-                            // Jangan set flash error di sini, fokus pada keberhasilan hapus DB
-                        }
-                    }
-                } elseif ($gambar_to_delete_on_server && !defined('UPLOADS_ARTIKEL_PATH')) {
-                    error_log("ArtikelController::delete Warning: Konstanta UPLOADS_ARTIKEL_PATH tidak terdefinisi, gambar tidak dihapus.");
-                }
-                return true; // Artikel berhasil dihapus
-            } else {
-                error_log("ArtikelController::delete Warning: Tidak ada artikel yang terhapus untuk ID $id_val (mungkin sudah dihapus).");
-                // Jika tidak ada baris yang terpengaruh, bisa jadi ID tidak ada.
-                // Pertimbangkan apakah ini error atau bukan. Untuk sekarang, return false.
-                set_flash_message('warning', 'Artikel tidak ditemukan atau sudah dihapus sebelumnya.');
-                return false;
-            }
+        if ($delete_result) {
+            if (function_exists('set_flash_message')) set_flash_message('success', 'Artikel berhasil dihapus.');
+            return true;
         } else {
-            error_log("ArtikelController::delete execute failed (article) for ID $id_val: " . mysqli_stmt_error($stmt_article));
-            mysqli_stmt_close($stmt_article);
-            set_flash_message('danger', 'Gagal menghapus artikel dari database.');
+            if (function_exists('set_flash_message') && !isset($_SESSION['flash_message'])) { // Hanya set jika Model belum
+                $db_error = method_exists('Artikel', 'getLastError') ? Artikel::getLastError() : 'Tidak diketahui';
+                set_flash_message('danger', 'Gagal menghapus artikel. ' . $db_error);
+            }
+            error_log("ArtikelController::delete() - Artikel::delete gagal untuk ID {$id_val}. DB Error: " . (method_exists('Artikel', 'getLastError') ? Artikel::getLastError() : 'N/A'));
             return false;
         }
     }
 
     /**
-     * Mengambil sejumlah artikel terbaru.
-     * @param int $limit Jumlah artikel yang ingin diambil.
-     * @return array Array berisi data artikel terbaru, atau array kosong jika gagal/tidak ada.
+     * Mengambil sejumlah artikel terbaru untuk tampilan publik atau widget.
+     * @param int $limit Jumlah artikel.
+     * @return array Daftar artikel.
      */
-    public static function getLatest($limit = 3)
+    public static function getLatestPublished($limit = 5)
     {
-        global $conn;
-        if (!$conn) {
-            error_log("ArtikelController::getLatest() - Koneksi database tidak tersedia.");
+        if (!class_exists('Artikel') || !method_exists('Artikel', 'getLatest')) {
+            error_log("ArtikelController::getLatestPublished() - Model Artikel atau metode getLatest tidak ditemukan.");
             return [];
         }
-
-        $limit_val = filter_var($limit, FILTER_VALIDATE_INT);
-        if ($limit_val === false || $limit_val <= 0) {
-            $limit_val = 3; // Default limit
-        }
-
-        $sql = "SELECT id, judul, isi, gambar, created_at 
-                  FROM articles 
-                  ORDER BY created_at DESC
-                  LIMIT ?";
-        $stmt = mysqli_prepare($conn, $sql);
-
-        if (!$stmt) {
-            error_log("ArtikelController::getLatest() Prepare Error: " . mysqli_error($conn));
-            return [];
-        }
-
-        mysqli_stmt_bind_param($stmt, "i", $limit_val);
-
-        if (mysqli_stmt_execute($stmt)) {
-            $result = mysqli_stmt_get_result($stmt);
-            $articles = mysqli_fetch_all($result, MYSQLI_ASSOC);
-            mysqli_free_result($result);
-            mysqli_stmt_close($stmt);
-            return $articles;
-        } else {
-            error_log("ArtikelController::getLatest() Execute Error: " . mysqli_stmt_error($stmt));
-            mysqli_stmt_close($stmt);
-            return [];
-        }
+        // Di sini bisa ditambahkan logika filter tambahan jika perlu,
+        // misalnya hanya artikel dengan status 'published' jika ada kolom status di tabel artikel.
+        return Artikel::getLatest((int)$limit);
     }
 
     /**
      * Menghitung semua artikel.
-     * @return int Jumlah artikel atau 0 jika error.
+     * @return int Jumlah artikel.
      */
-    public static function countAll()
+    public static function countAllArticles()
     {
-        global $conn;
-        if (!$conn) {
-            error_log("ArtikelController::countAll() - Koneksi DB gagal.");
+        if (!class_exists('Artikel') || !method_exists('Artikel', 'countAll')) {
+            error_log("ArtikelController::countAllArticles() - Model Artikel atau metode countAll tidak ditemukan.");
             return 0;
         }
-        $sql = "SELECT COUNT(id) as total FROM articles";
-        $result = mysqli_query($conn, $sql);
-        if ($result) {
-            $row = mysqli_fetch_assoc($result);
-            mysqli_free_result($result);
-            return (int)($row['total'] ?? 0);
-        } else {
-            error_log("ArtikelController::countAll() - MySQLi Query Error: " . mysqli_error($conn));
-            return 0;
-        }
+        return Artikel::countAll();
     }
-}
+} // End of class ArtikelController
