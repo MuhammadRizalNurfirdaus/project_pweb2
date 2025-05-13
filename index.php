@@ -42,15 +42,16 @@ if (!@include_once __DIR__ . '/template/header.php') {
 
 <div class="main-page-content">
 
-  <section class="hero-video-background text-white text-center d-flex align-items-center">
-    <!-- Video latar belakang dengan poster untuk browser yang tidak mendukung video autoplay -->
+  <!-- MODIFIED SECTION: Added inline style for background-image -->
+  <section class="hero-video-background text-white text-center d-flex align-items-center" 
+          style="background-image: url('<?= $base_url ?>public/img/air.jpg'); background-size: cover; background-position: center;">
+    
     <video playsinline autoplay muted loop poster="<?= $base_url ?>public/img/background_poster.jpg" id="bgvid" aria-label="Video latar pemandangan Lembah Cilengkrang">
       <source src="<?= $base_url ?>public/img/background.mp4" type="video/mp4">
       Browser Anda tidak mendukung tag video.
     </video>
     <div class="hero-overlay"></div>
     <div class="container hero-content animate-on-scroll">
-      <!-- Logo di tengah hero sudah dihapus sesuai permintaan -->
 
       <h1 class="display-3 fw-bolder text-shadow-strong">Jelajahi Pesona Alam Cilengkrang</h1>
       <p class="lead my-4 col-lg-10 mx-auto text-shadow-soft">
@@ -66,6 +67,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
       </a>
     </div>
   </section>
+  <!-- END OF MODIFIED SECTION -->
 
   <section class="section-padding">
     <div class="container">
@@ -92,7 +94,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
         </div>
         <div class="col-md-6 col-lg-4">
           <div class="card feature-card text-center p-lg-4 p-3 h-100 animate-on-scroll" data-animation-delay="200ms">
-            <div class="icon text-info display-1 mb-3"><i class="fas fa-tree"></i></div>
+            <div class="icon text-success display-1 mb-3"><i class="fas fa-tree"></i></div>
             <div class="card-body p-0">
               <h5 class="card-title h4">Keindahan Hutan Pinus</h5>
               <p class="card-text">Nikmati trekking santai atau piknik di tengah keteduhan hutan pinus yang asri, hirup udara segar khas pegunungan.</p>
@@ -106,14 +108,14 @@ if (!@include_once __DIR__ . '/template/header.php') {
   <section class="section-padding bg-light-custom">
     <div class="container">
       <h2 class="section-title">Destinasi Populer Kami</h2>
-      <div class="row g-4">
+      <div class="row g-4 text-center">
         <?php
         // Data destinasi ini idealnya diambil dari database (tabel 'wisata')
         // Contoh data statis untuk sekarang:
         $destinasi_populer = [
           ['id_db' => 1, 'slug' => 'pemandian-air-panas', 'gambar' => 'air_panas.jpg', 'judul' => 'Pemandian Air Panas', 'deskripsi' => 'Rasakan relaksasi alami dengan berendam di air hangat pegunungan yang menyegarkan.'],
-          ['id_db' => 2, 'slug' => 'gazebo-area-santai', 'gambar' => 'gazebo.jpg', 'judul' => 'Gazebo & Area Santai', 'deskripsi' => 'Tempat ideal untuk bersantai bersama keluarga dengan pemandangan asri dan udara segar.'],
-          ['id_db' => 3, 'slug' => 'kolam-air-panas-keluarga', 'gambar' => 'kolam_air_panas.jpg', 'judul' => 'Kolam Air Panas Keluarga', 'deskripsi' => 'Nikmati momen relaksasi bersama keluarga di kolam air panas dengan suasana alam yang menenangkan.'],
+          ['id_db' => 2, 'slug' => 'bumi_perkemahan', 'gambar' => 'kemah.jpg', 'judul' => 'Bumi Perkemahan', 'deskripsi' => 'Tempat ideal untuk bersantai bersama keluarga dengan pemandangan asri dan udara segar.'],
+          ['id_db' => 3, 'slug' => 'air_terjun', 'gambar' => 'curug_cilengkrang.jpg', 'judul' => 'Air Terjun', 'deskripsi' => 'Air Terjun Cilengkarang, tersembunyi di balik pepohonan rindang, menyuguhkan keindahan alam yang menyejukkan.'],
         ];
         $delay_animasi = 0;
         foreach ($destinasi_populer as $dest) :
@@ -126,7 +128,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
               <div class="card-body d-flex flex-column">
                 <h5 class="card-title"><?= e($dest['judul']) ?></h5>
                 <p class="card-text text-muted small flex-grow-1"><?= e($dest['deskripsi']) ?></p>
-                <a href="<?= $base_url ?>wisata/detail_destinasi.php?id=<?= e($dest['id_db']) ?>&slug=<?= e($dest['slug']) ?>" class="btn btn-sm btn-primary mt-auto align-self-start">Lihat Detail <i class="fas fa-chevron-right fa-xs ms-1"></i></a>
+              
               </div>
             </div>
           </div>
@@ -134,8 +136,8 @@ if (!@include_once __DIR__ . '/template/header.php') {
         endforeach; ?>
       </div>
       <div class="text-center mt-5">
-        <a href="<?= $base_url ?>wisata/semua_destinasi.php" class="btn btn-secondary btn-lg">
-          <i class="fas fa-th-large me-2"></i>Lihat Semua Destinasi
+  
+          
         </a>
       </div>
     </div>
@@ -152,7 +154,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
             <div class="col-md-6 col-lg-4 animate-on-scroll" data-animation-delay="<?= $delay_animasi_artikel ?>ms">
               <div class="card article-card-home h-100 shadow-sm">
                 <?php
-                $gambar_url_artikel = $base_url . 'public/img/default_artikel_thumbnail.jpg'; // Pastikan gambar ini ada
+                $gambar_url_artikel = $base_url . 'public/img/lembah_cilengkrang.jpg'; // Pastikan gambar ini ada
                 if (!empty($artikel['gambar'])) {
                   $gambar_url_artikel = $base_url . 'public/uploads/artikel/' . e($artikel['gambar']);
                 }
@@ -195,9 +197,9 @@ if (!@include_once __DIR__ . '/template/header.php') {
 
   <section class="section-padding bg-light-custom testimonial-section">
     <div class="container">
-      <h2 class="section-title">Apa Kata Mereka?</h2>
+      <h2 class="section-title">Apa Kata Mereka?</h2>  
       <div class="row justify-content-center">
-        <div class="col-lg-9">
+        <div class="col-lg-9">   
           <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="7000">
             <div class="carousel-indicators">
               <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Testimoni 1"></button>
@@ -231,19 +233,49 @@ if (!@include_once __DIR__ . '/template/header.php') {
             <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
               <span class="carousel-control-next-icon" aria-hidden="true"></span>
               <span class="visually-hidden">Next</span>
-            </button>
+            </button> 
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section-padding text-center cta-section">
+  <style>
+  .cta-section {
+    background-image: url('images/bg-petualangan.jpg'); /* Ganti dengan path gambar kamu */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .cta-overlay {
+    background-color: rgba(0, 0, 0, 0.6); /* Overlay gelap agar teks tetap terlihat */
+    padding: 80px 0; /* Ruang vertikal */
+  }
+</style>
+
+<style>
+  .cta-section {
+    background-image: url('images/bg-petualangan.jpg'); /* Ganti dengan path gambar kamu */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .cta-overlay {
+    background-color: rgba(0, 0, 0, 0.6); /* Overlay gelap agar teks tetap terlihat */
+    padding: 80px 0; /* Ruang vertikal */
+  }
+</style>
+
+<section class="section-padding text-center cta-section">
+  <div class="cta-overlay">
     <div class="container">
       <div class="animate-on-scroll">
         <h2 class="section-title text-white">Siap untuk Petualangan Berikutnya?</h2>
-        <p class="lead mb-4 mx-auto text-white-90" style="max-width: 700px;">Cilengkrang menanti kedatangan Anda dengan sejuta pesona alam, keramahan, dan pengalaman tak terlupakan yang akan memperkaya jiwa.</p>
-        <!-- Mengganti user/booking.php menjadi user/pemesanan_tiket.php -->
+        <p class="lead mb-4 mx-auto text-white" style="max-width: 700px;">
+          Cilengkrang menanti kedatangan Anda dengan sejuta pesona alam, keramahan, dan pengalaman tak terlupakan yang akan memperkaya jiwa.
+        </p>
         <a href="<?= $base_url ?>user/pemesanan_tiket.php" class="btn btn-light btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn">
           <i class="fas fa-calendar-check me-2"></i> Rencanakan Kunjungan
         </a>
@@ -252,7 +284,10 @@ if (!@include_once __DIR__ . '/template/header.php') {
         </a>
       </div>
     </div>
-  </section>
+  </div>
+</section>
+
+
 
 </div> <!-- Penutup .main-page-content -->
 

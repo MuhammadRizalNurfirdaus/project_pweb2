@@ -74,3 +74,13 @@
 Stack trace:
 #0 {main}
   thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\kelola_users.php on line 124
+[13-May-2025 17:25:53 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'updated_at' in 'field list' in C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\User.php:161
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\User.php(161): mysqli_prepare(Object(mysqli), 'SELECT id, nama...')
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\edit_user.php(20): User::findById(1)
+#2 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\User.php on line 161
+[13-May-2025 17:25:57 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function generate_csrf_token_input() in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\tambah_user.php:37
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\tambah_user.php on line 37
