@@ -112,3 +112,7 @@ Stack trace:
 [13-May-2025 19:09:57 Asia/Jakarta] PemesananSewaAlat::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_sewa_alat' doesn't exist
 [13-May-2025 19:09:57 Asia/Jakarta] SewaAlat::countAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.sewa_alat' doesn't exist
 [13-May-2025 19:09:57 Asia/Jakarta] Pembayaran::getTotalRevenue() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pembayaran' doesn't exist
+[13-May-2025 19:55:56 Asia/Jakarta] PemesananTiket::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_tiket' doesn't exist
+[13-May-2025 19:55:56 Asia/Jakarta] PemesananSewaAlat::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_sewa_alat' doesn't exist
+[13-May-2025 19:55:56 Asia/Jakarta] SewaAlat::countAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.sewa_alat' doesn't exist
+[13-May-2025 19:55:56 Asia/Jakarta] Pembayaran::getTotalRevenue() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pembayaran' doesn't exist
