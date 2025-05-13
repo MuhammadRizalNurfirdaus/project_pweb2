@@ -84,3 +84,16 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\tambah_user.php on line 37
+[13-May-2025 18:04:50 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function generate_csrf_token_input() in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\tambah_user.php:66
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\tambah_user.php on line 66
+[13-May-2025 18:05:45 Asia/Jakarta] Kesalahan sistem: Controller atau metode Pemesanan Tiket tidak ditemukan.
+[13-May-2025 18:05:56 Asia/Jakarta] Kesalahan sistem: Controller atau metode Pemesanan Tiket tidak ditemukan.
+[13-May-2025 18:06:00 Asia/Jakarta] Kesalahan sistem: Controller atau metode Pemesanan Tiket tidak ditemukan.
+[13-May-2025 18:12:34 Asia/Jakarta] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'updated_at' in 'field list' in C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\User.php:115
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\User.php(115): mysqli_prepare(Object(mysqli), 'INSERT INTO use...')
+#1 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\proses_user.php(86): User::register(Array)
+#2 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\User.php on line 115

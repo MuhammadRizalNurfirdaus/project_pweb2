@@ -274,7 +274,15 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
                     <hr class="my-3">
                     <h6>Update Status Pembayaran:</h6>
                     <form action="<?= e(ADMIN_URL) ?>/pembayaran/proses_update_status_pembayaran.php" method="POST"> <!-- Arahkan ke controller pembayaran -->
-                        <?php if (function_exists('generate_csrf_token_input')): echo generate_csrf_token_input();
+                        <?php 
+                        if (!function_exists('generate_csrf_token_input')) {
+                            function generate_csrf_token_input() {
+                                $csrf_token = bin2hex(random_bytes(32)); // Generate a random CSRF token
+                                $_SESSION['csrf_token'] = $csrf_token; // Store it in the session
+                                return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($csrf_token) . '">';
+                            }
+                        }
+                        echo generate_csrf_token_input();
                         endif; ?>
                         <input type="hidden" name="pemesanan_id" value="<?= e($pemesanan_id) ?>">
                         <input type="hidden" name="pembayaran_id" value="<?= e($id_pembayaran_terkait) ?>">
@@ -295,7 +303,7 @@ $id_pembayaran_terkait = $info_pembayaran['id'] ?? null;
                             <i class="fas fa-sync-alt me-2"></i>Update Status Pembayaran
                         </button>
                     </form>
-                <?php elseif (!$info_pembayaran && !in_array(strtolower($header_pemesanan['status'] ?? ''), ['cancelled', 'expired', 'failed', 'refunded'])): ?>
+                <?php if (!$info_pembayaran && !in_array(strtolower($header_pemesanan['status'] ?? ''), ['cancelled', 'expired', 'failed', 'refunded'])): ?>
                     <hr class="my-3">
                     <p class="text-muted">Pembayaran belum dibuat.</p>
                     <form action="<?= e(ADMIN_URL) ?>/pembayaran/proses_update_status_pembayaran.php" method="POST"> <!-- Arahkan ke controller pembayaran -->
