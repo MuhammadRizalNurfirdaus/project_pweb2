@@ -239,3 +239,75 @@ Stack trace:
 [13-May-2025 19:21:26 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
 [13-May-2025 19:21:29 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
 [13-May-2025 19:21:29 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:16 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:16 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:17 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:17 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:22 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:22 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:23 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:23 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:23 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:23 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:24 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:24 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:24 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:24 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:25 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:25 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:25 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:25 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:25 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:26 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:26 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:25:26 Asia/Jakarta] Artikel - Koneksi database tidak tersedia atau gagal: Koneksi DB (self::$db) belum diset via init().
+[13-May-2025 19:30:21 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:30:34 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:30:49 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:31:30 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:40:30 Asia/Jakarta] Info config.php: Direktori C:\xampp\htdocs\Cilengkrang-Web-Wisata/public/uploads/galeri berhasil dibuat.
+[13-May-2025 19:40:30 Asia/Jakarta] FATAL ERROR di edit_foto.php: GaleriController atau metode yang dibutuhkan tidak ditemukan.
+[13-May-2025 19:40:34 Asia/Jakarta] FATAL ERROR di edit_foto.php: GaleriController atau metode yang dibutuhkan tidak ditemukan.
+[13-May-2025 19:40:43 Asia/Jakarta] FATAL ERROR di edit_foto.php: GaleriController atau metode yang dibutuhkan tidak ditemukan.
+[13-May-2025 19:40:52 Asia/Jakarta] FATAL ERROR di edit_foto.php: GaleriController atau metode yang dibutuhkan tidak ditemukan.
+[13-May-2025 19:42:14 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:42:22 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:42:27 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:42:29 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:42:50 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:42:54 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\Cilengkrang-Web-Wisata\template\header_admin.php on line 47
+[13-May-2025 19:44:13 Asia/Jakarta] FATAL ERROR di edit_foto.php: GaleriController atau metode yang dibutuhkan tidak ditemukan.
+[13-May-2025 19:49:56 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined method Galeri::checkDbConnection() in C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\Galeri.php:101
+Stack trace:
+#0 C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\galeri\kelola_galeri.php(49): Galeri::getAll('uploaded_at DES...')
+#1 {main}
+  thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\models\Galeri.php on line 101
+[13-May-2025 19:55:14 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:14 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:14 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:14 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:19 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:19 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:19 Asia/Jakarta] FATAL ERROR di edit_foto.php: GaleriController atau metode yang dibutuhkan tidak ditemukan.
+[13-May-2025 19:55:19 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:19 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:19 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:19 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:24 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:24 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:24 Asia/Jakarta] FATAL ERROR di edit_foto.php: GaleriController atau metode yang dibutuhkan tidak ditemukan.
+[13-May-2025 19:55:24 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:24 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:24 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:24 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:27 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:27 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:27 Asia/Jakarta] FATAL ERROR di edit_foto.php: GaleriController atau metode yang dibutuhkan tidak ditemukan.
+[13-May-2025 19:55:27 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:27 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:27 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:27 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:33 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:33 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:33 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+[13-May-2025 19:55:33 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.

@@ -96,6 +96,7 @@ if (!defined('UPLOADS_WISATA_PATH')) define('UPLOADS_WISATA_PATH', UPLOADS_PATH 
 if (!defined('UPLOADS_ARTIKEL_PATH')) define('UPLOADS_ARTIKEL_PATH', UPLOADS_PATH . '/artikel');
 if (!defined('UPLOADS_ALAT_SEWA_PATH')) define('UPLOADS_ALAT_SEWA_PATH', UPLOADS_PATH . '/alat_sewa');
 if (!defined('UPLOADS_BUKTI_PEMBAYARAN_PATH')) define('UPLOADS_BUKTI_PEMBAYARAN_PATH', UPLOADS_PATH . '/bukti_pembayaran');
+if (!defined('UPLOADS_GALERI_PATH')) define('UPLOADS_GALERI_PATH', UPLOADS_PATH . '/galeri');
 
 
 // 5. Memuat File Helper
@@ -105,7 +106,7 @@ require_once INCLUDES_PATH . '/auth_helpers.php';
 
 
 // 6. Koneksi Database
-require_once CONFIG_PATH . "/Koneksi.php"; // Menggunakan konstanta CONFIG_PATH
+require_once CONFIG_PATH . "/Koneksi.php";
 
 if (!isset($conn) || !($conn instanceof mysqli) || $conn->connect_error) {
     $db_error_message = "Koneksi ke database gagal.";
@@ -122,35 +123,73 @@ if (!isset($conn) || !($conn instanceof mysqli) || $conn->connect_error) {
     exit("Maaf, situs sedang mengalami gangguan teknis pada layanan database. Silakan coba beberapa saat lagi." . $display_error_detail);
 }
 
-// 7. Memuat SEMUA Model dan Menginisialisasi Koneksi Database untuk Model
-// Ini adalah langkah penting jika model Anda menggunakan metode statis setDbConnection() atau init().
+// 7. Memuat SEMUA Model dan Menginisialisasi Koneksi Database serta Path Upload untuk Model
 $model_files = glob(MODELS_PATH . '/*.php');
-foreach ($model_files as $model_file) {
-    require_once $model_file;
-    $class_name = basename($model_file, '.php');
-    if (class_exists($class_name)) {
-        if (method_exists($class_name, 'setDbConnection')) {
-            $class_name::setDbConnection($conn);
-        } elseif (method_exists($class_name, 'init') && $class_name === 'SewaAlat' && defined('UPLOADS_ALAT_SEWA_PATH')) {
-            // Kasus khusus untuk SewaAlat yang menggunakan init()
-            $class_name::init($conn, UPLOADS_ALAT_SEWA_PATH);
+if ($model_files === false) {
+    error_log("Peringatan config.php: Gagal membaca direktori models atau tidak ada file model ditemukan.");
+} else {
+    foreach ($model_files as $model_file) {
+        require_once $model_file;
+        $class_name = basename($model_file, '.php'); // Mendapatkan nama kelas dari nama file
+
+        if (class_exists($class_name)) {
+            // Coba panggil init(koneksi, path_upload_spesifik) jika ada dan relevan
+            if (method_exists($class_name, 'init')) {
+                $model_initialized_with_init = false;
+                if ($class_name === 'SewaAlat' && defined('UPLOADS_ALAT_SEWA_PATH')) {
+                    $class_name::init($conn, UPLOADS_ALAT_SEWA_PATH);
+                    $model_initialized_with_init = true;
+                } elseif ($class_name === 'Artikel' && defined('UPLOADS_ARTIKEL_PATH')) {
+                    $class_name::init($conn, UPLOADS_ARTIKEL_PATH);
+                    $model_initialized_with_init = true;
+                } elseif ($class_name === 'Galeri' && defined('UPLOADS_GALERI_PATH')) {
+                    $class_name::init($conn, UPLOADS_GALERI_PATH);
+                    $model_initialized_with_init = true;
+                }
+                // Tambahkan elseif untuk model lain yang spesifik menggunakan init() dengan path
+
+                // Jika model memiliki init() tapi tidak cocok dengan kondisi di atas
+                // DAN juga memiliki setDbConnection(), maka setDbConnection akan dipanggil di blok berikutnya.
+                // Jika model memiliki init() tapi tidak ada path spesifik (misal init($conn) saja),
+                // Anda bisa tambahkan kondisi:
+                // elseif (!$model_initialized_with_init && method_exists($class_name, 'init') && (new ReflectionMethod($class_name, 'init'))->getNumberOfParameters() === 1) {
+                //     $class_name::init($conn);
+                //     $model_initialized_with_init = true;
+                // }
+
+                // Jika init() spesifik tidak dipanggil dan model punya setDbConnection(), gunakan itu.
+                if (!$model_initialized_with_init && method_exists($class_name, 'setDbConnection')) {
+                    $class_name::setDbConnection($conn);
+                } elseif (!$model_initialized_with_init && !method_exists($class_name, 'setDbConnection')) {
+                    // Jika model punya init tapi tidak cocok kondisi di atas dan tidak punya setDbConnection
+                    // error_log("Info config.php: Model {$class_name} memiliki metode init() tetapi tidak ada kondisi inisialisasi yang cocok dan tidak ada setDbConnection().");
+                }
+            }
+            // Jika tidak ada metode 'init', coba panggil 'setDbConnection'
+            elseif (method_exists($class_name, 'setDbConnection')) {
+                $class_name::setDbConnection($conn);
+            } else {
+                error_log("Info config.php: Model {$class_name} tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.");
+            }
+        } else {
+            error_log("Peringatan config.php: Kelas {$class_name} tidak ditemukan setelah require file model {$model_file}. Periksa nama kelas dan file.");
         }
     }
 }
 
 
 // 8. Otomatis Membuat Direktori Uploads Jika Belum Ada
-// (Path sudah didefinisikan di atas, pastikan konstanta UPLOADS_ALAT_SEWA_PATH dan UPLOADS_BUKTI_PEMBAYARAN_PATH ada jika digunakan di sini)
 $upload_paths_to_create_if_not_exist = [
     UPLOADS_PATH,
     UPLOADS_WISATA_PATH,
     UPLOADS_ARTIKEL_PATH,
     UPLOADS_ALAT_SEWA_PATH,
-    UPLOADS_BUKTI_PEMBAYARAN_PATH
+    UPLOADS_BUKTI_PEMBAYARAN_PATH,
+    UPLOADS_GALERI_PATH
 ];
 
 foreach ($upload_paths_to_create_if_not_exist as $path) {
-    if (defined('UPLOADS_PATH') && !empty($path)) { // Pastikan path tidak kosong
+    if (!empty($path) && defined('UPLOADS_PATH')) { // Pastikan path tidak kosong & UPLOADS_PATH terdefinisi
         if (!is_dir($path)) {
             if (!@mkdir($path, 0775, true) && !is_dir($path)) {
                 error_log("Peringatan config.php: Gagal membuat direktori {$path}. Periksa izin folder induk: " . dirname($path));
@@ -161,10 +200,12 @@ foreach ($upload_paths_to_create_if_not_exist as $path) {
         } elseif (!is_writable($path)) {
             error_log("Peringatan config.php: Direktori {$path} ada tetapi tidak writable. Periksa izin folder.");
         }
+    } elseif (empty($path)) {
+        error_log("Peringatan config.php: Path upload kosong terdeteksi dalam array pembuatan direktori.");
     }
 }
 
-// 9. Definisi Konstanta URL Lainnya (BASE_URL sudah memiliki trailing slash)
+// 9. Definisi Konstanta URL Lainnya
 if (!defined('ADMIN_URL')) define('ADMIN_URL', BASE_URL . 'admin');
 if (!defined('USER_URL')) define('USER_URL', BASE_URL . 'user');
 if (!defined('AUTH_URL')) define('AUTH_URL', BASE_URL . 'auth');

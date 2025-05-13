@@ -11,38 +11,11 @@ if (!require_once __DIR__ . '/../../config/config.php') {
 // 2. Pastikan hanya admin yang bisa akses
 require_admin();
 
-// 3. Sertakan Controller atau Model Artikel
-$artikel_controller_loaded = false;
-if (class_exists('ArtikelController') && method_exists('ArtikelController', 'getAllForAdmin')) {
-    $artikel_controller_loaded = true;
-} else {
-    $artikelControllerPath = CONTROLLERS_PATH . '/ArtikelController.php';
-    if (file_exists($artikelControllerPath)) {
-        require_once $artikelControllerPath;
-        if (class_exists('ArtikelController') && method_exists('ArtikelController', 'getAllForAdmin')) {
-            $artikel_controller_loaded = true;
-        }
-    }
-}
-
-$artikel_model_loaded_for_get_all = false;
-if (!$artikel_controller_loaded) {
-    if (class_exists('Artikel') && method_exists('Artikel', 'getAll')) {
-        $artikel_model_loaded_for_get_all = true;
-    } else {
-        $artikelModelPath = MODELS_PATH . '/Artikel.php';
-        if (file_exists($artikelModelPath)) {
-            require_once $artikelModelPath;
-            if (class_exists('Artikel') && method_exists('Artikel', 'getAll')) {
-                $artikel_model_loaded_for_get_all = true;
-            }
-        }
-    }
-}
-
-if (!$artikel_controller_loaded && !$artikel_model_loaded_for_get_all) {
-    error_log("FATAL ERROR di kelola_artikel.php: Tidak dapat memuat ArtikelController atau Model Artikel untuk mengambil data.");
-    set_flash_message('danger', 'Kesalahan sistem: Komponen data artikel tidak dapat dimuat.');
+// 3. Sertakan Model Artikel
+// Diasumsikan config.php sudah memuat Artikel.php dan memanggil Artikel::init($conn, UPLOADS_ARTIKEL_PATH);
+if (!class_exists('Artikel')) {
+    error_log("FATAL ERROR di kelola_artikel.php: Kelas Model Artikel tidak ditemukan setelah config dimuat.");
+    set_flash_message('danger', 'Kesalahan sistem: Komponen data artikel inti tidak dapat dimuat.');
     redirect(ADMIN_URL . '/dashboard.php');
     exit;
 }
@@ -58,20 +31,24 @@ $artikel_list = [];
 $error_artikel = null;
 
 try {
-    if ($artikel_controller_loaded) {
-        $artikel_list = ArtikelController::getAllForAdmin();
-    } elseif ($artikel_model_loaded_for_get_all) {
-        $artikel_list = Artikel::getAll('created_at DESC');
-    }
+    if (method_exists('Artikel', 'getAll')) {
+        $artikel_list = Artikel::getAll('created_at DESC'); // Langsung dari Model, urutkan terbaru dulu
 
-    if ($artikel_list === false) {
-        $artikel_list = [];
-        $db_error_detail = '';
-        if ($artikel_model_loaded_for_get_all && method_exists('Artikel', 'getLastError')) {
-            $db_error_detail = Artikel::getLastError();
+        if ($artikel_list === false) { // Jika Model mengembalikan false karena error query
+            $artikel_list = []; // Pastikan array untuk view
+            $db_error_detail = method_exists('Artikel', 'getLastError') ? Artikel::getLastError() : 'Tidak ada detail error.';
+            $error_artikel = "Gagal mengambil data artikel dari database. " . $db_error_detail;
+            error_log("Error di kelola_artikel.php saat Artikel::getAll(): " . $error_artikel);
+        } elseif (empty($artikel_list) && !$error_artikel) {
+            // Tidak ada error, tapi data memang kosong di database
+            // Pesan "Belum ada artikel" akan ditampilkan oleh HTML di bawah.
+            // error_log("Info di kelola_artikel.php: Tidak ada artikel ditemukan di database."); // Opsional logging
         }
-        $error_artikel = "Gagal mengambil data artikel dari database." . (!empty($db_error_detail) ? " Detail: " . $db_error_detail : "");
-        error_log("Error di kelola_artikel.php saat mengambil artikel: " . $error_artikel);
+    } else {
+        $error_artikel = "Metode Artikel::getAll() tidak ditemukan di Model.";
+        error_log("FATAL ERROR di kelola_artikel.php: Metode Artikel::getAll() tidak ada.");
+        set_flash_message('danger', 'Kesalahan sistem: Fungsi pengambilan data artikel tidak tersedia.');
+        // Tidak redirect agar admin tahu ada masalah kode, tapi tabel akan kosong.
     }
 } catch (Exception $e) {
     $error_artikel = "Terjadi exception saat mengambil data artikel: " . $e->getMessage();
@@ -131,8 +108,7 @@ try {
                                 <td><?= $nomor++ ?></td>
                                 <td><?= e($artikel['id']) ?></td>
                                 <td><?= e($artikel['judul']) ?></td>
-                                <td><?= e(excerpt($artikel['isi'] ?? '', 100)) // Menampilkan ringkasan isi 
-                                    ?></td>
+                                <td><?= e(excerpt($artikel['isi'] ?? '', 100)) ?></td>
                                 <td>
                                     <?php if (!empty($artikel['gambar'])): ?>
                                         <img src="<?= e(BASE_URL . 'public/uploads/artikel/' . $artikel['gambar']) ?>"
@@ -150,8 +126,7 @@ try {
                                     </a>
                                     <a href="<?= e(ADMIN_URL . '/artikel/hapus_artikel.php?id=' . $artikel['id']) ?>&csrf_token=<?= e(generate_csrf_token()) ?>"
                                         class="btn btn-danger btn-sm my-1" title="Hapus Artikel"
-                                        onclick="return confirm('Apakah Anda yakin ingin menghapus artikel \" <?= e(addslashes($artikel['judul'])) // addslashes untuk javascript confirm 
-                                                                                                                ?>\"? Tindakan ini tidak dapat diurungkan.');">
+                                        onclick="return confirm('Apakah Anda yakin ingin menghapus artikel \" <?= e(addslashes($artikel['judul'])) ?>\"? Tindakan ini tidak dapat diurungkan.');">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
@@ -159,8 +134,7 @@ try {
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" class="text-center py-4"> <?php // PERBAIKAN: Colspan disesuaikan 
-                                                                        ?>
+                            <td colspan="7" class="text-center py-4">
                                 <p class="mb-2">Belum ada artikel yang ditambahkan.</p>
                                 <a href="<?= e(ADMIN_URL . '/artikel/tambah_artikel.php') ?>" class="btn btn-primary btn-sm">
                                     <i class="fas fa-plus me-1"></i> Buat Artikel Pertama
@@ -173,19 +147,6 @@ try {
         </div>
     </div>
 </div>
-
-<?php
-// Komentar untuk DataTables.js jika Anda ingin menggunakannya nanti
-/*
-$additional_js_admin = [
-    ASSETS_URL . '/vendor/datatables/jquery.dataTables.min.js', // Ganti path jika perlu
-    ASSETS_URL . '/vendor/datatables/dataTables.bootstrap5.min.js',
-    ASSETS_URL . '/js/admin-datatables-artikel.js' // Buat file JS kustom untuk inisialisasi DataTable Artikel
-];
-// Anda juga perlu memuat CSS DataTables di header_admin.php
-// <link href="<?= ASSETS_URL ?>/vendor/datatables/dataTables.bootstrap5.min.css" rel="stylesheet">
-*/
-?>
 
 <?php
 require_once ROOT_PATH . '/template/footer_admin.php';
