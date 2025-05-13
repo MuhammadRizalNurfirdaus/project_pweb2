@@ -23,12 +23,14 @@ include_once __DIR__ . '/template/header.php'; // Menggunakan header publik stan
 <div class="main-page-content"> <!-- Wrapper konten utama dari header.php -->
 
     <!-- Bagian Header Halaman Kontak -->
-    <section class="page-header-section text-white d-flex align-items-center" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('<?= $base_url ?>public/img/background.jpg'); background-size: cover; background-position: center; min-height: 300px; padding-top: 100px; padding-bottom: 50px;">
+    <section class="page-header-section text-white d-flex align-items-center" style="background-image: linear-gradient(rgba(226, 205, 205, 0), rgba(0,0,0,0.5)), url('<?= $base_url ?>public/img/air2.jpg'); background-size: cover; background-position: center; min-height: 300px; padding-top: 100px; padding-bottom: 50px;">
         <div class="container text-center">
-            <h1 class="display-4 fw-bolder"><?= e($page_title) ?></h1>
-            <p class="lead col-lg-8 mx-auto">
-                Kami selalu senang mendengar dari Anda. Apakah Anda memiliki pertanyaan, saran, masukan, atau ingin berkolaborasi? Jangan ragu untuk menghubungi kami melalui formulir di bawah ini atau detail kontak yang tersedia.
-            </p>
+            <h1 class="display-4 fw-bolder" style="color: white;"> <?= e($page_title) ?> </h1>
+           <p class="lead col-lg-10 mx-auto" style="color: white;">
+    Kami selalu senang mendengar dari Anda. Apakah Anda memiliki pertanyaan, saran, masukan, atau ingin berkolaborasi? Jangan ragu untuk menghubungi kami melalui formulir di bawah ini atau detail kontak yang tersedia.
+</p>
+
+
         </div>
     </section>
 
@@ -51,9 +53,12 @@ include_once __DIR__ . '/template/header.php'; // Menggunakan header publik stan
                     }
                     ?>
 
-                    <div class="card shadow-lg">
-                        <div class="card-header bg-primary text-white text-center">
-                            <h4 class="mb-0 py-2"><i class="fas fa-envelope me-2"></i>Kirimkan Pesan Anda</h4>
+                    <div class="card shadow-lg"> 
+                        <div class="card-header bg-success  text-center">
+                        <h4 class="mb-0 py-2 text-white">
+                        <i class="fas fa-envelope me-2" style="color: white"></i>Kirimkan Pesan Anda
+                        </h4>
+
                         </div>
                         <div class="card-body p-4 p-md-5">
                             <p class="text-muted mb-4 text-center">Lengkapi formulir di bawah ini dan tim kami akan segera menghubungi Anda.</p>
@@ -107,8 +112,8 @@ include_once __DIR__ . '/template/header.php'; // Menggunakan header publik stan
                     <div class="contact-info-item p-4 rounded shadow-sm bg-light h-100">
                         <i class="fas fa-phone-alt fa-3x text-primary mb-3"></i>
                         <h5>Telepon & WhatsApp</h5>
-                        <p class="text-muted mb-1">Reservasi: <a href="tel:+6281234567890">(+62) 812-3456-7890</a></p>
-                        <p class="text-muted">Informasi: <a href="https://wa.me/6285712345678" target="_blank">(+62) 857-1234-5678 (WA)</a></p>
+                        <p class="text-muted mb-1">Reservasi: <a href="tel:+6281234567890">(+62) 8774415865</a></p>
+                        <p class="text-muted">Informasi: <a href="https://wa.me/6285712345678" target="_blank">(+62) 8774415865 (WA)</a></p>
                     </div>
                 </div>
                 <div class="col-md-4">

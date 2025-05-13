@@ -2061,3 +2061,54 @@ Stack trace:
 [13-May-2025 12:40:09 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
 [13-May-2025 12:40:09 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
 [13-May-2025 12:40:09 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 17:07:32 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function redirect_if_not_logged_in() in C:\xampp\htdocs\project_pweb2\user\riwayat_pemesanan.php:12
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\project_pweb2\user\riwayat_pemesanan.php on line 12
+[13-May-2025 17:08:11 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\project_pweb2\template\header_admin.php on line 47
+[13-May-2025 17:08:11 Asia/Jakarta] PemesananTiket::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_tiket' doesn't exist
+[13-May-2025 17:08:11 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 17:08:11 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 17:08:11 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 17:08:16 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\project_pweb2\template\header_admin.php on line 47
+[13-May-2025 17:08:16 Asia/Jakarta] JadwalKetersediaanTiket::getAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.jadwal_ketersediaan_tiket' doesn't exist
+[13-May-2025 17:08:21 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\project_pweb2\template\header_admin.php on line 47
+[13-May-2025 17:08:21 Asia/Jakarta] SewaAlat::getAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.sewa_alat' doesn't exist | SQL: SELECT * FROM sewa_alat ORDER BY id ASC
+[13-May-2025 17:08:23 Asia/Jakarta] PemesananTiket::getAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.pemesanan_tiket' doesn't exist
+[13-May-2025 17:08:26 Asia/Jakarta] PemesananSewaAlat::getAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.pemesanan_sewa_alat' doesn't exist | SQL: SELECT 
+                    psa.id, psa.pemesanan_tiket_id, psa.sewa_alat_id, psa.jumlah, 
+                    psa.harga_satuan_saat_pesan, psa.durasi_satuan_saat_pesan, psa.satuan_durasi_saat_pesan, 
+                    psa.tanggal_mulai_sewa, psa.tanggal_akhir_sewa_rencana, psa.total_harga_item, 
+                    psa.status_item_sewa, psa.catatan_item_sewa, psa.denda, 
+                    psa.created_at, psa.updated_at,
+                    sa.nama_item AS nama_alat,
+                    pt.kode_pemesanan AS kode_pemesanan_tiket, 
+                    COALESCE(u.nama, pt.nama_pemesan_tamu) AS nama_pemesan,
+                    pt.user_id AS id_user_pemesan_tiket 
+                FROM pemesanan_sewa_alat psa
+                INNER JOIN sewa_alat sa ON psa.sewa_alat_id = sa.id
+                INNER JOIN pemesanan_tiket pt ON psa.pemesanan_tiket_id = pt.id
+                LEFT JOIN users u ON pt.user_id = u.id 
+                ORDER BY psa.created_at DESC, psa.id DESC
+[13-May-2025 17:08:39 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\project_pweb2\template\header_admin.php on line 47
+[13-May-2025 17:08:39 Asia/Jakarta] SewaAlat::getAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.sewa_alat' doesn't exist | SQL: SELECT * FROM sewa_alat ORDER BY id ASC
+[13-May-2025 17:08:44 Asia/Jakarta] PemesananSewaAlat::getAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.pemesanan_sewa_alat' doesn't exist | SQL: SELECT 
+                    psa.id, psa.pemesanan_tiket_id, psa.sewa_alat_id, psa.jumlah, 
+                    psa.harga_satuan_saat_pesan, psa.durasi_satuan_saat_pesan, psa.satuan_durasi_saat_pesan, 
+                    psa.tanggal_mulai_sewa, psa.tanggal_akhir_sewa_rencana, psa.total_harga_item, 
+                    psa.status_item_sewa, psa.catatan_item_sewa, psa.denda, 
+                    psa.created_at, psa.updated_at,
+                    sa.nama_item AS nama_alat,
+                    pt.kode_pemesanan AS kode_pemesanan_tiket, 
+                    COALESCE(u.nama, pt.nama_pemesan_tamu) AS nama_pemesan,
+                    pt.user_id AS id_user_pemesan_tiket 
+                FROM pemesanan_sewa_alat psa
+                INNER JOIN sewa_alat sa ON psa.sewa_alat_id = sa.id
+                INNER JOIN pemesanan_tiket pt ON psa.pemesanan_tiket_id = pt.id
+                LEFT JOIN users u ON pt.user_id = u.id 
+                ORDER BY psa.created_at DESC, psa.id DESC
+[13-May-2025 17:08:58 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\project_pweb2\template\header_admin.php on line 47
+[13-May-2025 17:08:58 Asia/Jakarta] PemesananTiket::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_tiket' doesn't exist
+[13-May-2025 17:08:58 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 17:08:58 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 17:08:58 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
