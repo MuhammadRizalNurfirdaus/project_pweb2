@@ -128,7 +128,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
               <div class="card-body d-flex flex-column">
                 <h5 class="card-title"><?= e($dest['judul']) ?></h5>
                 <p class="card-text text-muted small flex-grow-1"><?= e($dest['deskripsi']) ?></p>
-                <a href="<?= $base_url ?>wisata/detail_destinasi.php?id=<?= e($dest['id_db']) ?>&slug=<?= e($dest['slug']) ?>" class="btn btn-sm btn-primary mt-auto align-self-start">Lihat Detail <i class="fas fa-chevron-right fa-xs ms-1"></i></a>
+              
               </div>
             </div>
           </div>
