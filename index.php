@@ -115,7 +115,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
         $destinasi_populer = [
           ['id_db' => 1, 'slug' => 'pemandian-air-panas', 'gambar' => 'air_panas.jpg', 'judul' => 'Pemandian Air Panas', 'deskripsi' => 'Rasakan relaksasi alami dengan berendam di air hangat pegunungan yang menyegarkan.'],
           ['id_db' => 2, 'slug' => 'bumi_perkemahan', 'gambar' => 'kemah.jpg', 'judul' => 'Bumi Perkemahan', 'deskripsi' => 'Tempat ideal untuk bersantai bersama keluarga dengan pemandangan asri dan udara segar.'],
-          ['id_db' => 3, 'slug' => 'air_terjun', 'gambar' => 'curug_cilengkrang.jpg', 'judul' => 'Air Terjun', 'deskripsi' => 'Air Terjun Cilengkarang, tersembunyi di balik pepohonan rindang, menyuguhkan keindahan alam yang menyejukkan.'],
+          ['id_db' => 3, 'slug' => 'air_terjun', 'gambar' => 'terjun2.jpg', 'judul' => 'Air Terjun', 'deskripsi' => 'Air Terjun Cilengkarang, tersembunyi di balik pepohonan rindang, menyuguhkan keindahan alam yang menyejukkan.'],
         ];
         $delay_animasi = 0;
         foreach ($destinasi_populer as $dest) :
@@ -268,24 +268,25 @@ if (!@include_once __DIR__ . '/template/header.php') {
   }
 </style>
 
-<section class="section-padding text-center cta-section">
-  <div class="cta-overlay">
-    <div class="container">
-      <div class="animate-on-scroll">
-        <h2 class="section-title text-white">Siap untuk Petualangan Berikutnya?</h2>
-        <p class="lead mb-4 mx-auto text-white" style="max-width: 700px;">
-          Cilengkrang menanti kedatangan Anda dengan sejuta pesona alam, keramahan, dan pengalaman tak terlupakan yang akan memperkaya jiwa.
-        </p>
-        <a href="<?= $base_url ?>user/pemesanan_tiket.php" class="btn btn-light btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn">
-          <i class="fas fa-calendar-check me-2"></i> Rencanakan Kunjungan
-        </a>
-        <a href="<?= $base_url ?>contact.php" class="btn btn-outline-light btn-lg hero-btn">
-          <i class="fas fa-envelope me-2"></i> Hubungi Kami
-        </a>
-      </div>
+<section class="section-padding text-center cta-section" style="position: relative; background-image: url('<?= $base_url ?>public/img/air3.jpg'); background-size: cover; background-position: center;">
+  <div class="container py-5">
+    <div class="animate-on-scroll text-white">
+      <h2 class="section-title">Siap untuk Petualangan Berikutnya?</h2>
+      <p class="lead mb-4 mx-auto" style="max-width: 700px;">
+        Cilengkrang menanti kedatangan Anda dengan sejuta pesona alam, keramahan, dan pengalaman tak terlupakan yang akan memperkaya jiwa.
+      </p>
+      <a href="<?= $base_url ?>user/pemesanan_tiket.php" class="btn btn-light btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn">
+        <i class="fas fa-calendar-check me-2"></i> Rencanakan Kunjungan
+      </a>
+      <a href="<?= $base_url ?>contact.php" class="btn btn-outline-light btn-lg hero-btn">
+        <i class="fas fa-envelope me-2"></i> Hubungi Kami
+      </a>
     </div>
   </div>
 </section>
+
+
+
 
 
 

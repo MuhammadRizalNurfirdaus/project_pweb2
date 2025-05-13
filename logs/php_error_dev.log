@@ -84,6 +84,7 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\tambah_user.php on line 37
+<<<<<<< HEAD
 [13-May-2025 18:04:50 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function generate_csrf_token_input() in C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\users\tambah_user.php:66
 Stack trace:
 #0 {main}
@@ -311,3 +312,37 @@ Stack trace:
 [13-May-2025 19:55:33 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
 [13-May-2025 19:55:33 Asia/Jakarta] Info config.php: Model Contact tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
 [13-May-2025 19:55:33 Asia/Jakarta] Info config.php: Model Wisata tidak memiliki metode init() atau setDbConnection() untuk inisialisasi database.
+=======
+[13-May-2025 17:36:30 Asia/Jakarta] PemesananTiket::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_tiket' doesn't exist
+[13-May-2025 17:36:30 Asia/Jakarta] PemesananSewaAlat::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_sewa_alat' doesn't exist
+[13-May-2025 17:36:30 Asia/Jakarta] SewaAlat::countAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.sewa_alat' doesn't exist
+[13-May-2025 17:36:30 Asia/Jakarta] Pembayaran::getTotalRevenue() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pembayaran' doesn't exist
+[13-May-2025 18:18:13 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function redirect_if_not_logged_in() in C:\xampp\htdocs\project_pweb2\user\riwayat_pemesanan.php:12
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\project_pweb2\user\riwayat_pemesanan.php on line 12
+[13-May-2025 18:19:06 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function redirect_if_not_logged_in() in C:\xampp\htdocs\project_pweb2\user\riwayat_pemesanan.php:12
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\project_pweb2\user\riwayat_pemesanan.php on line 12
+[13-May-2025 18:19:45 Asia/Jakarta] PemesananTiket::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_tiket' doesn't exist
+[13-May-2025 18:19:45 Asia/Jakarta] PemesananSewaAlat::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_sewa_alat' doesn't exist
+[13-May-2025 18:19:45 Asia/Jakarta] SewaAlat::countAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.sewa_alat' doesn't exist
+[13-May-2025 18:19:45 Asia/Jakarta] Pembayaran::getTotalRevenue() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pembayaran' doesn't exist
+[13-May-2025 18:57:16 Asia/Jakarta] PemesananTiket::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_tiket' doesn't exist
+[13-May-2025 18:57:16 Asia/Jakarta] PemesananSewaAlat::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_sewa_alat' doesn't exist
+[13-May-2025 18:57:16 Asia/Jakarta] SewaAlat::countAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.sewa_alat' doesn't exist
+[13-May-2025 18:57:16 Asia/Jakarta] Pembayaran::getTotalRevenue() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pembayaran' doesn't exist
+[13-May-2025 18:59:52 Asia/Jakarta] PemesananTiket::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_tiket' doesn't exist
+[13-May-2025 18:59:52 Asia/Jakarta] PemesananSewaAlat::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_sewa_alat' doesn't exist
+[13-May-2025 18:59:52 Asia/Jakarta] SewaAlat::countAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.sewa_alat' doesn't exist
+[13-May-2025 18:59:52 Asia/Jakarta] Pembayaran::getTotalRevenue() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pembayaran' doesn't exist
+[13-May-2025 19:09:57 Asia/Jakarta] PemesananTiket::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_tiket' doesn't exist
+[13-May-2025 19:09:57 Asia/Jakarta] PemesananSewaAlat::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_sewa_alat' doesn't exist
+[13-May-2025 19:09:57 Asia/Jakarta] SewaAlat::countAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.sewa_alat' doesn't exist
+[13-May-2025 19:09:57 Asia/Jakarta] Pembayaran::getTotalRevenue() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pembayaran' doesn't exist
+[13-May-2025 19:55:56 Asia/Jakarta] PemesananTiket::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_tiket' doesn't exist
+[13-May-2025 19:55:56 Asia/Jakarta] PemesananSewaAlat::countByStatus() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pemesanan_sewa_alat' doesn't exist
+[13-May-2025 19:55:56 Asia/Jakarta] SewaAlat::countAll() - MySQLi Query Error: Table 'cilengkrang_web_wisata.sewa_alat' doesn't exist
+[13-May-2025 19:55:56 Asia/Jakarta] Pembayaran::getTotalRevenue() - MySQLi Prepare Error: Table 'cilengkrang_web_wisata.pembayaran' doesn't exist
+41d450cfe4578e9ce03d5bdda2f4ac4c1782cc31

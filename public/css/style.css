@@ -455,7 +455,6 @@ body:not(.dark-mode) .navbar-public.navbar-transparent-on-top .btn.btn-warning:h
   width: 100px;
   height: 4px;
   background-color: var(--secondary-color); /* Menggunakan variabel root */
-  margin: 15px auto 0;
   border-radius: 3px;
   transition: background-color 0.3s ease;
 }
@@ -522,7 +521,6 @@ body:not(.dark-mode) .navbar-public.navbar-transparent-on-top .btn.btn-warning:h
   border: none;
 }
 .feature-card .icon {
-  color: var(--secondary-color); /* Menggunakan variabel root */
   margin-bottom: 1rem;
 }
 .feature-card .icon i {
@@ -1481,5 +1479,7 @@ body.dark-mode {
     #testimonialCarousel .carousel-control-next-icon {
         padding: 10px;
         background-size: 50%;
-    }
+  }
 }
+
+
