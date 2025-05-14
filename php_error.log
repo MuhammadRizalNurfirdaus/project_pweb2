@@ -2390,4 +2390,28 @@ Stack trace:
 [13-May-2025 17:08:58 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
 [13-May-2025 17:08:58 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
 [13-May-2025 17:08:58 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
- 7c860ed4f491cdfed24739245b471a7fc54e2155
+[13-May-2025 17:09:02 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\project_pweb2\template\header_admin.php on line 47
+[13-May-2025 17:09:02 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 17:09:02 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 17:09:02 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 17:09:06 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\project_pweb2\template\header_admin.php on line 47
+[13-May-2025 17:09:06 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 17:09:06 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 17:09:06 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 17:09:10 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\project_pweb2\template\header_admin.php on line 47
+[13-May-2025 17:09:10 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 17:09:10 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 17:09:10 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 17:09:14 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\project_pweb2\template\header_admin.php on line 47
+[13-May-2025 17:09:14 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 17:09:14 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 17:09:14 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 17:09:18 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\project_pweb2\template\header_admin.php on line 47
+[13-May-2025 17:09:18 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 17:09:18 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 17:09:18 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 17:09:22 Asia/Jakarta] PHP Warning:  Undefined variable $pageTitle in C:\xampp\htdocs\project_pweb2\template\header_admin.php on line 47
+[13-May-2025 17:09:22 Asia/Jakarta] Dashboard: SewaAlat::countAll() tidak ada.
+[13-May-2025 17:09:22 Asia/Jakarta] Dashboard: Feedback::countAll() tidak ada.
+[13-May-2025 17:09:22 Asia/Jakarta] Dashboard: User::countAll() tidak ada.
+[13-May-2025 17:09:26 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to undefined function redirect_if_not_logged_in() in C:\xampp\htdocs\project_pweb2\user\riwayat_pemesanan.php:12

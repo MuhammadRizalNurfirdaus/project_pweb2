@@ -11,31 +11,23 @@ if (!require_once __DIR__ . '/../../config/config.php') {
 // 2. Pastikan hanya admin yang bisa akses
 require_admin();
 
-// 3. Sertakan Controller atau Model Galeri
-// Diasumsikan config.php sudah memuat Galeri.php (Model) dan GaleriController.php (Controller)
-// serta sudah memanggil Galeri::init($conn, UPLOADS_GALERI_PATH)
-$data_source_available = false;
-$is_using_controller = false;
+// 3. Validasi ketersediaan Controller atau Model Galeri
+$can_use_controller = class_exists('GaleriController') && method_exists('GaleriController', 'getAllForAdmin');
+$can_use_model_directly = class_exists('Galeri') && method_exists('Galeri', 'getAll');
 
-if (class_exists('GaleriController') && method_exists('GaleriController', 'getAllForAdmin')) {
-    $data_source_available = true;
-    $is_using_controller = true;
-} elseif (class_exists('Galeri') && method_exists('Galeri', 'getAll')) {
-    $data_source_available = true;
-}
-
-if (!$data_source_available) {
-    error_log("FATAL ERROR di kelola_galeri.php: Tidak dapat memuat GaleriController atau Model Galeri untuk mengambil data.");
-    set_flash_message('danger', 'Kesalahan sistem: Komponen data galeri tidak dapat dimuat.');
+if (!$can_use_controller && !$can_use_model_directly) {
+    error_log("FATAL ERROR di kelola_galeri.php: GaleriController::getAllForAdmin() DAN Galeri::getAll() tidak tersedia. Periksa pemuatan dan definisi di config.php, GaleriController.php, dan Galeri.php.");
+    set_flash_message('danger', 'Kesalahan sistem: Komponen inti untuk data galeri tidak dapat dimuat. Silakan hubungi administrator.');
+    // Redirect ke dashboard jika komponen penting tidak ada, setelah header dimuat agar flash message tampil
+    // Namun, karena header belum dimuat, kita redirect di sini.
     redirect(ADMIN_URL . '/dashboard.php');
     exit;
 }
 
 // 4. Set judul halaman
-$pageTitle = "Kelola Galeri Foto"; // Diubah dari $page_title
+$pageTitle = "Kelola Galeri Foto";
 
 // 5. Sertakan header admin
-// header_admin.php akan memanggil display_flash_message()
 require_once ROOT_PATH . '/template/header_admin.php';
 
 // 6. Ambil semua data galeri
@@ -43,19 +35,19 @@ $foto_list = [];
 $error_galeri = null;
 
 try {
-    if ($is_using_controller) {
+    if ($can_use_controller) {
         $foto_list = GaleriController::getAllForAdmin();
-    } else {
-        $foto_list = Galeri::getAll('uploaded_at DESC'); // Urutkan terbaru dulu
+    } else { // Fallback ke Model langsung
+        $foto_list = Galeri::getAll('uploaded_at DESC');
     }
 
-    if ($foto_list === false) { // Jika Model/Controller mengembalikan false karena error
+    if ($foto_list === false) {
         $foto_list = [];
         $db_error_detail = '';
         if (class_exists('Galeri') && method_exists('Galeri', 'getLastError')) {
             $db_error_detail = Galeri::getLastError();
         }
-        $error_galeri = "Gagal mengambil data galeri." . (!empty($db_error_detail) ? " Detail: " . $db_error_detail : "");
+        $error_galeri = "Gagal mengambil data galeri." . (!empty($db_error_detail) ? " Detail: " . $db_error_detail : " Periksa log server untuk detail error SQL.");
         error_log("Error di kelola_galeri.php saat mengambil foto: " . $error_galeri);
     }
 } catch (Exception $e) {
@@ -66,7 +58,6 @@ try {
 
 ?>
 
-<!-- Breadcrumb -->
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="<?= e(ADMIN_URL . '/dashboard.php') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
@@ -77,13 +68,13 @@ try {
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0" style="color: var(--admin-text-primary);">Kelola Galeri Foto</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
-        <a href="<?= e(ADMIN_URL . '/galeri/tambah_foto.php') ?>" class="btn btn-success"> <!-- Dihilangkan btn-sm shadow-sm fa-sm text-white-50 -->
+        <a href="<?= e(ADMIN_URL . '/galeri/tambah_foto.php') ?>" class="btn btn-success">
             <i class="fas fa-plus me-1"></i> Tambah Foto Baru
         </a>
     </div>
 </div>
 
-<?php // Pesan flash sudah ditampilkan di header_admin.php 
+<?php // display_flash_message() sudah dipanggil di header_admin.php 
 ?>
 
 <?php if ($error_galeri): ?>
@@ -104,14 +95,25 @@ try {
                     <div class="col">
                         <div class="card h-100 item-galeri-admin shadow-sm">
                             <div class="item-galeri-img-container">
-                                <?php if (!empty($foto['nama_file']) && file_exists(UPLOADS_GALERI_PATH . '/' . $foto['nama_file'])): ?>
-                                    <img src="<?= e(BASE_URL . 'public/uploads/galeri/' . $foto['nama_file']) ?>"
+                                <?php
+                                $nama_file_galeri = $foto['nama_file'] ?? '';
+                                // Pastikan UPLOADS_GALERI_PATH diakhiri slash atau tambahkan di sini
+                                $gambar_path_fisik = rtrim(UPLOADS_GALERI_PATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $nama_file_galeri;
+                                $gambar_url_display = BASE_URL . 'public/uploads/galeri/' . $nama_file_galeri;
+
+                                // Untuk debugging path
+                                // error_log("Cek Gambar: " . $gambar_path_fisik . " | URL: " . $gambar_url_display);
+                                ?>
+                                <?php if (!empty($nama_file_galeri) && file_exists($gambar_path_fisik)): ?>
+                                    <img src="<?= e($gambar_url_display) ?>"
                                         class="card-img-top"
                                         alt="<?= e($foto['keterangan'] ?: 'Foto Galeri') ?>"
                                         style="height: 200px; object-fit: cover;">
-                                <?php elseif (!empty($foto['nama_file'])): ?>
-                                    <div class="text-center p-3" style="height: 200px; background-color: #f0f0f0; display:flex; align-items:center; justify-content:center;">
-                                        <small class="text-danger"><i class="fas fa-image"></i> File tidak ditemukan</small>
+                                <?php elseif (!empty($nama_file_galeri)): ?>
+                                    <div class="text-center p-3" style="height: 200px; background-color: #f0f0f0; display:flex; align-items:center; justify-content:center; flex-direction: column;">
+                                        <i class="fas fa-image fa-2x text-danger mb-2"></i>
+                                        <small class="text-danger">File tidak ditemukan:<br><?= e($nama_file_galeri) ?></small>
+                                        <small class="text-muted d-block" style="font-size: 0.65rem; word-break: break-all;">Path dicek: <?= e($gambar_path_fisik) ?></small>
                                     </div>
                                 <?php else: ?>
                                     <div class="text-center p-3" style="height: 200px; background-color: #f8f9fa; display:flex; align-items:center; justify-content:center;">
@@ -125,16 +127,15 @@ try {
                                 <?php else: ?>
                                     <p class="card-text small flex-grow-1 text-muted fst-italic" style="min-height: 40px;">Tanpa keterangan</p>
                                 <?php endif; ?>
-                                <small class="text-muted d-block mb-2">ID: <?= e($foto['id']) ?></small>
-                                <small class="text-muted d-block mb-2">File: <?= e(excerpt($foto['nama_file'] ?? '', 20)) ?></small>
-                                <small class="text-muted d-block mb-2">Upload: <?= e(formatTanggalIndonesia($foto['uploaded_at'] ?? null, false, true)) ?></small>
+                                <small class="text-muted d-block mb-1">ID: <?= e($foto['id']) ?></small>
+                                <small class="text-muted d-block mb-1" title="<?= e($foto['nama_file'] ?? '') ?>">File: <?= e(excerpt($foto['nama_file'] ?? '', 20)) ?></small>
+                                <small class="text-muted d-block">Upload: <?= e(formatTanggalIndonesia($foto['uploaded_at'] ?? null, false, true)) ?></small>
                             </div>
                             <div class="card-footer text-center bg-light">
                                 <a href="<?= e(ADMIN_URL . '/galeri/edit_foto.php?id=' . $foto['id']) ?>" class="btn btn-outline-warning btn-sm me-1" title="Edit Foto">
                                     <i class="fas fa-edit fa-xs"></i> Edit
                                 </a>
-                                <a href="<?= e(ADMIN_URL . '/galeri/hapus_foto.php?id=' . $foto['id']) ?>&csrf_token=<?= e(generate_csrf_token()) // Pastikan fungsi ini ada 
-                                                                                                                        ?>"
+                                <a href="<?= e(ADMIN_URL . '/galeri/hapus_foto.php?id=' . $foto['id']) ?>&csrf_token=<?= e(generate_csrf_token()) ?>"
                                     class="btn btn-outline-danger btn-sm" title="Hapus Foto"
                                     onclick="return confirm('Apakah Anda yakin ingin menghapus foto ini: \'<?= e(addslashes($foto['keterangan'] ?: $foto['nama_file'])) ?>\'?');">
                                     <i class="fas fa-trash-alt fa-xs"></i> Hapus
@@ -173,7 +174,6 @@ try {
     }
 
     .card-footer.bg-light {
-        /* Pastikan footer card juga mengikuti tema */
         background-color: var(--admin-card-header-bg) !important;
     }
 </style>

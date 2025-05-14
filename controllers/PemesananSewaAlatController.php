@@ -62,7 +62,7 @@ class PemesananSewaAlatController
         }
 
         // Validasi keberadaan Pemesanan Tiket
-        if (!PemesananTiket::getById($pemesanan_tiket_id)) { // Panggil statis
+        if (!PemesananTiket::findById($pemesanan_tiket_id)) { // Panggil statis
             set_flash_message('danger', 'ID Pemesanan Tiket terkait tidak ditemukan di database.');
             return false;
         }

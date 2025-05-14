@@ -36,14 +36,16 @@ $pesan_error_data = null;
 
 
 if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
-    if (class_exists('PemesananTiketController') && method_exists('PemesananTiketController', 'getAll')) {
+    // PERBAIKAN DI SINI: Ubah 'getAll' menjadi 'getAllForAdmin'
+    if (class_exists('PemesananTiketController') && method_exists('PemesananTiketController', 'getAllForAdmin')) {
         try {
             // Panggil metode statis dari Controller
-            $semua_pemesanan = PemesananTiketController::getAll();
+            $semua_pemesanan = PemesananTiketController::getAllForAdmin();
 
             if ($filter_status_url && is_array($semua_pemesanan) && !empty($semua_pemesanan)) {
                 $daftar_pemesanan = array_filter($semua_pemesanan, function ($p) use ($filter_status_url) {
                     // Gunakan 'status_pemesanan' sesuai dengan Model PemesananTiket Anda
+                    // Ini mengasumsikan controller Anda melakukan SELECT status AS status_pemesanan
                     return isset($p['status_pemesanan']) && strtolower($p['status_pemesanan']) === $filter_status_url;
                 });
                 if (!empty($filter_status_url)) {
@@ -52,16 +54,26 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
             } else {
                 $daftar_pemesanan = $semua_pemesanan;
             }
+
+            // Jika $semua_pemesanan adalah false atau string (indikasi error dari controller)
+            if ($semua_pemesanan === false || is_string($semua_pemesanan)) {
+                $pesan_error_data = is_string($semua_pemesanan) ? $semua_pemesanan : 'Gagal mengambil data pemesanan dari controller.';
+                error_log("Error dari PemesananTiketController::getAllForAdmin(): " . $pesan_error_data);
+                $daftar_pemesanan = []; // Kosongkan daftar jika ada error
+                if (!isset($_SESSION['flash_message'])) {
+                    set_flash_message('danger', $pesan_error_data);
+                }
+            }
         } catch (Throwable $e) {
             error_log("Error ambil daftar pemesanan tiket: " . $e->getMessage() . "\n" . $e->getTraceAsString());
-            $pesan_error_data = 'Gagal memuat daftar pemesanan tiket.';
+            $pesan_error_data = 'Gagal memuat daftar pemesanan tiket karena kesalahan server.';
             if (!isset($_SESSION['flash_message'])) {
                 set_flash_message('danger', $pesan_error_data);
             }
         }
     } else {
-        $pesan_error_data = 'Kesalahan sistem: Controller atau metode Pemesanan Tiket tidak ditemukan.';
-        error_log($pesan_error_data);
+        $pesan_error_data = 'Kesalahan sistem: Controller Pemesanan Tiket atau metode getAllForAdmin tidak ditemukan.';
+        error_log($pesan_error_data . " (Class exists: " . (class_exists('PemesananTiketController') ? 'true' : 'false') . ", Method getAllForAdmin exists: " . (method_exists('PemesananTiketController', 'getAllForAdmin') ? 'true' : 'false') . ")");
         if (!isset($_SESSION['flash_message'])) {
             set_flash_message('danger', $pesan_error_data);
         }
@@ -86,7 +98,7 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Daftar Pemesanan Tiket <small class="text-muted fs-6"><?= e($page_subtitle) ?></small></h1>
     <!-- Tombol Tambah Pemesanan Tiket Manual (jika diperlukan) -->
-    <!-- 
+    <!--
     <div class="btn-toolbar mb-2 mb-md-0">
         <a href="<?= e(ADMIN_URL) ?>/pemesanan_tiket/tambah_pemesanan.php" class="btn btn-sm btn-success shadow-sm">
             <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Pemesanan Tiket
@@ -127,7 +139,8 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
                                 <td><strong><?= e($pemesanan['kode_pemesanan'] ?? '-') ?></strong></td>
                                 <td>
                                     <?php
-                                    // Model PemesananTiket::getAll() sudah melakukan JOIN dan alias yang benar
+                                    // Model PemesananTiket::getAllForAdmin() sudah melakukan JOIN dan alias yang benar
+                                    // Pastikan 'user_nama' ada jika user_id terisi, dan 'nama_pemesan_tamu' ada jika user_id null
                                     $nama_display = $pemesanan['user_nama'] ?? ($pemesanan['nama_pemesan_tamu'] ?? 'N/A');
                                     $is_user_terdaftar = !empty($pemesanan['user_id']);
 
@@ -138,6 +151,7 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
                                     }
                                     echo e($nama_display);
 
+                                    // Pastikan 'user_email' ada jika user_id terisi, dan 'email_pemesan_tamu' ada jika user_id null
                                     if ($is_user_terdaftar && !empty($pemesanan['user_email'])) {
                                         echo '<br><small class="text-muted" title="' . e($pemesanan['user_email']) . '"><i class="fas fa-envelope fa-fw"></i> ' . e(mb_strimwidth($pemesanan['user_email'], 0, 20, "...")) . '</small>';
                                     } elseif (!$is_user_terdaftar && !empty($pemesanan['email_pemesan_tamu'])) {
@@ -154,15 +168,15 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
                                 <td class="text-end fw-bold"><?= formatRupiah($pemesanan['total_harga_akhir'] ?? 0) ?></td>
                                 <td class="text-center">
                                     <?php
-                                    // Pastikan nama kolom status adalah 'status_pemesanan' sesuai model
-                                    $status_pesan_raw = $pemesanan['status_pemesanan'] ?? 'unknown';
+                                    // Pastikan nama kolom status adalah 'status_pemesanan' (alias dari 'status' di DB)
+                                    $status_pesan_raw = $pemesanan['status_pemesanan'] ?? ($pemesanan['status'] ?? 'unknown'); // Fallback ke 'status' jika 'status_pemesanan' tidak ada
                                     $status_pesan = strtolower($status_pesan_raw);
                                     $status_class = 'bg-secondary';
                                     if ($status_pesan == 'pending') $status_class = 'bg-warning text-dark';
                                     elseif ($status_pesan == 'waiting_payment') $status_class = 'bg-info text-dark';
                                     elseif ($status_pesan == 'paid') $status_class = 'bg-primary';
                                     elseif ($status_pesan == 'confirmed') $status_class = 'bg-success';
-                                    elseif ($status_pesan == 'completed') $status_class = 'bg-dark';
+                                    elseif ($status_pesan == 'completed') $status_class = 'bg-dark'; // Mungkin tidak dipakai, tapi ada
                                     elseif ($status_pesan == 'cancelled') $status_class = 'bg-danger';
                                     elseif ($status_pesan == 'expired') $status_class = 'bg-light text-dark border';
                                     ?>

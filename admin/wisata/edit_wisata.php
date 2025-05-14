@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'lokasi' => $lokasi_form
             ];
 
-            if (WisataController::update($data_to_update, $gambar_new_name_to_save, $current_gambar_filename)) {
+            if (WisataController::handleUpdateWisata($data_to_update, $gambar_new_name_to_save, $current_gambar_filename)) {
                 set_flash_message('success', 'Data destinasi wisata berhasil diperbarui!');
                 redirect('admin/wisata/kelola_wisata.php');
             } else {

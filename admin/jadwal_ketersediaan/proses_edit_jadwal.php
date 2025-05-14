@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         unset($_SESSION['form_data_jadwal_edit']); // Hapus data form dari session jika berhasil
         // Ambil nama jenis tiket untuk pesan flash yang lebih informatif
         require_once __DIR__ . '/../../models/JenisTiket.php';
-        $jenisTiketInfo = JenisTiket::getById((int)$jenis_tiket_id);
+        $jenisTiketInfo = JenisTiket::findById((int)$jenis_tiket_id);
         $namaJenisTiketDisplay = $jenisTiketInfo ? (e($jenisTiketInfo['nama_layanan_display']) . ' - ' . e($jenisTiketInfo['tipe_hari'])) : "ID Jenis Tiket: " . e($jenis_tiket_id);
 
         set_flash_message('success', 'Jadwal ketersediaan untuk "' . $namaJenisTiketDisplay . '" pada tanggal ' . e($tanggal) . ' berhasil diperbarui.');

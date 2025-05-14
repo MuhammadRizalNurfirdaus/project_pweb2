@@ -3,280 +3,260 @@
 
 class Wisata
 {
-    private static $table_name = "wisata";
-    private static $upload_dir = __DIR__ . "/../../public/uploads/wisata/"; // Path absolut ke folder upload
+    private static $table_name = "wisata"; // Nama tabel sudah benar
+    private static $db;
+    private static $upload_dir_wisata;
 
-    /**
-     * Membuat data destinasi wisata baru.
-     * @param array $data Array asosiatif data wisata.
-     * Kunci yang diharapkan: 'nama_wisata', 'deskripsi', dan opsional 'lokasi', 'gambar'.
-     * @return int|false ID record baru jika berhasil, false jika gagal.
-     */
+    public static function init(mysqli $connection, $upload_path)
+    {
+        self::$db = $connection;
+        self::$upload_dir_wisata = rtrim($upload_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    }
+
+    private static function checkDependencies()
+    {
+        if (!self::$db || (self::$db instanceof mysqli && self::$db->connect_error)) {
+            error_log(get_called_class() . " - Koneksi database tidak tersedia atau gagal: " .
+                (self::$db instanceof mysqli ? self::$db->connect_error : (self::$db === null ? 'Koneksi DB (self::$db) belum diset via init().' : 'Koneksi DB bukan objek mysqli.')));
+            return false;
+        }
+        if (empty(self::$upload_dir_wisata)) {
+            error_log(get_called_class() . " - Path upload direktori wisata (self::\$upload_dir_wisata) belum diinisialisasi via init().");
+            return false;
+        }
+        return true;
+    }
+
+    public static function getLastError()
+    {
+        if (self::$db instanceof mysqli && !empty(self::$db->error)) {
+            return self::$db->error;
+        } elseif (!self::$db || !(self::$db instanceof mysqli)) {
+            return 'Koneksi database belum diinisialisasi atau tidak valid untuk kelas ' . get_called_class() . '.';
+        }
+        return 'Tidak ada error database spesifik yang dilaporkan dari model ' . get_called_class() . '.';
+    }
+
     public static function create($data)
     {
-        global $conn; // Menggunakan koneksi global dari config.php
-        if (!$conn) {
-            error_log("Wisata::create() - Koneksi database gagal.");
-            return false;
-        }
+        if (!self::checkDependencies()) return false;
 
-        // Ambil data dan berikan nilai default jika tidak ada
-        $nama_wisata = trim($data['nama_wisata'] ?? ''); // Ini akan disimpan ke kolom 'nama' di DB
+        // $data['nama_wisata'] dari form akan disimpan ke kolom 'nama' di DB
+        $nama_untuk_db = trim($data['nama_wisata'] ?? '');
         $deskripsi = trim($data['deskripsi'] ?? '');
-        $lokasi = trim($data['lokasi'] ?? '');
+        $lokasi = isset($data['lokasi']) ? trim($data['lokasi']) : null;
         $gambar = isset($data['gambar']) && !empty($data['gambar']) ? trim($data['gambar']) : null;
 
-        // Validasi dasar
-        if (empty($nama_wisata) || empty($deskripsi)) {
-            error_log("Wisata::create() - Error: Nama Wisata atau Deskripsi tidak boleh kosong.");
+        if (empty($nama_untuk_db) || empty($deskripsi)) {
+            error_log(get_called_class() . "::create() - Error: Nama Wisata atau Deskripsi tidak boleh kosong.");
             return false;
         }
 
-        // Kolom di DB adalah 'nama', 'deskripsi', 'gambar', 'lokasi'
-        $sql = "INSERT INTO " . self::$table_name . " (nama, deskripsi, gambar, lokasi) VALUES (?, ?, ?, ?)";
-        $stmt = mysqli_prepare($conn, $sql);
+        // PERBAIKAN: Menggunakan kolom 'nama'. Kolom 'created_at' diisi otomatis. 'updated_at' tidak ada.
+        $sql = "INSERT INTO " . self::$table_name . " (nama, deskripsi, gambar, lokasi) 
+                VALUES (?, ?, ?, ?)";
+        $stmt = mysqli_prepare(self::$db, $sql);
 
         if (!$stmt) {
-            error_log("Wisata::create() - MySQLi Prepare Error: " . mysqli_error($conn));
+            error_log(get_called_class() . "::create() Prepare Error: " . mysqli_error(self::$db));
             return false;
         }
 
-        // Bind parameter: s = string
-        mysqli_stmt_bind_param(
-            $stmt,
-            "ssss",
-            $nama_wisata, // Variabel $nama_wisata dari PHP akan dimasukkan ke kolom 'nama'
-            $deskripsi,
-            $gambar,
-            $lokasi
-        );
+        mysqli_stmt_bind_param($stmt, "ssss", $nama_untuk_db, $deskripsi, $gambar, $lokasi);
 
         if (mysqli_stmt_execute($stmt)) {
-            $new_id = mysqli_insert_id($conn);
+            $new_id = mysqli_insert_id(self::$db);
             mysqli_stmt_close($stmt);
             return $new_id;
         } else {
-            error_log("Wisata::create() - MySQLi Execute Error: " . mysqli_stmt_error($stmt));
+            error_log(get_called_class() . "::create() Execute Error: " . mysqli_stmt_error($stmt));
             mysqli_stmt_close($stmt);
             return false;
         }
     }
 
-    /**
-     * Mengambil semua data destinasi wisata.
-     * @return array Array of records, atau array kosong jika gagal/tidak ada records.
-     */
-    public static function getAll()
+    public static function getAll($orderBy = 'nama ASC')
     {
-        global $conn;
-        if (!$conn) {
-            error_log("Wisata::getAll() - Koneksi database gagal.");
-            return [];
-        }
+        if (!self::checkDependencies()) return [];
 
-        // Ambil semua kolom yang ada dan alias 'nama' menjadi 'nama_wisata' untuk konsistensi di kode PHP
-        // Diurutkan berdasarkan ID ASC (menaik)
+        $allowed_order_columns = ['id', 'nama', 'created_at', 'lokasi'];
+        $order_parts = explode(' ', trim($orderBy));
+        $column = $order_parts[0] ?? 'nama';
+        $direction = (isset($order_parts[1]) && strtoupper($order_parts[1]) === 'ASC') ? 'ASC' : 'DESC';
+        if (!in_array($column, $allowed_order_columns)) {
+            $column = 'nama';
+            $direction = 'ASC';
+        }
+        $orderBySafe = "`" . $column . "` " . $direction;
+
+        // PERBAIKAN: SELECT kolom 'nama' dan alias sebagai 'nama_wisata'. 'updated_at' tidak ada.
         $sql = "SELECT id, nama AS nama_wisata, deskripsi, gambar, lokasi, created_at 
                 FROM " . self::$table_name . " 
-                ORDER BY id ASC";
-        $result = mysqli_query($conn, $sql);
+                ORDER BY " . $orderBySafe;
+        $result = mysqli_query(self::$db, $sql);
 
         if ($result) {
-            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+            $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            mysqli_free_result($result);
+            return $data;
         } else {
-            error_log("Wisata::getAll() - MySQLi Query Error: " . mysqli_error($conn));
+            error_log(get_called_class() . "::getAll() Query Error: " . mysqli_error(self::$db) . " SQL: " . $sql);
             return [];
         }
     }
 
-    /**
-     * Mengambil satu data destinasi wisata berdasarkan ID.
-     * @param int $id ID destinasi wisata.
-     * @return array|null Data wisata atau null jika tidak ditemukan/error.
-     */
     public static function getById($id)
     {
-        global $conn;
-        if (!$conn) {
-            error_log("Wisata::getById() - Koneksi database gagal.");
+        if (!self::checkDependencies()) return null;
+        $id_val = filter_var($id, FILTER_VALIDATE_INT);
+        if ($id_val === false || $id_val <= 0) {
+            error_log(get_called_class() . "::getById() - ID tidak valid: " . $id);
             return null;
         }
 
-        $id_val = intval($id);
-        if ($id_val <= 0) {
-            error_log("Wisata::getById() - Error: ID tidak valid (" . $id . ").");
-            return null;
-        }
-
-        // Ambil semua kolom yang ada dan alias 'nama' menjadi 'nama_wisata'
+        // PERBAIKAN: SELECT kolom 'nama' dan alias sebagai 'nama_wisata'. 'updated_at' tidak ada.
         $sql = "SELECT id, nama AS nama_wisata, deskripsi, gambar, lokasi, created_at 
                 FROM " . self::$table_name . " 
                 WHERE id = ?";
-        $stmt = mysqli_prepare($conn, $sql);
-
+        $stmt = mysqli_prepare(self::$db, $sql);
         if (!$stmt) {
-            error_log("Wisata::getById() - MySQLi Prepare Error: " . mysqli_error($conn));
+            error_log(get_called_class() . "::getById() Prepare Error: " . mysqli_error(self::$db));
             return null;
         }
 
         mysqli_stmt_bind_param($stmt, "i", $id_val);
-
         if (mysqli_stmt_execute($stmt)) {
             $result = mysqli_stmt_get_result($stmt);
             $wisata = mysqli_fetch_assoc($result);
             mysqli_stmt_close($stmt);
-            return $wisata ?: null; // Mengembalikan null jika tidak ada hasil (ID tidak ditemukan)
+            return $wisata ?: null;
         } else {
-            error_log("Wisata::getById() - MySQLi Execute Error: " . mysqli_stmt_error($stmt));
-            mysqli_stmt_close($stmt);
-            return null;
+            error_log(get_called_class() . "::getById() Execute Error: " . mysqli_stmt_error($stmt));
         }
+        mysqli_stmt_close($stmt);
+        return null;
     }
 
-    /**
-     * Memperbarui data destinasi wisata.
-     * @param array $data Array data wisata yang akan diupdate (harus ada 'id').
-     *                    Kunci yang diharapkan: 'id', 'nama_wisata', 'deskripsi', 'lokasi'.
-     * @param string|null $new_image_filename Nama file gambar baru, atau "REMOVE_IMAGE", atau null (tidak ada perubahan gambar).
-     * @param string|null $old_image_filename Nama file gambar lama yang ada di database.
-     * @return bool True jika berhasil, false jika gagal.
-     */
-    public static function update($data, $new_image_filename = null, $old_image_filename = null)
+    public static function update($data)
     {
-        global $conn;
-        if (!$conn || !isset($data['id'])) {
-            error_log("Wisata::update() - Koneksi database gagal atau ID tidak disediakan.");
+        if (!self::checkDependencies() || !isset($data['id'])) {
+            error_log(get_called_class() . "::update() Koneksi/ID Error");
             return false;
         }
 
-        $id = (int)$data['id'];
-        // Ambil data dari array, gunakan 'nama_wisata' untuk konsistensi di PHP
-        $nama_wisata = trim($data['nama_wisata'] ?? ''); // Ini akan diupdate ke kolom 'nama' di DB
-        $deskripsi = trim($data['deskripsi'] ?? '');
-        $lokasi = trim($data['lokasi'] ?? '');
-
-        // Validasi
-        if ($id <= 0 || empty($nama_wisata) || empty($deskripsi)) {
-            error_log("Wisata::update() - Error: ID, Nama Wisata, atau Deskripsi tidak valid.");
+        $id = filter_var($data['id'], FILTER_VALIDATE_INT);
+        if ($id === false || $id <= 0) {
+            error_log(get_called_class() . "::update() ID tidak valid.");
             return false;
         }
 
-        $gambar_to_set_in_db = $old_image_filename; // Default: pertahankan gambar lama di DB
-
-        // Logika untuk menangani file gambar
-        if ($new_image_filename === "REMOVE_IMAGE") {
-            // Jika ada gambar lama dan file-nya ada, hapus file dari server
-            if (!empty($old_image_filename) && file_exists(self::$upload_dir . $old_image_filename)) {
-                if (!@unlink(self::$upload_dir . $old_image_filename)) {
-                    error_log("Wisata::update() - Gagal menghapus file gambar lama: " . self::$upload_dir . $old_image_filename);
-                }
-            }
-            $gambar_to_set_in_db = null; // Set kolom gambar di DB menjadi NULL
-        } elseif (!empty($new_image_filename) && $new_image_filename !== $old_image_filename) {
-            // Ada gambar baru yang valid dan berbeda dari yang lama
-            // Hapus gambar lama dari server jika ada
-            if (!empty($old_image_filename) && file_exists(self::$upload_dir . $old_image_filename)) {
-                if (!@unlink(self::$upload_dir . $old_image_filename)) {
-                    error_log("Wisata::update() - Gagal menghapus file gambar lama (saat mengganti): " . self::$upload_dir . $old_image_filename);
-                }
-            }
-            $gambar_to_set_in_db = $new_image_filename; // Gunakan nama file gambar baru untuk DB
+        $current_wisata = self::getById($id); // $current_wisata akan punya key 'nama_wisata' karena alias
+        if (!$current_wisata) {
+            error_log(get_called_class() . "::update() Wisata ID {$id} tidak ditemukan.");
+            return false;
         }
-        // Jika $new_image_filename null atau sama dengan $old_image_filename,
-        // maka $gambar_to_set_in_db akan tetap berisi $old_image_filename (tidak ada perubahan pada kolom gambar di DB).
 
-        // Kolom di DB adalah 'nama', 'deskripsi', 'gambar', 'lokasi'
-        $sql = "UPDATE " . self::$table_name . " SET
-                nama = ?,
-                deskripsi = ?,
-                gambar = ?,
-                lokasi = ?
-                WHERE id = ?";
-        $stmt = mysqli_prepare($conn, $sql);
+        // Terima 'nama_wisata' dari $data, update ke kolom 'nama'
+        $nama_input_untuk_db = trim($data['nama_wisata'] ?? $current_wisata['nama_wisata']);
+        $deskripsi = trim($data['deskripsi'] ?? $current_wisata['deskripsi']);
+        $lokasi = isset($data['lokasi']) ? trim($data['lokasi']) : $current_wisata['lokasi'];
 
+        if (empty($nama_input_untuk_db) || empty($deskripsi)) {
+            error_log(get_called_class() . "::update() Nama atau Deskripsi kosong.");
+            return false;
+        }
+
+        // PERBAIKAN: Update kolom 'nama'
+        $fields_to_update = ["nama = ?", "deskripsi = ?", "lokasi = ?"];
+        $params = [$nama_input_untuk_db, $deskripsi, $lokasi];
+        $types = "sss";
+
+        if (array_key_exists('gambar', $data)) {
+            $gambar_baru = !empty($data['gambar']) ? trim($data['gambar']) : null;
+            $fields_to_update[] = "gambar = ?";
+            $params[] = $gambar_baru;
+            $types .= "s";
+        }
+
+        // Kolom updated_at tidak ada di tabel Anda.
+        // Jika Anda menambahkannya dengan ON UPDATE CURRENT_TIMESTAMP, tidak perlu set manual.
+
+        if (empty($fields_to_update) || (count($fields_to_update) === 3 && !array_key_exists('gambar', $data) && $nama_input_untuk_db === $current_wisata['nama_wisata'] && $deskripsi === $current_wisata['deskripsi'] && $lokasi === $current_wisata['lokasi'])) {
+            return true;
+        }
+
+        $sql = "UPDATE " . self::$table_name . " SET " . implode(', ', $fields_to_update) . " WHERE id = ?";
+        $params[] = $id;
+        $types .= "i";
+
+        $stmt = mysqli_prepare(self::$db, $sql);
         if (!$stmt) {
-            error_log("Wisata::update() - MySQLi Prepare Error: " . mysqli_error($conn));
+            error_log(get_called_class() . "::update() Prepare Error: " . mysqli_error(self::$db));
             return false;
         }
 
-        // Bind parameter
-        mysqli_stmt_bind_param(
-            $stmt,
-            "ssssi",
-            $nama_wisata, // $nama_wisata dari PHP akan diupdate ke kolom 'nama' di DB
-            $deskripsi,
-            $gambar_to_set_in_db, // Nilai ini bisa null, nama file baru, atau nama file lama
-            $lokasi,
-            $id
-        );
-
-        if (mysqli_stmt_execute($stmt)) {
-            mysqli_stmt_close($stmt);
-            return true; // Berhasil meskipun mungkin tidak ada baris yang terpengaruh (data sama)
-        } else {
-            error_log("Wisata::update() - MySQLi Execute Error: " . mysqli_stmt_error($stmt));
-            mysqli_stmt_close($stmt);
-            return false;
-        }
-    }
-
-    /**
-     * Menghapus data destinasi wisata beserta gambarnya.
-     * @param int $id ID destinasi wisata yang akan dihapus.
-     * @return bool True jika berhasil, false jika gagal.
-     */
-    public static function delete($id)
-    {
-        global $conn;
-        if (!$conn) {
-            error_log("Wisata::delete() - Koneksi database gagal.");
-            return false;
-        }
-
-        $id_val = intval($id);
-        if ($id_val <= 0) {
-            error_log("Wisata::delete() - Error: ID tidak valid (" . $id . ").");
-            return false;
-        }
-
-        // 1. Ambil nama file gambar sebelum menghapus record dari DB
-        $wisata = self::getById($id_val);
-        $gambar_filename_to_delete_on_server = null;
-        if ($wisata && !empty($wisata['gambar'])) {
-            $gambar_filename_to_delete_on_server = $wisata['gambar'];
-        }
-
-        // 2. Hapus record dari database
-        $sql = "DELETE FROM " . self::$table_name . " WHERE id = ?";
-        $stmt = mysqli_prepare($conn, $sql);
-
-        if (!$stmt) {
-            error_log("Wisata::delete() - MySQLi Prepare Error: " . mysqli_error($conn));
-            return false;
-        }
-        mysqli_stmt_bind_param($stmt, "i", $id_val);
-
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
         if (mysqli_stmt_execute($stmt)) {
             $affected_rows = mysqli_stmt_affected_rows($stmt);
             mysqli_stmt_close($stmt);
-
-            if ($affected_rows > 0) {
-                // 3. Jika record DB berhasil dihapus, hapus file gambar dari server
-                if (!empty($gambar_filename_to_delete_on_server) && file_exists(self::$upload_dir . $gambar_filename_to_delete_on_server)) {
-                    if (!@unlink(self::$upload_dir . $gambar_filename_to_delete_on_server)) {
-                        error_log("Wisata::delete() - Warning: Gagal menghapus file gambar " . $gambar_filename_to_delete_on_server . " dari server.");
-                    }
-                }
-                return true;
-            } else {
-                // Tidak ada baris yang terpengaruh (kemungkinan ID tidak ada atau sudah dihapus)
-                error_log("Wisata::delete() - Tidak ada baris yang terhapus untuk ID: " . $id_val);
-                return false;
-            }
+            return $affected_rows >= 0;
         } else {
-            error_log("Wisata::delete() - MySQLi Execute Error: " . mysqli_stmt_error($stmt));
+            error_log(get_called_class() . "::update() Execute Error: " . mysqli_stmt_error($stmt));
             mysqli_stmt_close($stmt);
             return false;
         }
+    }
+
+    public static function delete($id)
+    {
+        if (!self::checkDependencies()) return false;
+        $id_val = filter_var($id, FILTER_VALIDATE_INT);
+        if ($id_val === false || $id_val <= 0) {
+            error_log(get_called_class() . "::delete() ID tidak valid: " . $id);
+            return false;
+        }
+        $wisata = self::getById($id_val);
+        $sql = "DELETE FROM " . self::$table_name . " WHERE id = ?";
+        $stmt = mysqli_prepare(self::$db, $sql);
+        if (!$stmt) {
+            error_log(get_called_class() . "::delete() Prepare Error: " . mysqli_error(self::$db));
+            return false;
+        }
+        mysqli_stmt_bind_param($stmt, "i", $id_val);
+        if (mysqli_stmt_execute($stmt)) {
+            $affected_rows = mysqli_stmt_affected_rows($stmt);
+            mysqli_stmt_close($stmt);
+            if ($affected_rows > 0) {
+                if ($wisata && !empty($wisata['gambar'])) {
+                    $file_path = self::$upload_dir_wisata . basename($wisata['gambar']);
+                    if (file_exists($file_path) && is_file($file_path)) {
+                        if (!@unlink($file_path)) {
+                            error_log(get_called_class() . "::delete() Peringatan: Gagal hapus file gambar " . $file_path);
+                        }
+                    }
+                }
+                return true;
+            }
+            error_log(get_called_class() . "::delete() Tidak ada baris terhapus untuk ID: " . $id_val);
+            return false;
+        } else {
+            error_log(get_called_class() . "::delete() Execute Error: " . mysqli_stmt_error($stmt));
+            mysqli_stmt_close($stmt);
+            return false;
+        }
+    }
+
+    public static function countAll()
+    {
+        if (!self::checkDependencies()) return 0;
+        $sql = "SELECT COUNT(id) as total FROM " . self::$table_name;
+        $result = mysqli_query(self::$db, $sql);
+        if ($result) {
+            $row = mysqli_fetch_assoc($result);
+            mysqli_free_result($result);
+            return (int)($row['total'] ?? 0);
+        }
+        error_log(get_called_class() . "::countAll() Query Error: " . mysqli_error(self::$db));
+        return 0;
     }
 }
