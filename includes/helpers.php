@@ -18,7 +18,6 @@ if (!function_exists('e')) {
         if ($string === null) {
             return '';
         }
-        // Pastikan dikonversi ke string untuk mencegah error jika tipe lain diberikan
         return htmlspecialchars((string)$string, ENT_QUOTES, 'UTF-8');
     }
 }
@@ -30,33 +29,28 @@ if (!function_exists('redirect')) {
      */
     function redirect($path)
     {
-        $path_str = (string)$path; // Pastikan path adalah string
+        $path_str = (string)$path;
 
-        if (preg_match('#^https?://#i', $path_str)) { // Cek jika path adalah URL absolut
+        if (preg_match('#^https?://#i', $path_str)) {
             $location = $path_str;
-        } else { // Jika path relatif
+        } else {
             if (!defined('BASE_URL')) {
                 error_log("FATAL ERROR di fungsi redirect(): Konstanta BASE_URL tidak terdefinisi. Tidak dapat melakukan redirect ke path relatif: " . e($path_str));
-                // Jika BASE_URL tidak ada, ini adalah masalah konfigurasi serius.
-                http_response_code(500); // Internal Server Error
+                http_response_code(500);
                 exit("Kesalahan Konfigurasi Server: URL dasar aplikasi tidak ditemukan. Proses redirect dibatalkan.");
             }
-            // BASE_URL sudah dipastikan diakhiri dengan slash oleh config.php
-            // ltrim() untuk menghapus slash di awal path jika ada, agar tidak jadi double slash
             $location = BASE_URL . ltrim($path_str, '/');
         }
 
         if (!headers_sent($file, $line)) {
             header('Location: ' . $location);
-            exit; // Selalu exit setelah header redirect
+            exit;
         } else {
-            // Jika header sudah terkirim, redirect via header tidak akan berfungsi.
             error_log("Peringatan di fungsi redirect(): Headers sudah terkirim. Output dimulai di {$file} pada baris {$line}. Redirect ke '{$location}' mungkin gagal di sisi server.");
-            // Tampilkan link fallback ke pengguna
             echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Redirecting...</title></head><body>";
             echo "<p>Proses selesai. Jika Anda tidak diarahkan secara otomatis, silakan <a href=\"" . e($location) . "\">klik di sini</a>.</p>";
             echo "</body></html>";
-            exit; // Tetap exit untuk menghentikan eksekusi skrip saat ini
+            exit;
         }
     }
 }
@@ -66,12 +60,12 @@ if (!function_exists('formatRupiah')) {
     /**
      * Memformat angka menjadi format mata uang Rupiah.
      * @param float|int|string $angka Angka yang akan diformat.
-     * @return string Angka dalam format Rupiah (misal: "Rp 1.250.000") atau "Rp 0" jika input tidak valid.
+     * @return string Angka dalam format Rupiah atau "Rp 0" jika input tidak valid.
      */
     function formatRupiah($angka)
     {
         if (!is_numeric($angka)) {
-            return 'Rp 0'; // Default jika input bukan numerik
+            return 'Rp 0';
         }
         return "Rp " . number_format((float)$angka, 0, ',', '.');
     }
@@ -79,22 +73,19 @@ if (!function_exists('formatRupiah')) {
 
 if (!function_exists('formatTanggalIndonesia')) {
     /**
-     * Mengubah format tanggal dari YYYY-MM-DD HH:MM:SS atau YYYY-MM-DD
-     * menjadi format Indonesia.
+     * Mengubah format tanggal MySQL menjadi format Indonesia.
      * @param string|null $tanggal_mysql Tanggal dalam format MySQL.
      * @param bool $dengan_waktu True untuk menyertakan waktu (HH:MM).
-     * @param bool $dengan_hari True untuk menyertakan nama hari (Senin, Selasa, dst. atau Sen, Sel, dst.).
-     * @param bool $hari_singkat True jika $dengan_hari true, gunakan nama hari singkat (Sen, Sel), false untuk nama lengkap.
-     * @return string Tanggal dalam format Indonesia atau '-' jika input tidak valid atau kosong.
+     * @param bool $dengan_hari True untuk menyertakan nama hari.
+     * @param bool $hari_singkat True jika $dengan_hari true, gunakan nama hari singkat.
+     * @return string Tanggal dalam format Indonesia atau '-' jika input tidak valid.
      */
     function formatTanggalIndonesia($tanggal_mysql, $dengan_waktu = false, $dengan_hari = false, $hari_singkat = false)
     {
         if (empty($tanggal_mysql) || $tanggal_mysql === '0000-00-00' || $tanggal_mysql === '0000-00-00 00:00:00' || $tanggal_mysql === null) {
             return '-';
         }
-
         try {
-            // Zona waktu seharusnya sudah diset di config.php
             if (empty(date_default_timezone_get()) || !in_array(date_default_timezone_get(), timezone_identifiers_list(DateTimeZone::ASIA))) {
                 error_log("Peringatan di formatTanggalIndonesia(): Timezone default belum diset atau bukan Asia. Menggunakan Asia/Jakarta.");
                 date_default_timezone_set('Asia/Jakarta');
@@ -104,66 +95,35 @@ if (!function_exists('formatTanggalIndonesia')) {
             error_log("Error di formatTanggalIndonesia(): Tanggal input tidak valid - '" . e((string)$tanggal_mysql) . "' - Pesan: " . $e->getMessage());
             return '-';
         }
-
         $nama_hari_panjang_id = ['Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'];
         $nama_hari_singkat_id = ['Sunday' => 'Min', 'Monday' => 'Sen', 'Tuesday' => 'Sel', 'Wednesday' => 'Rab', 'Thursday' => 'Kam', 'Friday' => 'Jum', 'Saturday' => 'Sab'];
-
-        $nama_bulan_id = [
-            1 => 'Januari',
-            2 => 'Februari',
-            3 => 'Maret',
-            4 => 'April',
-            5 => 'Mei',
-            6 => 'Juni',
-            7 => 'Juli',
-            8 => 'Agustus',
-            9 => 'September',
-            10 => 'Oktober',
-            11 => 'November',
-            12 => 'Desember'
-        ];
-
+        $nama_bulan_id = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
         $hari_en = $date_obj->format('l');
         $nama_hari_yang_dipakai = $hari_singkat ? $nama_hari_singkat_id : $nama_hari_panjang_id;
         $hari_id = $nama_hari_yang_dipakai[$hari_en] ?? $hari_en;
-
         $tanggal = $date_obj->format('j');
         $bulan_idx = (int)$date_obj->format('n');
         $bulan_id = $nama_bulan_id[$bulan_idx] ?? $date_obj->format('M');
         $tahun = $date_obj->format('Y');
-
         $format_indonesia = '';
         if ($dengan_hari) {
             $format_indonesia .= $hari_id . ', ';
         }
         $format_indonesia .= $tanggal . ' ' . $bulan_id . ' ' . $tahun;
-
-        if ($dengan_waktu) {
-            if (strpos($tanggal_mysql, ':') !== false && $tanggal_mysql !== $date_obj->format('Y-m-d')) {
-                $format_indonesia .= ', ' . $date_obj->format('H:i');
-            }
+        if ($dengan_waktu && strpos($tanggal_mysql, ':') !== false && $tanggal_mysql !== $date_obj->format('Y-m-d')) {
+            $format_indonesia .= ', ' . $date_obj->format('H:i');
         }
         return $format_indonesia;
     }
 }
 
-
 if (!function_exists('is_post')) {
-    /**
-     * Mengecek apakah request method saat ini adalah POST.
-     * @return bool True jika POST, false jika tidak.
-     */
     function is_post()
     {
         return strtoupper($_SERVER['REQUEST_METHOD']) === 'POST';
     }
 }
-
 if (!function_exists('is_get')) {
-    /**
-     * Mengecek apakah request method saat ini adalah GET.
-     * @return bool True jika GET, false jika tidak.
-     */
     function is_get()
     {
         return strtoupper($_SERVER['REQUEST_METHOD']) === 'GET';
@@ -171,19 +131,10 @@ if (!function_exists('is_get')) {
 }
 
 if (!function_exists('input')) {
-    /**
-     * Mengambil data input dari POST, GET, atau REQUEST.
-     * Melakukan trim pada string.
-     * @param string $key Kunci dari data input.
-     * @param mixed $default Nilai default jika kunci tidak ditemukan.
-     * @param string|null $method Metode 'post', 'get', atau null (untuk $_REQUEST).
-     * @return mixed Nilai input yang sudah di-trim atau nilai default.
-     */
     function input($key, $default = null, $method = null)
     {
         $source = null;
         $request_method = strtolower((string)$method);
-
         if ($request_method === 'post') {
             $source = $_POST;
         } elseif ($request_method === 'get') {
@@ -191,40 +142,22 @@ if (!function_exists('input')) {
         } else {
             $source = $_REQUEST;
         }
-
         if (isset($source[$key])) {
-            if (is_string($source[$key])) {
-                return trim($source[$key]);
-            }
-            return $source[$key];
+            return is_string($source[$key]) ? trim($source[$key]) : $source[$key];
         }
         return $default;
     }
 }
 
 if (!function_exists('excerpt')) {
-    /**
-     * Membuat ringkasan teks dengan batas karakter, mencoba memotong pada spasi.
-     * Menghapus tag HTML dari teks.
-     * @param string|null $text Teks asli.
-     * @param int $limit Batas karakter.
-     * @param string $ellipsis String penutup (misal "...").
-     * @return string Teks ringkasan.
-     */
     function excerpt($text, $limit = 100, $ellipsis = '...')
     {
-        if ($text === null || $text === '') {
-            return '';
-        }
+        if ($text === null || $text === '') return '';
         $text_clean = strip_tags((string)$text);
         if (mb_strlen($text_clean, 'UTF-8') > $limit) {
             $text_cut = mb_substr($text_clean, 0, $limit, 'UTF-8');
             $last_space = mb_strrpos($text_cut, ' ', 0, 'UTF-8');
-            if ($last_space !== false) {
-                $text_final = rtrim(mb_substr($text_cut, 0, $last_space, 'UTF-8'));
-            } else {
-                $text_final = $text_cut;
-            }
+            $text_final = ($last_space !== false) ? rtrim(mb_substr($text_cut, 0, $last_space, 'UTF-8')) : $text_cut;
             return $text_final . $ellipsis;
         }
         return $text_clean;
@@ -232,25 +165,98 @@ if (!function_exists('excerpt')) {
 }
 
 if (!function_exists('is_valid_email')) {
-    /**
-     * Memvalidasi apakah format email valid.
-     * @param string $email Email yang akan divalidasi.
-     * @return bool True jika valid, false jika tidak.
-     */
     function is_valid_email($email)
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 }
 
-if (!function_exists('getStatusBadgeClass')) {
+// --- Fungsi-fungsi CSRF Token ---
+if (!function_exists('generate_csrf_token')) {
     /**
-     * Mengembalikan kelas CSS Bootstrap berdasarkan status umum.
-     * @param string $status Status.
-     * @return string Kelas CSS.
+     * Menghasilkan atau mengambil CSRF token yang sudah ada dari session.
+     * @return string CSRF token.
      */
-    function getStatusBadgeClass($status)
+    function generate_csrf_token()
     {
+        if (session_status() == PHP_SESSION_NONE) {
+            error_log("KRITIKAL di generate_csrf_token(): Session belum dimulai. Seharusnya sudah dimulai oleh config.php.");
+            // Di lingkungan produksi, mungkin lebih baik tidak memulai session di sini secara langsung
+            // dan mengandalkan config.php untuk menangani ini.
+            // Jika session tidak bisa dimulai, token tidak bisa disimpan/diambil.
+            if (!headers_sent()) session_start();
+            else return 'csrf_session_error_headers_sent';
+        }
+        if (empty($_SESSION['csrf_token'])) {
+            try {
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            } catch (Exception $e) {
+                $_SESSION['csrf_token'] = md5(uniqid(rand(), true)); // Fallback
+                error_log("Peringatan: random_bytes() gagal untuk CSRF token, menggunakan fallback md5. Pesan: " . $e->getMessage());
+            }
+        }
+        return $_SESSION['csrf_token'];
+    }
+}
+
+if (!function_exists('generate_csrf_token_input')) {
+    /**
+     * Menghasilkan input field HTML tersembunyi yang berisi CSRF token.
+     * @return string HTML untuk input field CSRF token.
+     */
+    function generate_csrf_token_input()
+    {
+        return '<input type="hidden" name="csrf_token" value="' . e(generate_csrf_token()) . '">';
+    }
+}
+
+if (!function_exists('verify_csrf_token')) {
+    /**
+     * Memverifikasi CSRF token.
+     * @param string|null $token_from_request Token yang diterima dari request (GET atau POST). 
+     *                                         Jika null, akan coba ambil dari $_POST['csrf_token'] atau $_GET['csrf_token'].
+     * @param bool $unset_after_verify Jika true, token akan dihapus dari session setelah verifikasi berhasil.
+     * @return bool True jika token valid, false jika tidak.
+     */
+    function verify_csrf_token($token_from_request = null, $unset_after_verify = true)
+    {
+        if (session_status() == PHP_SESSION_NONE) {
+            error_log("CSRF Verify Error: Sesi belum dimulai.");
+            return false;
+        }
+
+        $request_token = $token_from_request;
+        if ($request_token === null) {
+            // Prioritaskan POST karena CSRF sering untuk form submission
+            $request_token = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? null;
+        }
+
+        $session_token = $_SESSION['csrf_token'] ?? null;
+
+        if ($request_token === null || $session_token === null) {
+            error_log("CSRF Verify Error: Token dari request atau session tidak ditemukan.");
+            return false;
+        }
+
+        $valid = hash_equals((string)$session_token, (string)$request_token);
+
+        if (!$valid) {
+            // Jangan log $session_token secara langsung di produksi jika sensitif, cukup request_token
+            error_log("CSRF Token Mismatch. Request Token: [" . htmlspecialchars((string)$request_token) . "]");
+        }
+
+        if ($valid && $unset_after_verify) {
+            unset($_SESSION['csrf_token']);
+        }
+        return $valid;
+    }
+}
+
+
+// --- Fungsi-fungsi Badge Status ---
+if (!function_exists('getStatusBadgeClass')) {
+    function getStatusBadgeClass($status)
+    { /* ... implementasi sama seperti sebelumnya ... */
         switch (strtolower(trim((string)$status))) {
             case 'success':
             case 'paid':
@@ -282,32 +288,18 @@ if (!function_exists('getStatusBadgeClass')) {
         }
     }
 }
-
 if (!function_exists('getStatusBadgeClassHTML')) {
-    /**
-     * Menghasilkan HTML untuk badge status umum.
-     * @param string $status_raw Status mentah.
-     * @param string $default_text Teks default jika status kosong.
-     * @return string HTML badge.
-     */
     function getStatusBadgeClassHTML($status_raw, $default_text = 'Tidak Diketahui')
-    {
+    { /* ... implementasi sama ... */
         $status_clean = strtolower(trim((string)$status_raw));
         $display_text = !empty($status_clean) ? ucfirst(str_replace('_', ' ', $status_clean)) : $default_text;
         $badge_class_suffix = getStatusBadgeClass($status_clean);
-
         return '<span class="badge rounded-pill bg-' . e($badge_class_suffix) . '">' . e($display_text) . '</span>';
     }
 }
-
 if (!function_exists('getSewaStatusBadgeClass')) {
-    /**
-     * Mengembalikan kelas CSS Bootstrap berdasarkan status sewa.
-     * @param string $status Status sewa.
-     * @return string Kelas CSS.
-     */
     function getSewaStatusBadgeClass($status)
-    {
+    { /* ... implementasi sama ... */
         switch (strtolower(trim((string)$status))) {
             case 'dipesan':
                 return 'warning text-dark';
@@ -325,32 +317,14 @@ if (!function_exists('getSewaStatusBadgeClass')) {
         }
     }
 }
-
 if (!function_exists('getSewaStatusBadgeClassHTML')) {
-    /**
-     * Menghasilkan HTML untuk badge status sewa.
-     * @param string $status_raw Status sewa mentah.
-     * @param string $default_text Teks default jika status kosong.
-     * @return string HTML badge.
-     */
     function getSewaStatusBadgeClassHTML($status_raw, $default_text = 'Tidak Diketahui')
-    {
+    { /* ... implementasi sama ... */
         $status_clean = strtolower(trim((string)$status_raw));
         $display_text = !empty($status_clean) ? ucfirst(str_replace('_', ' ', $status_clean)) : $default_text;
         $badge_class_suffix = getSewaStatusBadgeClass($status_clean);
-
         return '<span class="badge rounded-pill bg-' . e($badge_class_suffix) . '">' . e($display_text) . '</span>';
     }
-}
-function generate_csrf_token()
-{
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    if (empty($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
-    return $_SESSION['csrf_token'];
 }
 
 // Tidak ada tag PHP penutup jika ini adalah akhir dari file dan hanya berisi kode PHP.

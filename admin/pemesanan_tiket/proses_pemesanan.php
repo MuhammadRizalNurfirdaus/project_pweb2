@@ -46,7 +46,16 @@ if (!is_post()) {
     exit;
 }
 
-if (function_exists('verify_csrf_token') && !verify_csrf_token()) {
+if (!function_exists('verify_csrf_token')) {
+    function verify_csrf_token() {
+        if (!isset($_POST['csrf_token'], $_SESSION['csrf_token'])) {
+            return false;
+        }
+        return hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']);
+    }
+}
+
+if (!verify_csrf_token()) {
     set_flash_message('danger', 'Permintaan tidak valid atau sesi telah berakhir (CSRF token mismatch). Silakan coba lagi.');
     redirect($_SERVER['HTTP_REFERER'] ?? ADMIN_URL . '/dashboard.php');
     exit;
