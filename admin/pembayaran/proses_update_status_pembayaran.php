@@ -87,7 +87,7 @@ try {
     // Anda bisa mengirimkan array $details jika ada informasi tambahan yang perlu disimpan
     // Contoh: $details = ['catatan_admin' => $_POST['catatan_admin'] ?? null];
     // Untuk saat ini, kita hanya mengirim ID dan status.
-    $update_berhasil = PembayaranController::updateStatusPembayaranDanTiket($id_pembayaran, $new_status);
+    $update_berhasil = PembayaranController::updateStatusPembayaranDanPemesananTerkait($id_pembayaran, $new_status);
 } catch (Exception $e) {
     // Tangani jika controller melempar exception (praktik baik untuk controller)
     error_log("EXCEPTION saat update status pembayaran (ID: {$id_pembayaran}): " . $e->getMessage());

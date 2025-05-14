@@ -16,7 +16,7 @@ if (!@require_once __DIR__ . '/models/Artikel.php') {
   // Halaman bisa tetap berjalan, $artikel_terbaru akan kosong
 } else {
   if (isset($conn) && $conn) {
-    $artikel_model = new Artikel($conn);
+    $artikel_model = new Artikel();
     try {
       $artikel_terbaru = $artikel_model->getLatest(3); // Ambil 3 artikel terbaru
     } catch (Throwable $e) { // Menangkap semua jenis error/exception dari model
@@ -43,9 +43,9 @@ if (!@include_once __DIR__ . '/template/header.php') {
 <div class="main-page-content">
 
   <!-- MODIFIED SECTION: Added inline style for background-image -->
-  <section class="hero-video-background text-white text-center d-flex align-items-center" 
-          style="background-image: url('<?= $base_url ?>public/img/air.jpg'); background-size: cover; background-position: center;">
-    
+  <section class="hero-video-background text-white text-center d-flex align-items-center"
+    style="background-image: url('<?= $base_url ?>public/img/air.jpg'); background-size: cover; background-position: center;">
+
     <video playsinline autoplay muted loop poster="<?= $base_url ?>public/img/background_poster.jpg" id="bgvid" aria-label="Video latar pemandangan Lembah Cilengkrang">
       <source src="<?= $base_url ?>public/img/background.mp4" type="video/mp4">
       Browser Anda tidak mendukung tag video.
@@ -62,7 +62,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
         <i class="fas fa-info-circle me-2"></i>Pelajari Lebih Lanjut
       </a>
       <!-- Mengganti user/booking.php menjadi user/pemesanan_tiket.php -->
-      <a href="<?= $base_url ?>user/pemesanan_tiket.php" class="btn btn-light btn-lg hero-btn">
+      <a href="<?= $base_url ?>user/pemesanan.php" class="btn btn-light btn-lg hero-btn">
         <i class="fas fa-ticket-alt me-2"></i>Pesan Tiket Sekarang
       </a>
     </div>
@@ -128,7 +128,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
               <div class="card-body d-flex flex-column">
                 <h5 class="card-title"><?= e($dest['judul']) ?></h5>
                 <p class="card-text text-muted small flex-grow-1"><?= e($dest['deskripsi']) ?></p>
-              
+
               </div>
             </div>
           </div>
@@ -136,8 +136,8 @@ if (!@include_once __DIR__ . '/template/header.php') {
         endforeach; ?>
       </div>
       <div class="text-center mt-5">
-  
-          
+
+
         </a>
       </div>
     </div>
@@ -197,9 +197,9 @@ if (!@include_once __DIR__ . '/template/header.php') {
 
   <section class="section-padding bg-light-custom testimonial-section">
     <div class="container">
-      <h2 class="section-title">Apa Kata Mereka?</h2>  
+      <h2 class="section-title">Apa Kata Mereka?</h2>
       <div class="row justify-content-center">
-        <div class="col-lg-9">   
+        <div class="col-lg-9">
           <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="7000">
             <div class="carousel-indicators">
               <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Testimoni 1"></button>
@@ -233,7 +233,7 @@ if (!@include_once __DIR__ . '/template/header.php') {
             <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
               <span class="carousel-control-next-icon" aria-hidden="true"></span>
               <span class="visually-hidden">Next</span>
-            </button> 
+            </button>
           </div>
         </div>
       </div>
@@ -241,49 +241,55 @@ if (!@include_once __DIR__ . '/template/header.php') {
   </section>
 
   <style>
-  .cta-section {
-    background-image: url('images/bg-petualangan.jpg'); /* Ganti dengan path gambar kamu */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
+    .cta-section {
+      background-image: url('images/bg-petualangan.jpg');
+      /* Ganti dengan path gambar kamu */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
 
-  .cta-overlay {
-    background-color: rgba(0, 0, 0, 0.6); /* Overlay gelap agar teks tetap terlihat */
-    padding: 80px 0; /* Ruang vertikal */
-  }
-</style>
+    .cta-overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      /* Overlay gelap agar teks tetap terlihat */
+      padding: 80px 0;
+      /* Ruang vertikal */
+    }
+  </style>
 
-<style>
-  .cta-section {
-    background-image: url('images/bg-petualangan.jpg'); /* Ganti dengan path gambar kamu */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
+  <style>
+    .cta-section {
+      background-image: url('images/bg-petualangan.jpg');
+      /* Ganti dengan path gambar kamu */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
 
-  .cta-overlay {
-    background-color: rgba(0, 0, 0, 0.6); /* Overlay gelap agar teks tetap terlihat */
-    padding: 80px 0; /* Ruang vertikal */
-  }
-</style>
+    .cta-overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      /* Overlay gelap agar teks tetap terlihat */
+      padding: 80px 0;
+      /* Ruang vertikal */
+    }
+  </style>
 
-<section class="section-padding text-center cta-section" style="position: relative; background-image: url('<?= $base_url ?>public/img/air3.jpg'); background-size: cover; background-position: center;">
-  <div class="container py-5">
-    <div class="animate-on-scroll text-white">
-      <h2 class="section-title">Siap untuk Petualangan Berikutnya?</h2>
-      <p class="lead mb-4 mx-auto" style="max-width: 700px;">
-        Cilengkrang menanti kedatangan Anda dengan sejuta pesona alam, keramahan, dan pengalaman tak terlupakan yang akan memperkaya jiwa.
-      </p>
-      <a href="<?= $base_url ?>user/pemesanan_tiket.php" class="btn btn-light btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn">
-        <i class="fas fa-calendar-check me-2"></i> Rencanakan Kunjungan
-      </a>
-      <a href="<?= $base_url ?>contact.php" class="btn btn-outline-light btn-lg hero-btn">
-        <i class="fas fa-envelope me-2"></i> Hubungi Kami
-      </a>
+  <section class="section-padding text-center cta-section" style="position: relative; background-image: url('<?= $base_url ?>public/img/air3.jpg'); background-size: cover; background-position: center;">
+    <div class="container py-5">
+      <div class="animate-on-scroll text-white">
+        <h2 class="section-title">Siap untuk Petualangan Berikutnya?</h2>
+        <p class="lead mb-4 mx-auto" style="max-width: 700px;">
+          Cilengkrang menanti kedatangan Anda dengan sejuta pesona alam, keramahan, dan pengalaman tak terlupakan yang akan memperkaya jiwa.
+        </p>
+        <a href="<?= $base_url ?>user/pemesanan_tiket.php" class="btn btn-light btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn">
+          <i class="fas fa-calendar-check me-2"></i> Rencanakan Kunjungan
+        </a>
+        <a href="<?= $base_url ?>contact.php" class="btn btn-outline-light btn-lg hero-btn">
+          <i class="fas fa-envelope me-2"></i> Hubungi Kami
+        </a>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
 
 

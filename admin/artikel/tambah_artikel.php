@@ -81,10 +81,10 @@ if (is_post()) { // Menggunakan fungsi helper is_post()
                     set_flash_message('danger', 'File bukan format gambar yang valid.');
                     $uploadOk = 0;
                 }
-                if ($_FILES["gambar"]["size"] > 2097152) {
-                    set_flash_message('danger', 'Ukuran file gambar maksimal 2MB.');
+                if ($_FILES["gambar"]["size"] > 3097152) {
+                    set_flash_message('danger', 'Ukuran file gambar maksimal 3MB.');
                     $uploadOk = 0;
-                } // 2MB
+                } // 3MB
                 $allowed_formats = ["jpg", "png", "jpeg", "gif", "webp"];
                 if (!in_array($imageFileType, $allowed_formats)) {
                     set_flash_message('danger', 'Hanya format JPG, JPEG, PNG, GIF, WEBP yang diizinkan.');

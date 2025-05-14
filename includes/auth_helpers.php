@@ -10,169 +10,197 @@
  * - Diasumsikan config.php sudah memanggil session_start() di paling awal.
  * - Diasumsikan config.php sudah memuat helpers.php (untuk redirect(), e()) 
  *   dan flash_message.php (untuk set_flash_message()) SEBELUM file ini.
- * - Konstanta BASE_URL harus sudah terdefinisi di config.php.
+ * - Konstanta BASE_URL, ADMIN_URL, USER_URL harus sudah terdefinisi di config.php.
  */
 
-// Pengecekan session sudah dimulai atau belum (seharusnya sudah oleh config.php)
 if (session_status() == PHP_SESSION_NONE) {
-    // Ini adalah kondisi error kritis jika config.php tidak memulai session.
-    // Fungsi-fungsi di sini tidak akan bekerja dengan benar.
-    error_log("KRITIKAL di auth_helpers.php: Session belum dimulai. Fungsi otentikasi tidak akan bekerja. Pastikan config.php memanggil session_start().");
-    // Pertimbangkan untuk exit atau throw exception di sini jika session adalah keharusan absolut untuk file ini
-    // exit("Kesalahan konfigurasi server: Sesi aplikasi tidak aktif."); 
+    error_log("KRITIKAL auth_helpers.php: Session belum dimulai. Fungsi otentikasi mungkin tidak bekerja dengan benar.");
+    // Pertimbangkan untuk memulai sesi di sini jika belum, meskipun idealnya di config.php
+    // if (!headers_sent()) { session_start(); } 
 }
 
-// Pengecekan dependensi penting
+// Pengecekan dependensi dasar
 if (!defined('BASE_URL')) {
-    error_log("FATAL ERROR di auth_helpers.php: Konstanta BASE_URL tidak terdefinisi.");
-    exit("Kesalahan konfigurasi server kritis: BASE_URL tidak ditemukan.");
+    error_log("FATAL ERROR auth_helpers.php: Konstanta BASE_URL tidak terdefinisi.");
+    // exit("Kesalahan konfigurasi: BASE_URL tidak ditemukan."); // Mungkin terlalu drastis untuk helper
 }
 if (!function_exists('redirect')) {
-    error_log("FATAL ERROR di auth_helpers.php: Fungsi redirect() tidak terdefinisi.");
-    exit("Kesalahan konfigurasi server kritis: Fungsi redirect() tidak ditemukan.");
+    error_log("FATAL ERROR auth_helpers.php: Fungsi redirect() tidak terdefinisi.");
 }
 if (!function_exists('set_flash_message')) {
-    error_log("FATAL ERROR di auth_helpers.php: Fungsi set_flash_message() tidak terdefinisi.");
-    exit("Kesalahan konfigurasi server kritis: Fungsi set_flash_message() tidak ditemukan.");
+    error_log("FATAL ERROR auth_helpers.php: Fungsi set_flash_message() tidak terdefinisi.");
 }
 
-/**
- * Memeriksa apakah pengguna sudah login.
- * @return bool True jika login, false jika tidak.
- */
+
 if (!function_exists('is_logged_in')) {
+    /** Memeriksa apakah pengguna sudah login. */
     function is_logged_in()
     {
-        // Pastikan session aktif sebelum mengakses $_SESSION
         if (session_status() == PHP_SESSION_NONE) return false;
         return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']) && is_numeric($_SESSION['user_id']);
     }
 }
 
-/**
- * Memeriksa apakah pengguna yang login adalah admin.
- * @return bool True jika admin, false jika tidak atau belum login.
- */
 if (!function_exists('is_admin')) {
+    /** Memeriksa apakah pengguna yang login adalah admin. */
     function is_admin()
     {
         if (session_status() == PHP_SESSION_NONE) return false;
-        return is_logged_in() && isset($_SESSION['user_role']) && strtolower($_SESSION['user_role']) === 'admin';
+        return is_logged_in() && isset($_SESSION['user_role']) && strtolower((string)$_SESSION['user_role']) === 'admin';
     }
 }
 
-/**
- * Memeriksa apakah pengguna yang login adalah user biasa (bukan admin).
- * @return bool True jika user biasa, false jika admin, tidak ada role, atau belum login.
- */
 if (!function_exists('is_user')) {
+    /** Memeriksa apakah pengguna yang login adalah user biasa. */
     function is_user()
     {
         if (session_status() == PHP_SESSION_NONE) return false;
-        return is_logged_in() && isset($_SESSION['user_role']) && strtolower($_SESSION['user_role']) === 'user';
+        return is_logged_in() && isset($_SESSION['user_role']) && strtolower((string)$_SESSION['user_role']) === 'user';
     }
 }
 
-/**
- * Mengambil ID pengguna yang sedang login.
- * @return int|null ID pengguna atau null jika tidak login.
- */
 if (!function_exists('get_current_user_id')) {
+    /** Mengambil ID pengguna yang sedang login. */
     function get_current_user_id()
     {
         if (session_status() == PHP_SESSION_NONE) return null;
-        return is_logged_in() && isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+        return (is_logged_in() && isset($_SESSION['user_id'])) ? (int)$_SESSION['user_id'] : null;
     }
 }
 
-/**
- * Mengambil nama pengguna yang sedang login.
- * Pastikan $_SESSION['user_nama_lengkap'] (atau key yang sesuai) diset saat login.
- * @return string Nama pengguna atau string kosong jika tidak login/tidak ada nama.
- */
 if (!function_exists('get_current_user_name')) {
-    function get_current_user_name() // Mengganti nama key session menjadi lebih umum
+    /** Mengambil nama pengguna yang sedang login. */
+    function get_current_user_name()
     {
-        if (session_status() == PHP_SESSION_NONE) return '';
-        // Sesuaikan 'user_nama_lengkap' dengan key session yang Anda gunakan untuk nama pengguna
-        return is_logged_in() && isset($_SESSION['user_nama_lengkap']) ? (string)$_SESSION['user_nama_lengkap'] : (is_logged_in() && isset($_SESSION['user_nama']) ? (string)$_SESSION['user_nama'] : ''); // Fallback jika pakai 'user_nama'
+        if (session_status() == PHP_SESSION_NONE || !is_logged_in()) return 'Pengguna'; // Default jika tidak login
+        return isset($_SESSION['user_nama_lengkap']) && !empty(trim((string)$_SESSION['user_nama_lengkap']))
+            ? (string)$_SESSION['user_nama_lengkap']
+            : (isset($_SESSION['user_nama']) && !empty(trim((string)$_SESSION['user_nama']))
+                ? (string)$_SESSION['user_nama']
+                : 'Pengguna');
     }
 }
 
-/**
- * Mengambil data pengguna tertentu dari session.
- * @param string $key Kunci data di session (misal: 'user_email', 'user_role').
- * @param mixed $default Nilai default jika kunci tidak ditemukan.
- * @return mixed Data pengguna atau nilai default.
- */
 if (!function_exists('get_current_user_data')) {
+    /** Mengambil data pengguna tertentu dari session. */
     function get_current_user_data($key, $default = null)
     {
-        if (session_status() == PHP_SESSION_NONE) return $default;
-        return is_logged_in() && isset($_SESSION[$key]) ? $_SESSION[$key] : $default;
+        if (session_status() == PHP_SESSION_NONE || !is_logged_in()) return $default;
+        return $_SESSION[$key] ?? $default;
+    }
+}
+
+if (!function_exists('logout_user')) {
+    /**
+     * Melakukan logout pengguna dengan menghancurkan sesi.
+     * PENTING: Fungsi ini hanya menghancurkan sesi, redirect harus dilakukan oleh skrip pemanggil.
+     */
+    function logout_user()
+    {
+        if (session_status() == PHP_SESSION_NONE) {
+            // Jika sesi belum dimulai, tidak banyak yang bisa dilakukan selain mencoba memulainya
+            // untuk membersihkan cookie, tapi ini berisiko jika output sudah terkirim.
+            // Biasanya, config.php sudah memastikan sesi dimulai.
+            error_log("logout_user: Dipanggil saat sesi belum aktif.");
+            if (!headers_sent()) session_start();
+            else return false; // Gagal jika header terkirim
+        }
+
+        // Hapus semua variabel sesi.
+        $_SESSION = array();
+
+        // Jika diinginkan, hapus juga cookie sesi.
+        // Catatan: Ini akan menghancurkan sesi, dan bukan hanya data sesi!
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
+
+        // Akhirnya, hancurkan sesi.
+        if (session_status() == PHP_SESSION_ACTIVE) { // Hanya destroy jika aktif
+            session_destroy();
+        }
+        error_log("logout_user: Sesi dihancurkan.");
+        return true;
     }
 }
 
 
-/**
- * Mewajibkan pengguna untuk login (role apapun). Jika tidak, redirect ke halaman login.
- * @param string $redirect_to_login_page Path ke halaman login relatif terhadap BASE_URL.
- */
 if (!function_exists('require_login')) {
+    /** Mewajibkan pengguna untuk login. */
     function require_login($redirect_to_login_page = 'auth/login.php')
     {
         if (!is_logged_in()) {
-            // Simpan URL halaman saat ini (path relatif) untuk redirect setelah login
-            $relative_current_page = ltrim(str_replace(rtrim(parse_url(BASE_URL, PHP_URL_PATH), '/'), '', strtok($_SERVER['REQUEST_URI'], '?')), '/');
-            $_SESSION['redirect_url_after_login'] = $relative_current_page . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
+            if (session_status() == PHP_SESSION_ACTIVE && defined('BASE_URL')) {
+                $current_request_uri = $_SERVER['REQUEST_URI'] ?? '';
+                $base_path_for_redirect = ltrim(parse_url(BASE_URL, PHP_URL_PATH), '/');
+                $current_path = ltrim(strtok($current_request_uri, '?'), '/');
 
-            set_flash_message('warning', 'Anda harus login untuk mengakses halaman ini.');
-            redirect($redirect_to_login_page); // redirect() akan melakukan exit
+                if (!empty($base_path_for_redirect) && strpos($current_path, $base_path_for_redirect) === 0) {
+                    $current_path = ltrim(substr($current_path, strlen($base_path_for_redirect)), '/');
+                }
+                $_SESSION['redirect_url_after_login'] = $current_path . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
+                error_log("require_login: redirect_url_after_login diset ke: " . $_SESSION['redirect_url_after_login']);
+            }
+            if (function_exists('set_flash_message')) set_flash_message('warning', 'Anda harus login untuk mengakses halaman ini.');
+            if (function_exists('redirect')) redirect($redirect_to_login_page);
+            else exit('Akses ditolak.');
         }
     }
 }
 
-/**
- * Mewajibkan pengguna untuk login sebagai admin.
- * Fungsi ini akan menghentikan eksekusi skrip jika kondisi tidak terpenuhi.
- * @param string $redirect_to_login_page Path ke halaman login.
- * @param string|null $redirect_to_non_admin_page Path jika login tapi bukan admin (null untuk fallback ke user/dashboard.php atau /).
- */
 if (!function_exists('require_admin')) {
+    /** Mewajibkan pengguna untuk login sebagai admin. */
     function require_admin($redirect_to_login_page = 'auth/login.php', $redirect_to_non_admin_page = null)
     {
         if (!is_logged_in()) {
-            $relative_current_page = ltrim(str_replace(rtrim(parse_url(BASE_URL, PHP_URL_PATH), '/'), '', strtok($_SERVER['REQUEST_URI'], '?')), '/');
-            $_SESSION['redirect_url_after_login'] = $relative_current_page . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
-
-            set_flash_message('warning', 'Akses ditolak. Anda harus login sebagai administrator.');
-            redirect($redirect_to_login_page);
-        } elseif (!is_admin()) {
-            set_flash_message('danger', 'Akses ditolak! Halaman ini hanya untuk Administrator.');
-            // Jika $redirect_to_non_admin_page null, tentukan fallback
-            $fallback_redirect = $redirect_to_non_admin_page ?? (is_user() ? USER_URL . '/dashboard.php' : BASE_URL);
-            // Pastikan path relatif jika bukan URL penuh
-            if (strpos($fallback_redirect, BASE_URL) !== 0 && !preg_match('#^https?://#i', $fallback_redirect)) {
-                $fallback_redirect = ltrim($fallback_redirect, '/');
+            if (session_status() == PHP_SESSION_ACTIVE && defined('BASE_URL')) {
+                // ... (logika set redirect_url_after_login sama seperti di require_login)
+                $current_request_uri = $_SERVER['REQUEST_URI'] ?? '';
+                $base_path_for_redirect = ltrim(parse_url(BASE_URL, PHP_URL_PATH), '/');
+                $current_path = ltrim(strtok($current_request_uri, '?'), '/');
+                if (!empty($base_path_for_redirect) && strpos($current_path, $base_path_for_redirect) === 0) {
+                    $current_path = ltrim(substr($current_path, strlen($base_path_for_redirect)), '/');
+                }
+                $_SESSION['redirect_url_after_login'] = $current_path . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
             }
-            redirect($fallback_redirect);
+            if (function_exists('set_flash_message')) set_flash_message('warning', 'Akses ditolak. Anda harus login sebagai administrator.');
+            if (function_exists('redirect')) redirect($redirect_to_login_page);
+            else exit('Akses ditolak.');
+        } elseif (!is_admin()) {
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Akses ditolak! Halaman ini hanya untuk Administrator.');
+            $fallback_redirect = $redirect_to_non_admin_page;
+            if ($fallback_redirect === null) {
+                $fallback_redirect = (is_user() && defined('USER_URL')) ? USER_URL . '/dashboard.php' : (defined('BASE_URL') ? BASE_URL : 'index.php');
+            }
+            if (function_exists('redirect')) redirect($fallback_redirect);
+            else exit('Akses ditolak.');
         }
     }
 }
 
-/**
- * Mengarahkan pengguna ke dashboard jika sudah login.
- * Biasanya dipanggil di halaman login atau register.
- */
 if (!function_exists('redirect_if_logged_in')) {
+    /** Mengarahkan pengguna ke dashboard jika sudah login. */
     function redirect_if_logged_in()
     {
         if (is_logged_in()) {
-            if (is_admin()) {
-                redirect(ADMIN_URL . '/dashboard.php'); // Menggunakan konstanta ADMIN_URL
+            $destination = defined('BASE_URL') ? BASE_URL : '/'; // Default aman
+            if (is_admin() && defined('ADMIN_URL')) {
+                $destination = ADMIN_URL . '/dashboard.php';
+            } elseif (defined('USER_URL')) {
+                $destination = USER_URL . '/dashboard.php';
             } else {
-                redirect(USER_URL . '/dashboard.php');  // Menggunakan konstanta USER_URL
+                error_log("PERINGATAN redirect_if_logged_in: ADMIN_URL atau USER_URL tidak terdefinisi. Mengarahkan ke BASE_URL atau root.");
             }
+            if (function_exists('redirect')) redirect($destination);
         }
     }
 }

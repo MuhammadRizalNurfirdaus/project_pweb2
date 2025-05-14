@@ -3,6 +3,12 @@
 
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../models/PemesananTiket.php'; // Menggunakan model PemesananTiket
+require_once __DIR__ . '/../models/DetailPemesananTiket.php'; // Menggunakan model DetailPemesananTiket
+require_once __DIR__ . '/../models/JenisTiket.php'; // Menggunakan model JenisTiket
+require_once __DIR__ . '/../models/SewaAlat.php'; // Menggunakan model SewaAlat
+require_once __DIR__ . '/../models/JadwalKetersediaanTiket.php'; // Menggunakan model JadwalKetersediaan
+require_once __DIR__ . '/../models/Pembayaran.php'; // Menggunakan model Pembayaran
+require_once __DIR__ . '/../models/User.php'; // Menggunakan model User
 
 if (is_post()) {
     // Ambil data dari POST

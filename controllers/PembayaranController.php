@@ -8,13 +8,28 @@
  */
 
 // Diasumsikan model-model ini sudah dimuat oleh config.php atau autoloader.
-// Jika tidak, uncomment baris berikut atau pastikan config.php memuatnya.
-// require_once __DIR__ . '/../models/Pembayaran.php';
-// require_once __DIR__ . '/../models/PemesananTiket.php';
+// Untuk memastikan, bisa ditambahkan pengecekan atau require di sini jika perlu.
+// Contoh:
+// if (!class_exists('Pembayaran')) {
+//     if (defined('MODELS_PATH') && file_exists(MODELS_PATH . '/Pembayaran.php')) {
+//         require_once MODELS_PATH . '/Pembayaran.php';
+//     }
+// }
+// if (!class_exists('PemesananTiket')) {
+//    if (defined('MODELS_PATH') && file_exists(MODELS_PATH . '/PemesananTiket.php')) {
+//        require_once MODELS_PATH . '/PemesananTiket.php';
+//    }
+//}
+// if (!class_exists('PemesananTiketController')) {
+//    if (defined('CONTROLLERS_PATH') && file_exists(CONTROLLERS_PATH . '/PemesananTiketController.php')) {
+//        require_once CONTROLLERS_PATH . '/PemesananTiketController.php';
+//    }
+//}
+
 
 class PembayaranController
 {
-    private const ALLOWED_PAYMENT_STATUSES = [
+    private const FALLBACK_ALLOWED_PAYMENT_STATUSES = [
         'pending',
         'awaiting_confirmation',
         'success',
@@ -25,305 +40,263 @@ class PembayaranController
         'refunded',
         'cancelled'
     ];
-    private const SUCCESSFUL_PAYMENT_STATUSES = ['success', 'paid', 'confirmed'];
+    private const FALLBACK_SUCCESSFUL_PAYMENT_STATUSES = ['success', 'paid', 'confirmed'];
 
-    /**
-     * Mengambil semua data pembayaran beserta kode pemesanan terkait.
-     * @param string $orderBy Pengurutan hasil.
-     * @return array Data pembayaran atau array kosong.
-     */
+    private static function getAllowedPaymentStatuses()
+    {
+        if (class_exists('Pembayaran') && defined('Pembayaran::ALLOWED_STATUSES')) {
+            return Pembayaran::ALLOWED_STATUSES;
+        }
+        return self::FALLBACK_ALLOWED_PAYMENT_STATUSES;
+    }
+
+    private static function getSuccessfulPaymentStatuses()
+    {
+        if (class_exists('Pembayaran') && defined('Pembayaran::SUCCESSFUL_PAYMENT_STATUSES')) {
+            return Pembayaran::SUCCESSFUL_PAYMENT_STATUSES;
+        }
+        return self::FALLBACK_SUCCESSFUL_PAYMENT_STATUSES;
+    }
+
+    private static function checkRequiredModelsAndMethods(array $models_with_methods)
+    {
+        foreach ($models_with_methods as $model_name => $methods) {
+            if (!class_exists($model_name)) {
+                $error_msg = get_called_class() . " Fatal Error: Model {$model_name} tidak ditemukan atau tidak dimuat.";
+                error_log($error_msg);
+                throw new RuntimeException($error_msg);
+            }
+            if (is_array($methods)) {
+                foreach ($methods as $method_name) {
+                    if (!method_exists($model_name, $method_name)) {
+                        $error_msg = get_called_class() . " Fatal Error: Metode {$model_name}::{$method_name} tidak ditemukan.";
+                        error_log($error_msg);
+                        throw new RuntimeException($error_msg);
+                    }
+                }
+            }
+        }
+    }
+
     public static function getAllPembayaranForAdmin($orderBy = 'p.created_at DESC')
     {
-        // Asumsi koneksi $conn tersedia secara global atau model Pembayaran menanganinya.
-        // Jika Pembayaran::findAllWithKodePemesanan() butuh $conn, maka: global $conn;
-        // dan panggil Pembayaran::findAllWithKodePemesanan($conn, $orderBy);
-
-        if (!class_exists('Pembayaran') || !method_exists('Pembayaran', 'findAllWithKodePemesanan')) {
-            error_log("PembayaranController::getAllPembayaranForAdmin() - Model Pembayaran atau metode findAllWithKodePemesanan tidak ada.");
-            return [];
-        }
         try {
+            self::checkRequiredModelsAndMethods(['Pembayaran' => ['findAllWithKodePemesanan']]);
             $data = Pembayaran::findAllWithKodePemesanan($orderBy);
             return $data ?: [];
         } catch (Exception $e) {
-            error_log("PembayaranController::getAllPembayaranForAdmin() - Exception: " . $e->getMessage());
+            error_log(get_called_class() . "::getAllPembayaranForAdmin() - Exception: " . $e->getMessage());
             return [];
         }
     }
 
-    /**
-     * Mengambil detail satu pembayaran berdasarkan ID.
-     * @param int $id_pembayaran ID pembayaran.
-     * @return array|null Data pembayaran atau null.
-     */
-    public static function getPembayaranDetailById($id_pembayaran)
+    public static function getDetailPembayaranLengkap($pembayaran_id)
     {
-        $id_val = filter_var($id_pembayaran, FILTER_VALIDATE_INT);
-        if ($id_val === false || $id_val <= 0) {
-            error_log("PembayaranController::getPembayaranDetailById() - ID Pembayaran tidak valid: " . print_r($id_pembayaran, true));
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'ID Pembayaran tidak valid.');
+        $id_val = filter_var($pembayaran_id, FILTER_VALIDATE_INT);
+        if (!$id_val || $id_val <= 0) {
+            error_log(get_called_class() . "::getDetailPembayaranLengkap - ID Pembayaran tidak valid: " . htmlspecialchars((string)$pembayaran_id));
             return null;
         }
 
-        if (!class_exists('Pembayaran') || !method_exists('Pembayaran', 'findById')) {
-            error_log("PembayaranController::getPembayaranDetailById() - Model Pembayaran atau metode findById tidak ada.");
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan sistem: Komponen data pembayaran tidak ditemukan.');
-            return null;
-        }
         try {
-            return Pembayaran::findById($id_val);
+            self::checkRequiredModelsAndMethods([
+                'Pembayaran' => ['findById'],
+                'PemesananTiketController' => ['getDetailPemesananLengkap']
+            ]);
+
+            $data_pembayaran = Pembayaran::findById($id_val);
+
+            if (!$data_pembayaran) {
+                error_log(get_called_class() . "::getDetailPembayaranLengkap - Pembayaran ID {$id_val} tidak ditemukan.");
+                return null;
+            }
+
+            $detail_lengkap_pemesanan = null;
+            if (!empty($data_pembayaran['pemesanan_tiket_id'])) {
+                $detail_lengkap_pemesanan = PemesananTiketController::getDetailPemesananLengkap((int)$data_pembayaran['pemesanan_tiket_id']);
+            }
+
+            return [
+                'pembayaran' => $data_pembayaran,
+                'pemesanan_detail' => $detail_lengkap_pemesanan
+            ];
         } catch (Exception $e) {
-            error_log("PembayaranController::getPembayaranDetailById() - Exception untuk ID {$id_val}: " . $e->getMessage());
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'Gagal mengambil detail pembayaran: Terjadi kesalahan server.');
+            error_log(get_called_class() . "::getDetailPembayaranLengkap() - Exception untuk ID Pembayaran {$id_val}: " . $e->getMessage());
             return null;
         }
     }
 
-    /**
-     * Mengupdate status pembayaran dan status pemesanan tiket terkait jika pembayaran sukses.
-     * @param int $id_pembayaran ID pembayaran.
-     * @param string $new_status_pembayaran Status baru.
-     * @param array $details Detail tambahan opsional.
-     * @return bool True jika update status pembayaran utama berhasil.
-     */
     public static function updateStatusPembayaranDanPemesananTerkait($id_pembayaran, $new_status_pembayaran, $details = [])
     {
+        global $conn;
+
         $id_pembayaran_val = filter_var($id_pembayaran, FILTER_VALIDATE_INT);
         if ($id_pembayaran_val === false || $id_pembayaran_val <= 0) {
             if (function_exists('set_flash_message')) set_flash_message('danger', 'ID Pembayaran tidak valid untuk proses update.');
-            error_log("PembayaranController::updateStatusPembayaranDanPemesananTerkait() - ID Pembayaran tidak valid: " . print_r($id_pembayaran, true));
+            error_log(get_called_class() . "::updateStatusPembayaranDanPemesananTerkait() - ID Pembayaran tidak valid: " . print_r($id_pembayaran, true));
             return false;
         }
 
         $clean_new_status = strtolower(trim($new_status_pembayaran));
-        if (empty($clean_new_status) || !in_array($clean_new_status, self::ALLOWED_PAYMENT_STATUSES)) {
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'Status Pembayaran (' . e($new_status_pembayaran) . ') tidak valid.');
-            error_log("PembayaranController::updateStatusPembayaranDanPemesananTerkait() - Status Pembayaran tidak valid: " . $new_status_pembayaran);
-            return false;
-        }
+        $allowed_statuses = self::getAllowedPaymentStatuses();
 
-        if (!class_exists('Pembayaran') || !method_exists('Pembayaran', 'updateStatusAndDetails') || !method_exists('Pembayaran', 'findById')) {
-            error_log("PembayaranController::updateStatusPembayaranDanPemesananTerkait() - Model Pembayaran atau metode yang dibutuhkan tidak ada.");
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan sistem: Komponen update pembayaran tidak lengkap.');
+        if (empty($clean_new_status) || !in_array($clean_new_status, $allowed_statuses)) {
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Status Pembayaran (' . e($new_status_pembayaran) . ') tidak valid.');
+            error_log(get_called_class() . "::updateStatusPembayaranDanPemesananTerkait() - Status Pembayaran tidak valid: " . $new_status_pembayaran);
             return false;
         }
 
         try {
+            self::checkRequiredModelsAndMethods([
+                'Pembayaran' => ['updateStatusAndDetails', 'findById', 'getLastError'],
+                'PemesananTiket' => ['updateStatusPemesanan', 'getLastError', 'findById'] // Tambahkan findById jika belum ada
+            ]);
+
+            if (!$conn || ($conn instanceof mysqli && $conn->connect_error)) {
+                throw new RuntimeException("Koneksi database tidak tersedia untuk transaksi.");
+            }
+            mysqli_begin_transaction($conn);
+
+            $pembayaranDataSaatIni = Pembayaran::findById($id_pembayaran_val);
+            if (!$pembayaranDataSaatIni) {
+                throw new Exception("Data pembayaran dengan ID {$id_pembayaran_val} tidak ditemukan.");
+            }
+
+            if (isset($details['waktu_pembayaran']) && !empty($details['waktu_pembayaran'])) {
+                $dtWaktu = DateTime::createFromFormat('Y-m-d H:i:s', $details['waktu_pembayaran']) ?: (DateTime::createFromFormat('Y-m-d\TH:i:s', $details['waktu_pembayaran']) ?: DateTime::createFromFormat('Y-m-d\TH:i', $details['waktu_pembayaran']));
+                if (!$dtWaktu) {
+                    throw new Exception("Format waktu pembayaran di detail tidak valid: " . e($details['waktu_pembayaran']));
+                }
+                $details['waktu_pembayaran'] = $dtWaktu->format('Y-m-d H:i:s');
+            }
+
             $updatePembayaranBerhasil = Pembayaran::updateStatusAndDetails($id_pembayaran_val, $clean_new_status, $details);
 
             if (!$updatePembayaranBerhasil) {
-                if (function_exists('set_flash_message') && !isset($_SESSION['flash_message'])) {
-                    set_flash_message('danger', 'Gagal memperbarui status pembayaran di database.');
-                }
-                error_log("PembayaranController::updateStatusPembayaranDanPemesananTerkait() - Gagal update pembayaran ID: {$id_pembayaran_val} ke status: {$clean_new_status}.");
-                return false;
+                throw new Exception('Gagal memperbarui status pembayaran di database. ' . Pembayaran::getLastError());
             }
+            error_log("INFO PembayaranController: Status pembayaran ID {$id_pembayaran_val} berhasil diupdate menjadi '{$clean_new_status}'.");
 
-            // Jika update pembayaran berhasil DAN statusnya sukses
-            if (in_array($clean_new_status, self::SUCCESSFUL_PAYMENT_STATUSES)) {
-                $pembayaranData = Pembayaran::findById($id_pembayaran_val);
+            $successful_statuses = self::getSuccessfulPaymentStatuses();
+            if (in_array($clean_new_status, $successful_statuses)) {
+                if (!empty($pembayaranDataSaatIni['pemesanan_tiket_id'])) {
+                    $pemesanan_tiket_id_terkait = (int)$pembayaranDataSaatIni['pemesanan_tiket_id'];
+                    $status_tiket_baru = ($clean_new_status === 'confirmed') ? 'confirmed' : 'paid';
 
-                if ($pembayaranData && !empty($pembayaranData['pemesanan_tiket_id'])) {
-                    $pemesanan_tiket_id_terkait = (int)$pembayaranData['pemesanan_tiket_id'];
-                    $status_tiket_baru = 'confirmed'; // Atau 'paid' jika 'confirmed' punya arti lain
-
-                    if (class_exists('PemesananTiket') && method_exists('PemesananTiket', 'updateStatusPemesanan')) { // Sesuaikan nama method jika berbeda
-                        $updateStatusTiketBerhasil = PemesananTiket::updateStatusPemesanan($pemesanan_tiket_id_terkait, $status_tiket_baru);
-                        if (!$updateStatusTiketBerhasil) {
-                            error_log("PERINGATAN PembayaranController: Gagal update Pemesanan Tiket ID {$pemesanan_tiket_id_terkait} ke '{$status_tiket_baru}' stlh pembayaran ID {$id_pembayaran_val} sukses.");
-                            if (function_exists('set_flash_message')) {
-                                // Tambahkan pesan, jangan timpa yang sukses
-                                $current_flash = $_SESSION['flash_message'] ?? null;
-                                set_flash_message('warning', ($current_flash ? $current_flash['message'] . "<br>" : "") . 'Status tiket terkait gagal diupdate otomatis. Harap periksa manual.');
-                            }
-                        } else {
-                            error_log("INFO PembayaranController: Sukses update Pemesanan Tiket ID {$pemesanan_tiket_id_terkait} ke '{$status_tiket_baru}'.");
-                        }
+                    if (!PemesananTiket::updateStatusPemesanan($pemesanan_tiket_id_terkait, $status_tiket_baru)) {
+                        error_log("PERINGATAN PembayaranController: Gagal update status Pemesanan Tiket ID {$pemesanan_tiket_id_terkait} ke '{$status_tiket_baru}'. Error Model: " . PemesananTiket::getLastError());
+                        $current_flash = $_SESSION['flash_message'] ?? null;
+                        $warning_message = 'Status tiket terkait gagal diupdate otomatis. Harap periksa manual.';
+                        $new_message = ($current_flash && $current_flash['type'] === 'success' ? $current_flash['message'] . "<br>" : "") . $warning_message;
+                        if (function_exists('set_flash_message')) set_flash_message('warning', $new_message);
                     } else {
-                        error_log("KESALAHAN SISTEM PembayaranController: Model PemesananTiket atau metode updateStatusPemesanan tidak ada.");
-                        if (function_exists('set_flash_message')) {
-                            $current_flash = $_SESSION['flash_message'] ?? null;
-                            set_flash_message('warning', ($current_flash ? $current_flash['message'] . "<br>" : "") . 'Komponen update status tiket tidak tersedia. Harap periksa manual.');
-                        }
+                        error_log("INFO PembayaranController: Sukses update Pemesanan Tiket ID {$pemesanan_tiket_id_terkait} ke '{$status_tiket_baru}'.");
                     }
                 } else {
-                    error_log("PERINGATAN PembayaranController: Tidak ada pemesanan_tiket_id untuk pembayaran ID {$id_pembayaran_val}.");
+                    error_log("PERINGATAN PembayaranController: Tidak ada pemesanan_tiket_id terkait untuk pembayaran sukses ID {$id_pembayaran_val}.");
                 }
             }
-            // Pesan sukses utama akan diset oleh skrip pemanggil (proses_pemesanan.php)
+
+            mysqli_commit($conn);
             return true;
         } catch (Exception $e) {
-            error_log("PembayaranController::updateStatusPembayaranDanPemesananTerkait() - Exception ID {$id_pembayaran_val}: " . $e->getMessage());
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'Terjadi kesalahan teknis saat memperbarui status pembayaran.');
+            // Penanganan rollback disempurnakan
+            if (isset($conn) && $conn->thread_id && mysqli_errno($conn) === 0) { // Cek koneksi masih valid
+                if ($conn && $conn->thread_id) { // Cek koneksi masih valid
+                    mysqli_rollback($conn);
+                }
+            }
+            error_log(get_called_class() . "::updateStatusPembayaranDanPemesananTerkait() - Exception ID {$id_pembayaran_val}: " . $e->getMessage());
+            if (!isset($_SESSION['flash_message'])) {
+                if (function_exists('set_flash_message')) set_flash_message('danger', 'Terjadi kesalahan teknis: ' . e($e->getMessage()));
+            }
             return false;
         }
     }
 
-    /**
-     * Membuat entri pembayaran manual baru untuk sebuah pemesanan tiket.
-     * @param int $pemesanan_id ID pemesanan tiket.
-     * @param string $metode_pembayaran Metode pembayaran.
-     * @param string $status_default Status awal.
-     * @param float|null $jumlah_dibayar Jumlah dibayar (null untuk mengambil dari total pemesanan).
-     * @return int|false ID pembayaran baru atau false.
-     */
-    public static function createManualPaymentEntryForPemesanan($pemesanan_id, $metode_pembayaran = 'Manual (Admin)', $status_default = 'pending', $jumlah_dibayar = null)
+    public static function createManualPaymentEntryForPemesanan($pemesanan_id)
     {
         $pemesanan_id_val = filter_var($pemesanan_id, FILTER_VALIDATE_INT);
         if ($pemesanan_id_val === false || $pemesanan_id_val <= 0) {
-            error_log("PembayaranController::createManualPaymentEntryForPemesanan() - ID Pemesanan tidak valid: " . $pemesanan_id);
             if (function_exists('set_flash_message')) set_flash_message('danger', 'ID Pemesanan tidak valid.');
             return false;
         }
 
-        if (
-            !class_exists('PemesananTiket') || !method_exists('PemesananTiket', 'findById') ||
-            !class_exists('Pembayaran') || !method_exists('Pembayaran', 'create')
-        ) {
-            error_log("PembayaranController::createManualPaymentEntryForPemesanan() - Model/Metode yang dibutuhkan tidak ada.");
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan sistem: Komponen tidak lengkap.');
-            return false;
-        }
-
-        $pemesananData = PemesananTiket::findById($pemesanan_id_val);
-        if (!$pemesananData || !isset($pemesananData['total_harga_akhir'])) {
-            error_log("PembayaranController::createManualPaymentEntryForPemesanan() - Data pemesanan ID {$pemesanan_id_val} tidak ada / total harga tidak ada.");
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'Data pemesanan tidak ditemukan/lengkap.');
-            return false;
-        }
-
-        // Cek apakah sudah ada pembayaran dengan status selain 'failed', 'cancelled', 'expired', 'refunded' untuk pemesanan ini
-        $nonFinalStatus = array_diff(self::ALLOWED_PAYMENT_STATUSES, ['failed', 'cancelled', 'expired', 'refunded']);
-        $existingActivePayment = Pembayaran::findByPemesananIdAndStatus($pemesanan_id_val, $nonFinalStatus);
-        if ($existingActivePayment) {
-            error_log("PembayaranController::createManualPaymentEntryForPemesanan() - Sudah ada pembayaran aktif untuk Pemesanan ID: {$pemesanan_id_val}.");
-            if (function_exists('set_flash_message')) set_flash_message('warning', 'Pemesanan ini sudah memiliki entri pembayaran aktif. Tidak dapat membuat entri baru.');
-            return false;
-        }
-
-
-        $data_pembayaran_baru = [
-            'pemesanan_tiket_id' => $pemesanan_id_val,
-            'kode_pemesanan' => $pemesananData['kode_pemesanan'] ?? ('INV-' . date('Ymd') . '-' . $pemesanan_id_val),
-            'jumlah_dibayar' => ($jumlah_dibayar !== null && is_numeric($jumlah_dibayar)) ? (float)$jumlah_dibayar : (float)$pemesananData['total_harga_akhir'],
-            'metode_pembayaran' => $metode_pembayaran,
-            'status_pembayaran' => strtolower(trim($status_default)),
-            'waktu_pembayaran' => (in_array(strtolower(trim($status_default)), self::SUCCESSFUL_PAYMENT_STATUSES)) ? date('Y-m-d H:i:s') : null,
-            'catatan_admin' => 'Pembayaran dibuat manual oleh admin pada ' . date('Y-m-d H:i:s') . '.'
-        ];
-
         try {
+            self::checkRequiredModelsAndMethods([
+                'PemesananTiket' => ['findById', 'updateStatusPemesanan', 'getLastError'],
+                'Pembayaran' => ['findByPemesananIdAndStatus', 'create', 'getLastError']
+            ]);
+
+            $pemesananData = PemesananTiket::findById($pemesanan_id_val);
+            if (!$pemesananData || !isset($pemesananData['total_harga_akhir'])) {
+                throw new Exception('Data pemesanan tidak ditemukan atau tidak lengkap untuk ID: ' . $pemesanan_id_val . ". Error Model: " . PemesananTiket::getLastError());
+            }
+
+            $allowed_statuses = self::getAllowedPaymentStatuses();
+            $nonFinalStatus = array_diff($allowed_statuses, ['failed', 'cancelled', 'expired', 'refunded']);
+
+            $existingActivePayment = Pembayaran::findByPemesananIdAndStatus($pemesanan_id_val, $nonFinalStatus);
+            if ($existingActivePayment) {
+                if (function_exists('set_flash_message')) set_flash_message('info', 'Pemesanan ini sudah memiliki entri pembayaran aktif (ID Pembayaran: ' . $existingActivePayment['id'] . ').');
+                return $existingActivePayment['id'];
+            }
+
+            $data_pembayaran_baru = [
+                'pemesanan_tiket_id' => $pemesanan_id_val,
+                'kode_pemesanan' => $pemesananData['kode_pemesanan'] ?? ('INV-' . date('Ymd') . '-' . $pemesanan_id_val),
+                'jumlah_dibayar' => 0,
+                'metode_pembayaran' => 'Manual (Admin)',
+                'status_pembayaran' => 'pending',
+                'catatan_admin' => 'Pembayaran dibuat manual oleh admin pada ' . date('Y-m-d H:i:s') . '.'
+            ];
+
             $new_payment_id = Pembayaran::create($data_pembayaran_baru);
             if ($new_payment_id) {
                 error_log("INFO: Entri pembayaran manual dibuat. ID: {$new_payment_id} untuk Pemesanan ID: {$pemesanan_id_val}.");
-                if (in_array($data_pembayaran_baru['status_pembayaran'], self::SUCCESSFUL_PAYMENT_STATUSES)) {
-                    if (class_exists('PemesananTiket') && method_exists('PemesananTiket', 'updateStatusPemesanan')) {
-                        PemesananTiket::updateStatusPemesanan($pemesanan_id_val, 'confirmed'); // Atau 'paid'
-                    }
-                } elseif ($data_pembayaran_baru['status_pembayaran'] === 'pending' || $data_pembayaran_baru['status_pembayaran'] === 'awaiting_confirmation') {
-                    if (class_exists('PemesananTiket') && method_exists('PemesananTiket', 'updateStatusPemesanan')) {
-                        // Jika status pemesanan sebelumnya 'pending', ubah jadi 'waiting_payment'
-                        if (strtolower($pemesananData['status']) === 'pending') {
-                            PemesananTiket::updateStatusPemesanan($pemesanan_id_val, 'waiting_payment');
-                        }
-                    }
+                if (strtolower($pemesananData['status']) === 'pending') {
+                    PemesananTiket::updateStatusPemesanan($pemesanan_id_val, 'waiting_payment');
                 }
+                if (function_exists('set_flash_message')) set_flash_message('success', 'Entri pembayaran manual berhasil dibuat.');
                 return $new_payment_id;
             } else {
-                error_log("ERROR: Gagal buat entri pembayaran manual Pemesanan ID: {$pemesanan_id_val}. Pembayaran::create gagal.");
-                if (function_exists('set_flash_message')) set_flash_message('danger', 'Gagal menyimpan data pembayaran manual.');
-                return false;
+                throw new Exception('Gagal menyimpan data pembayaran manual. ' . Pembayaran::getLastError());
             }
         } catch (Exception $e) {
-            error_log("PembayaranController::createManualPaymentEntryForPemesanan() - Exception: " . $e->getMessage());
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan teknis saat membuat pembayaran manual.');
+            error_log(get_called_class() . "::createManualPaymentEntryForPemesanan() - Exception: " . $e->getMessage());
+            if (!isset($_SESSION['flash_message'])) {
+                if (function_exists('set_flash_message')) set_flash_message('danger', 'Gagal membuat entri pembayaran: ' . e($e->getMessage()));
+            }
             return false;
         }
     }
 
-    /**
-     * Menghitung total pendapatan.
-     * @param array $statusArray Status pembayaran yang dianggap pendapatan.
-     * @return float|int Total pendapatan.
-     */
-    public static function getTotalRevenue($statusArray = null) // Diubah nama agar konsisten dengan pemanggilan di dashboard
+    public static function getTotalRevenue($statusArray = null)
     {
-        // global $conn; // Hapus jika model menangani koneksi
-        $validStatusArray = $statusArray ?? self::SUCCESSFUL_PAYMENT_STATUSES;
-        if (!class_exists('Pembayaran') || !method_exists('Pembayaran', 'getTotalRevenue')) {
-            error_log("PembayaranController::getTotalRevenue() - Model Pembayaran atau metode getTotalRevenue tidak ada.");
-            return 0;
-        }
         try {
-            // Panggil Pembayaran::getTotalRevenue($conn, $validStatusArray) jika model memerlukan $conn
+            self::checkRequiredModelsAndMethods(['Pembayaran' => ['getTotalRevenue']]);
+            $successful_statuses = self::getSuccessfulPaymentStatuses();
+            $validStatusArray = $statusArray ?? $successful_statuses;
             return Pembayaran::getTotalRevenue($validStatusArray);
         } catch (Exception $e) {
-            error_log("PembayaranController::getTotalRevenue() - Exception: " . $e->getMessage());
-            return 0;
+            error_log(get_called_class() . "::getTotalRevenue() - Exception: " . $e->getMessage());
+            return 0.0;
         }
     }
 
-    /**
-     * Menghitung jumlah pembayaran berdasarkan status.
-     * @param string $status Status pembayaran.
-     * @return int Jumlah pembayaran.
-     */
-    public static function countByStatus($status) // Diubah nama agar konsisten dengan pemanggilan di dashboard
+    public static function countByStatus($status)
     {
-        // global $conn; // Hapus jika model menangani koneksi
-        $clean_status = strtolower(trim($status));
-        if (empty($clean_status)) return 0;
-
-        if (!class_exists('Pembayaran') || !method_exists('Pembayaran', 'countByStatus')) {
-            error_log("PembayaranController::countByStatus() - Model Pembayaran atau metode countByStatus tidak ada.");
-            return 0;
-        }
         try {
-            // Panggil Pembayaran::countByStatus($conn, $clean_status) jika model memerlukan $conn
-            return Pembayaran::countByStatus($clean_status);
-        } catch (Exception $e) {
-            error_log("PembayaranController::countByStatus() - Exception: " . $e->getMessage());
-            return 0;
-        }
-    }
-
-    /**
-     * Mengupdate HANYA status dan detail tabel pembayaran.
-     * @param int $id_pembayaran ID pembayaran.
-     * @param string $new_status_pembayaran Status baru.
-     * @param array $details Detail tambahan.
-     * @return bool True jika berhasil.
-     */
-    public static function updateHanyaStatusPembayaran($id_pembayaran, $new_status_pembayaran, $details = [])
-    {
-        $id_pembayaran_val = filter_var($id_pembayaran, FILTER_VALIDATE_INT);
-        if ($id_pembayaran_val === false || $id_pembayaran_val <= 0) {
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'ID Pembayaran tidak valid.');
-            return false;
-        }
-
-        $clean_new_status = strtolower(trim($new_status_pembayaran));
-        if (empty($clean_new_status) || !in_array($clean_new_status, self::ALLOWED_PAYMENT_STATUSES)) {
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'Status Pembayaran tidak valid.');
-            return false;
-        }
-
-        if (!class_exists('Pembayaran') || !method_exists('Pembayaran', 'updateStatusAndDetails')) {
-            error_log("PembayaranController::updateHanyaStatusPembayaran() - Model Pembayaran atau metode updateStatusAndDetails tidak ada.");
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan sistem: Komponen update pembayaran tidak ada.');
-            return false;
-        }
-        try {
-            $updateBerhasil = Pembayaran::updateStatusAndDetails($id_pembayaran_val, $clean_new_status, $details);
-            if (!$updateBerhasil && function_exists('set_flash_message') && !isset($_SESSION['flash_message'])) {
-                set_flash_message('danger', 'Gagal memperbarui status pembayaran.');
+            self::checkRequiredModelsAndMethods(['Pembayaran' => ['countByStatus']]);
+            // Pastikan metode countByStatus ada di Model Pembayaran
+            if (!method_exists('Pembayaran', 'countByStatus')) {
+                error_log(get_called_class() . "::countByStatus() - Metode Pembayaran::countByStatus tidak ditemukan.");
+                return 0;
             }
-            return $updateBerhasil;
+            return Pembayaran::countByStatus($status);
         } catch (Exception $e) {
-            error_log("PembayaranController::updateHanyaStatusPembayaran() - Exception ID {$id_pembayaran_val}: " . $e->getMessage());
-            if (function_exists('set_flash_message')) set_flash_message('danger', 'Terjadi kesalahan teknis.');
-            return false;
+            error_log(get_called_class() . "::countByStatus() - Exception: " . $e->getMessage());
+            return 0;
         }
     }
 }
-// End of PembayaranController.php

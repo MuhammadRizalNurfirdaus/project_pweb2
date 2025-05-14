@@ -1,50 +1,26 @@
 <?php
 // File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\PemesananTiketController.php
 
-/**
- * PemesananTiketController
- * Bertanggung jawab untuk logika bisnis terkait pemesanan tiket.
- */
-
-// Pemuatan model dan controller sudah dilakukan oleh config.php.
-
 class PemesananTiketController
 {
-    /**
-     * Memeriksa apakah semua model yang diperlukan tersedia.
-     * @param array $model_names Nama-nama model yang harus ada.
-     * @throws RuntimeException Jika salah satu model tidak ditemukan atau metode init/setDbConnection belum terpanggil.
-     */
     private static function checkRequiredModels(array $model_names)
     {
-        global $conn; // Untuk memeriksa apakah $conn sudah ada saat model membutuhkannya
         foreach ($model_names as $model_name) {
             if (!class_exists($model_name)) {
                 $error_msg = "PemesananTiketController Fatal Error: Model {$model_name} tidak ditemukan atau tidak dimuat.";
                 error_log($error_msg);
+                // Sebaiknya lempar exception yang lebih spesifik jika memungkinkan atau tangani error ini dengan cara lain
                 throw new RuntimeException($error_msg);
             }
-            // Opsional: Periksa apakah koneksi DB sudah diset ke model jika model membutuhkannya secara statis
-            // Ini lebih relevan jika model tidak hanya bergantung pada $conn global
-            // Misalnya, jika model memiliki metode statis seperti Model::$db->query()
-            // Tapi karena model Anda menggunakan self::$db, pemanggilan setDbConnection di config.php sudah cukup.
         }
     }
 
-    /**
-     * Membuat pemesanan tiket baru beserta detail item tiket dan item sewa.
-     * Melakukan validasi ketersediaan dan mengelola transaksi database.
-     *
-     * @param array $data_pemesan Informasi pemesan.
-     * @param array $items_tiket Array berisi item tiket yang dipesan.
-     * @param array $items_sewa Array berisi item sewa alat yang dipesan.
-     * @return string|false Kode pemesanan unik jika berhasil, false jika gagal.
-     */
     public static function prosesPemesananLengkap($data_pemesan, $items_tiket = [], $items_sewa = [])
     {
-        global $conn;
+        global $conn; // Pastikan $conn tersedia dan diinisialisasi dari config.php
 
         try {
+            // Pengecekan model-model yang dibutuhkan
             self::checkRequiredModels([
                 'PemesananTiket',
                 'DetailPemesananTiket',
@@ -56,15 +32,18 @@ class PemesananTiketController
             ]);
 
             if (!$conn || ($conn instanceof mysqli && $conn->connect_error)) {
+                // Jika $conn tidak ada atau error, ini seharusnya sudah ditangani oleh model saat checkDbConnection
+                // Namun, pengecekan awal di sini juga baik.
                 throw new RuntimeException("Koneksi database tidak tersedia untuk memproses pemesanan.");
             }
 
-            // --- Validasi Input Awal Data Pemesan ---
+            // --- VALIDASI AWAL SEBELUM TRANSAKSI ---
             $tanggal_kunjungan_input = $data_pemesan['tanggal_kunjungan'] ?? '';
-            if (empty($tanggal_kunjungan_input) || !DateTime::createFromFormat('Y-m-d', $tanggal_kunjungan_input)) {
-                set_flash_message('danger', 'Tanggal kunjungan tidak valid atau tidak diisi.');
+            if (empty($tanggal_kunjungan_input) || !($dtKunjungan = DateTime::createFromFormat('Y-m-d', $tanggal_kunjungan_input)) || $dtKunjungan->format('Y-m-d') !== $tanggal_kunjungan_input) {
+                set_flash_message('danger', 'Tanggal kunjungan tidak valid atau tidak diisi (format YYYY-MM-DD).');
                 return false;
             }
+
             $is_guest = !(isset($data_pemesan['user_id']) && !empty($data_pemesan['user_id']) && is_numeric($data_pemesan['user_id']));
             if ($is_guest) {
                 if (empty($data_pemesan['nama_pemesan_tamu']) || empty($data_pemesan['email_pemesan_tamu']) || !filter_var($data_pemesan['email_pemesan_tamu'], FILTER_VALIDATE_EMAIL) || empty($data_pemesan['nohp_pemesan_tamu'])) {
@@ -72,17 +51,16 @@ class PemesananTiketController
                     return false;
                 }
             }
+
             if (empty($items_tiket) || !is_array($items_tiket)) {
                 set_flash_message('danger', 'Minimal harus ada satu item tiket yang dipesan.');
                 return false;
             }
 
             $total_harga_semua_tiket = 0;
-            $total_harga_semua_sewa = 0;
             $data_detail_tiket_to_save = [];
-            $data_detail_sewa_to_save = [];
 
-            // --- 1. Validasi dan Persiapan Data Item Tiket ---
+            // Validasi Ketersediaan Tiket SEBELUM Transaksi
             foreach ($items_tiket as $key => $item_t) {
                 if (empty($item_t['jenis_tiket_id']) || !isset($item_t['jumlah']) || !is_numeric($item_t['jumlah']) || (int)$item_t['jumlah'] <= 0) {
                     set_flash_message('danger', "Data item tiket ke-" . ($key + 1) . " tidak lengkap atau jumlah tidak valid.");
@@ -91,16 +69,18 @@ class PemesananTiketController
                 $jenis_tiket_id = (int)$item_t['jenis_tiket_id'];
                 $jumlah_tiket = (int)$item_t['jumlah'];
 
-                $jenisTiketInfo = JenisTiket::findById($jenis_tiket_id); // Asumsi findById ada di model JenisTiket
+                $jenisTiketInfo = JenisTiket::findById($jenis_tiket_id);
                 if (!$jenisTiketInfo || (isset($jenisTiketInfo['aktif']) && $jenisTiketInfo['aktif'] == 0)) {
-                    set_flash_message('danger', "Jenis tiket (ID: {$jenis_tiket_id}) tidak valid/aktif.");
+                    set_flash_message('danger', "Jenis tiket (ID: {$jenis_tiket_id}) tidak valid atau tidak aktif.");
                     return false;
                 }
 
-                // Asumsi getActiveKetersediaan ada di model JadwalKetersediaanTiket
                 $ketersediaan = JadwalKetersediaanTiket::getActiveKetersediaan($jenis_tiket_id, $tanggal_kunjungan_input);
                 if (!$ketersediaan || !isset($ketersediaan['jumlah_saat_ini_tersedia']) || $ketersediaan['jumlah_saat_ini_tersedia'] < $jumlah_tiket) {
-                    set_flash_message('danger', 'Kuota tiket "' . e($jenisTiketInfo['nama_layanan_display'] ?? $jenisTiketInfo['nama_tiket'] ?? 'Tiket') . '" untuk tanggal ' . e(formatTanggalIndonesia($tanggal_kunjungan_input)) . ' tidak mencukupi.');
+                    $nama_tiket_error = e($jenisTiketInfo['nama_layanan_display'] ?? $jenisTiketInfo['nama_tiket'] ?? ('Tiket ID:' . $jenis_tiket_id));
+                    $tanggal_error = function_exists('formatTanggalIndonesia') ? e(formatTanggalIndonesia($tanggal_kunjungan_input)) : e($tanggal_kunjungan_input);
+                    $sisa_kuota_error = $ketersediaan['jumlah_saat_ini_tersedia'] ?? 0;
+                    set_flash_message('danger', "Kuota tiket \"{$nama_tiket_error}\" untuk tanggal {$tanggal_error} tidak mencukupi (tersisa: {$sisa_kuota_error}, diminta: {$jumlah_tiket}).");
                     return false;
                 }
                 $harga_satuan_tiket = (float)($jenisTiketInfo['harga'] ?? 0);
@@ -116,31 +96,40 @@ class PemesananTiketController
                 ];
             }
 
-            // --- 2. Validasi dan Persiapan Data Item Sewa Alat (jika ada) ---
+            $total_harga_semua_sewa = 0;
+            $data_detail_sewa_to_save = [];
+
             if (!empty($items_sewa) && is_array($items_sewa)) {
                 foreach ($items_sewa as $key_s => $item_s) {
                     if (empty($item_s['sewa_alat_id']) || !isset($item_s['jumlah']) || (int)$item_s['jumlah'] <= 0 || empty($item_s['tanggal_mulai_sewa']) || empty($item_s['tanggal_akhir_sewa_rencana'])) {
-                        set_flash_message('danger', "Data item sewa ke-" . ($key_s + 1) . " tidak lengkap.");
+                        set_flash_message('danger', "Data item sewa ke-" . ($key_s + 1) . " tidak lengkap (alat, jumlah, atau tanggal).");
                         return false;
                     }
-                    // Format tanggal dari input form mungkin Y-m-d, perlu disesuaikan jika perlu jam
-                    $dtMulaiSewa = DateTime::createFromFormat('Y-m-d', $item_s['tanggal_mulai_sewa']);
-                    $dtAkhirSewa = DateTime::createFromFormat('Y-m-d', $item_s['tanggal_akhir_sewa_rencana']);
-                    if (!$dtMulaiSewa || !$dtAkhirSewa || $dtMulaiSewa >= $dtAkhirSewa) {
-                        set_flash_message('danger', "Tanggal sewa item ke-" . ($key_s + 1) . " tidak valid.");
-                        return false;
-                    }
-                    // Set jam default jika tidak ada (misal: mulai jam 14:00, selesai jam 12:00)
-                    $dtMulaiSewa->setTime(14, 0, 0);
-                    $dtAkhirSewa->setTime(12, 0, 0);
 
+                    $tgl_mulai_str = $item_s['tanggal_mulai_sewa'];
+                    $tgl_akhir_str = $item_s['tanggal_akhir_sewa_rencana'];
+
+                    try {
+                        $dtMulaiSewa = new DateTime($tgl_mulai_str);
+                        $dtAkhirSewa = new DateTime($tgl_akhir_str);
+                    } catch (Exception $e) {
+                        set_flash_message('danger', "Format tanggal sewa item ke-" . ($key_s + 1) . " tidak valid.");
+                        return false;
+                    }
+
+                    if ($dtMulaiSewa >= $dtAkhirSewa) {
+                        set_flash_message('danger', "Tanggal mulai sewa item ke-" . ($key_s + 1) . " harus sebelum tanggal akhir.");
+                        return false;
+                    }
 
                     $alatInfo = SewaAlat::getById((int)$item_s['sewa_alat_id']);
-                    if (!$alatInfo || (isset($alatInfo['stok_tersedia']) && $alatInfo['stok_tersedia'] < (int)$item_s['jumlah'])) {
-                        set_flash_message('danger', 'Stok alat sewa "' . e($alatInfo['nama_item'] ?? 'Alat') . '" tidak mencukupi.');
+                    if (!$alatInfo || !isset($alatInfo['stok_tersedia']) || $alatInfo['stok_tersedia'] < (int)$item_s['jumlah']) {
+                        $nama_alat_error = e($alatInfo['nama_item'] ?? ('Alat ID:' . (int)$item_s['sewa_alat_id']));
+                        $sisa_stok_error = $alatInfo['stok_tersedia'] ?? 0;
+                        set_flash_message('danger', "Stok alat sewa \"{$nama_alat_error}\" tidak mencukupi (tersisa: {$sisa_stok_error}, diminta: " . (int)$item_s['jumlah'] . ").");
                         return false;
                     }
-                    // Asumsi PemesananSewaAlat::calculateSubtotalItem sudah ada
+
                     $subtotal_item_sewa = PemesananSewaAlat::calculateSubtotalItem(
                         (int)$item_s['jumlah'],
                         (float)($alatInfo['harga_sewa'] ?? 0),
@@ -165,10 +154,10 @@ class PemesananTiketController
                     ];
                 }
             }
+            // --- AKHIR VALIDASI AWAL ---
 
             $grand_total_harga = $total_harga_semua_tiket + $total_harga_semua_sewa;
 
-            // --- Transaksi Database ---
             mysqli_begin_transaction($conn);
 
             $kode_pemesanan_unik = 'PT-' . date('Ymd') . strtoupper(bin2hex(random_bytes(4)));
@@ -177,55 +166,47 @@ class PemesananTiketController
                 'nama_pemesan_tamu' => $is_guest ? trim($data_pemesan['nama_pemesan_tamu']) : null,
                 'email_pemesan_tamu' => $is_guest ? trim($data_pemesan['email_pemesan_tamu']) : null,
                 'nohp_pemesan_tamu' => $is_guest ? trim($data_pemesan['nohp_pemesan_tamu']) : null,
-                'kode_pemesanan' => $kode_pemesanan_unik,
+                'kode_pemesanan' => $kode_pemesanan_unik, // Key ini dikirim ke Model
                 'tanggal_kunjungan' => $tanggal_kunjungan_input,
                 'total_harga_akhir' => $grand_total_harga,
-                'status' => 'pending', // Status awal dari tabel pemesanan_tiket
+                'status' => 'pending',
                 'catatan_umum_pemesanan' => $data_pemesan['catatan_umum_pemesanan'] ?? null
             ];
+
+            // error_log("Data Header Pemesanan ke Model: " . print_r($data_header_pemesanan, true)); // Untuk Debugging
             $pemesanan_tiket_id_baru = PemesananTiket::create($data_header_pemesanan);
             if (!$pemesanan_tiket_id_baru) {
+                // Jika error terjadi di sini, PemesananTiket::getLastError() akan berisi pesan dari MySQL
                 throw new Exception("Gagal membuat header pemesanan tiket. " . PemesananTiket::getLastError());
             }
 
+            // Simpan detail tiket dan update kuota
             foreach ($data_detail_tiket_to_save as $item_t_data) {
                 $item_t_data['pemesanan_tiket_id'] = $pemesanan_tiket_id_baru;
                 if (!DetailPemesananTiket::create($item_t_data)) {
                     throw new Exception("Gagal menyimpan detail item tiket. " . DetailPemesananTiket::getLastError());
                 }
                 if (isset($item_t_data['jadwal_ketersediaan_id']) && $item_t_data['jadwal_ketersediaan_id'] !== null) {
-                    // Asumsi updateJumlahSaatIniTersedia ada di JadwalKetersediaanTiket Model
                     if (!JadwalKetersediaanTiket::updateJumlahSaatIniTersedia($item_t_data['jadwal_ketersediaan_id'], -$item_t_data['jumlah'])) {
-                        throw new Exception("Gagal mengurangi kuota jadwal ketersediaan tiket ID: " . $item_t_data['jadwal_ketersediaan_id'] . ". " . JadwalKetersediaanTiket::getLastError());
+                        throw new Exception("Gagal mengurangi kuota jadwal tiket ID: " . $item_t_data['jadwal_ketersediaan_id'] . ". " . JadwalKetersediaanTiket::getLastError());
                     }
                 }
             }
-
+            // Simpan detail sewa (jika ada) dan update stok alat
             foreach ($data_detail_sewa_to_save as $item_s_data) {
                 $item_s_data['pemesanan_tiket_id'] = $pemesanan_tiket_id_baru;
-                if (!PemesananSewaAlat::create($item_s_data)) { // Model PemesananSewaAlat akan mengurangi stok di method create-nya
+                if (!PemesananSewaAlat::create($item_s_data)) {
                     throw new Exception("Gagal menyimpan detail item sewa alat. " . PemesananSewaAlat::getLastError());
                 }
             }
 
-            // Data untuk tabel pembayaran
-            $data_pembayaran = [
-                'pemesanan_tiket_id' => $pemesanan_tiket_id_baru, // Ini adalah FK ke pemesanan_tiket.id
-                'kode_pemesanan' => $kode_pemesanan_unik, // Bisa disimpan untuk referensi cepat
-                'jumlah_dibayar' => $grand_total_harga, // Seharusnya ini jumlah yang HARUS dibayar, bukan yang sudah dibayar
-                // Mungkin lebih baik 'jumlah_tagihan' atau diisi 0 jika belum bayar
-                'status_pembayaran' => 'pending', // Status dari tabel pembayaran
-                'metode_pembayaran' => $data_pemesan['metode_pembayaran_pilihan'] ?? 'Belum Dipilih'
-            ];
-            // Di tabel pembayaran, kolom `jumlah_dibayar` seharusnya diisi saat pembayaran dikonfirmasi, bukan saat pemesanan dibuat.
-            // Untuk create awal, `jumlah_dibayar` harusnya 0.
+            // Buat entri pembayaran awal
             $data_pembayaran_awal = [
                 'pemesanan_tiket_id' => $pemesanan_tiket_id_baru,
                 'kode_pemesanan' => $kode_pemesanan_unik,
-                'jumlah_dibayar' => 0, // Awalnya 0
+                'jumlah_dibayar' => 0,
                 'status_pembayaran' => 'pending',
                 'metode_pembayaran' => $data_pemesan['metode_pembayaran_pilihan'] ?? 'Belum Dipilih'
-                // 'jumlah_tagihan' => $grand_total_harga, // Jika ada kolom ini
             ];
             if (!Pembayaran::create($data_pembayaran_awal)) {
                 throw new Exception("Gagal membuat entri pembayaran awal. " . Pembayaran::getLastError());
@@ -233,38 +214,47 @@ class PemesananTiketController
 
             mysqli_commit($conn);
             set_flash_message('success', 'Pemesanan Anda dengan kode ' . e($kode_pemesanan_unik) . ' berhasil dibuat. Silakan lanjutkan ke pembayaran.');
-            return $kode_pemesanan_unik;
+            return $kode_pemesanan_unik; // Sukses
+
         } catch (Exception $e) {
-            if (isset($conn) && $conn->thread_id) {
+            $is_transaction_active = false;
+            if (isset($conn) && $conn->thread_id && mysqli_errno($conn) === 0) {
+                // Coba cek apakah transaksi aktif sebelum rollback (PHP 8+)
+                if (mysqli_errno($conn) === 0) {
+                    $is_transaction_active = true;
+                } elseif (!function_exists('mysqli_get_transaction_state')) {
+                    // Untuk PHP < 8, asumsikan aktif jika koneksi masih ada
+                    $is_transaction_active = true;
+                }
+            }
+
+            if ($is_transaction_active) {
                 mysqli_rollback($conn);
             }
             $log_msg = "PemesananTiketController::prosesPemesananLengkap() - Exception Transaksi: " . $e->getMessage();
-            if ($e->getPrevious()) {
-                $log_msg .= " | Previous: " . $e->getPrevious()->getMessage();
-            }
+            if ($e->getPrevious()) $log_msg .= " | Previous: " . $e->getPrevious()->getMessage();
             error_log($log_msg);
-            set_flash_message('danger', 'Terjadi kesalahan saat memproses pemesanan: ' . e($e->getMessage()));
-            return false;
+
+            if (!isset($_SESSION['flash_message'])) { // Hanya set jika belum ada pesan dari validasi awal
+                set_flash_message('danger', 'Terjadi kesalahan saat memproses pemesanan: ' . e($e->getMessage()));
+            }
+            return false; // Gagal
         }
     }
 
-    /**
-     * Mengambil detail lengkap pemesanan tiket untuk ditampilkan.
-     * @param int $pemesanan_tiket_id ID pemesanan tiket.
-     * @return array|null Data lengkap atau null jika tidak ditemukan/error.
-     */
     public static function getDetailPemesananLengkap($pemesanan_tiket_id)
     {
         $id_val = filter_var($pemesanan_tiket_id, FILTER_VALIDATE_INT);
+        // error_log("--- PemesananTiketController::getDetailPemesananLengkap START untuk ID: " . print_r($pemesanan_tiket_id, true) . " ---");
+
         if ($id_val === false || $id_val <= 0) {
-            error_log("PemesananTiketController::getDetailPemesananLengkap - ID Pemesanan tidak valid: " . print_r($pemesanan_tiket_id, true));
+            // error_log("PemesananTiketController::getDetailPemesananLengkap - ID Pemesanan TIDAK VALID setelah filter: " . print_r($pemesanan_tiket_id, true));
             return null;
         }
+        // error_log("PemesananTiketController::getDetailPemesananLengkap - ID Pemesanan VALID: " . $id_val);
 
         try {
-            // Model sudah di-load oleh config.php
-            // self::checkRequiredModels(['PemesananTiket', 'DetailPemesananTiket', 'PemesananSewaAlat', 'Pembayaran']);
-
+            self::checkRequiredModels(['PemesananTiket', 'DetailPemesananTiket', 'PemesananSewaAlat', 'Pembayaran']);
             $data_pemesanan = [
                 'header' => null,
                 'detail_tiket' => [],
@@ -272,42 +262,38 @@ class PemesananTiketController
                 'pembayaran' => null
             ];
 
-            // Model PemesananTiket::findById() sudah melakukan JOIN dengan users
+            // error_log("Memanggil PemesananTiket::findById({$id_val})");
             $data_pemesanan['header'] = PemesananTiket::findById($id_val);
 
             if (!$data_pemesanan['header']) {
-                error_log("PemesananTiketController::getDetailPemesananLengkap() - Header pemesanan ID {$id_val} TIDAK DITEMUKAN. Model Error: " . PemesananTiket::getLastError());
-                return null; // Ini akan menyebabkan pesan "data tidak lengkap" di view
+                // error_log("PemesananTiket::findById({$id_val}) GAGAL. Info Model: " . PemesananTiket::getLastError());
+                // error_log("--- PemesananTiketController::getDetailPemesananLengkap END (Header Gagal) untuk ID: {$id_val} ---");
+                return null;
             }
-            // Logging jika header ditemukan
-            error_log("PemesananTiketController::getDetailPemesananLengkap() - Header pemesanan ID {$id_val} DITEMUKAN: " . print_r($data_pemesanan['header'], true));
+            // error_log("Header pemesanan ID {$id_val} DITEMUKAN.");
 
-
-            // Model DetailPemesananTiket::getByPemesananTiketId() sudah JOIN dengan jenis_tiket & wisata
+            // error_log("Memanggil DetailPemesananTiket::getByPemesananTiketId({$id_val})");
             $data_pemesanan['detail_tiket'] = DetailPemesananTiket::getByPemesananTiketId($id_val);
-            error_log("PemesananTiketController::getDetailPemesananLengkap() - Detail tiket untuk ID {$id_val}: " . print_r($data_pemesanan['detail_tiket'], true));
 
-
-            // Model PemesananSewaAlat::getByPemesananTiketId() sudah JOIN dengan sewa_alat
+            // error_log("Memanggil PemesananSewaAlat::getByPemesananTiketId({$id_val})");
             $data_pemesanan['detail_sewa'] = PemesananSewaAlat::getByPemesananTiketId($id_val);
-            error_log("PemesananTiketController::getDetailPemesananLengkap() - Detail sewa untuk ID {$id_val}: " . print_r($data_pemesanan['detail_sewa'], true));
 
-
-            // Model Pembayaran::findByPemesananId() akan mengambil berdasarkan pemesanan_tiket_id
+            // error_log("Memanggil Pembayaran::findByPemesananId({$id_val})");
             $data_pemesanan['pembayaran'] = Pembayaran::findByPemesananId($id_val);
-            error_log("PemesananTiketController::getDetailPemesananLengkap() - Pembayaran untuk ID {$id_val}: " . print_r($data_pemesanan['pembayaran'], true));
 
+            // error_log("--- PemesananTiketController::getDetailPemesananLengkap END (Sukses) untuk ID: {$id_val} ---");
             return $data_pemesanan;
         } catch (Exception $e) {
             error_log("PemesananTiketController::getDetailPemesananLengkap() - Exception untuk ID {$id_val}: " . $e->getMessage() . "\nTrace: " . $e->getTraceAsString());
-            return null; // Biarkan view yang menangani null jika terjadi exception tak terduga
+            // error_log("--- PemesananTiketController::getDetailPemesananLengkap END (Exception) untuk ID: {$id_val} ---");
+            return null;
         }
     }
 
     public static function getAllForAdmin()
     {
         try {
-            // Model PemesananTiket::getAll() sudah JOIN dengan users
+            self::checkRequiredModels(['PemesananTiket']);
             return PemesananTiket::getAll();
         } catch (Exception $e) {
             error_log("PemesananTiketController::getAllForAdmin() - Exception: " . $e->getMessage());
@@ -315,45 +301,30 @@ class PemesananTiketController
         }
     }
 
-    // Tidak perlu getByIdForAdmin jika PemesananTiket::findById sudah cukup detail.
-    // public static function getByIdForAdmin($id) { ... }
-
-
     public static function updateStatusPemesanan($id, $status_baru)
     {
-        global $conn;
         $id_val = filter_var($id, FILTER_VALIDATE_INT);
         $status_val = trim(strtolower($status_baru));
-        // Ambil ALLOWED_STATUSES dari model PemesananTiket jika ada atau definisikan di sini
-        $allowed_statuses = PemesananTiket::ALLOWED_STATUSES ?? ['pending', 'waiting_payment', 'paid', 'confirmed', 'completed', 'cancelled', 'expired', 'refunded'];
 
-
-        if ($id_val === false || $id_val <= 0 || empty($status_val) || !in_array($status_val, $allowed_statuses)) {
+        if ($id_val === false || $id_val <= 0 || empty($status_val) || !in_array($status_val, PemesananTiket::ALLOWED_STATUSES)) {
             set_flash_message('danger', 'Data update status pemesanan tidak valid.');
             error_log("PemesananTiketController::updateStatusPemesanan - Input tidak valid. ID: {$id}, Status: {$status_baru}");
             return false;
         }
 
         try {
-            // self::checkRequiredModels(['PemesananTiket', 'Pembayaran']);
-
+            self::checkRequiredModels(['PemesananTiket', 'Pembayaran']);
             $current_pemesanan = PemesananTiket::findById($id_val);
             if (!$current_pemesanan) {
                 set_flash_message('danger', 'Pemesanan tidak ditemukan untuk diupdate.');
                 return false;
             }
 
-            // Logika tambahan jika diperlukan, misalnya:
-            // Jika status baru 'paid', dan pembayaran belum 'success', mungkin ada notifikasi atau tindakan lain.
+            // Jika status diubah menjadi 'paid', idealnya cek status pembayaran juga
             if ($status_val === 'paid') {
                 $pembayaran = Pembayaran::findByPemesananId($id_val);
-                if (!$pembayaran || !in_array(strtolower($pembayaran['status_pembayaran']), Pembayaran::SUCCESSFUL_PAYMENT_STATUSES ?? ['success', 'paid', 'confirmed'])) {
-                    // Opsi:
-                    // 1. Gagal update status pesanan jika pembayaran belum lunas
-                    // set_flash_message('warning', "Status pemesanan tidak bisa 'Paid' jika pembayaran belum berhasil. Update status pembayaran terlebih dahulu.");
-                    // return false;
-                    // 2. Biarkan update, tapi log sebagai peringatan
-                    error_log("Peringatan: Pemesanan ID {$id_val} status diubah menjadi 'paid' tetapi status pembayaran adalah '" . ($pembayaran['status_pembayaran'] ?? 'N/A') . "'");
+                if (!$pembayaran || !in_array(strtolower($pembayaran['status_pembayaran'] ?? ''), Pembayaran::SUCCESSFUL_PAYMENT_STATUSES)) {
+                    error_log("Peringatan: Pemesanan ID {$id_val} status diubah menjadi 'paid' tetapi status pembayaran adalah '" . ($pembayaran['status_pembayaran'] ?? 'N/A') . "' atau tidak ditemukan.");
                 }
             }
 
@@ -369,12 +340,6 @@ class PemesananTiketController
         }
     }
 
-    /**
-     * Menghapus pemesanan tiket dan semua data terkaitnya (detail tiket, sewa, pembayaran).
-     * Memanggil PemesananTiket::delete() yang sudah menangani transaksi.
-     * @param int $id_pemesanan ID pemesanan tiket yang akan dihapus.
-     * @return bool True jika berhasil, false jika gagal.
-     */
     public static function deletePemesananById($id_pemesanan)
     {
         $id_val = filter_var($id_pemesanan, FILTER_VALIDATE_INT);
@@ -384,20 +349,21 @@ class PemesananTiketController
         }
 
         try {
-            // Model PemesananTiket::delete() sudah menangani transaksi dan penghapusan berjenjang
+            self::checkRequiredModels(['PemesananTiket']); // Model delete sudah handle relasi
             if (PemesananTiket::delete($id_val)) {
+                // set_flash_message('success', 'Pemesanan berhasil dihapus.'); // Dihapus jika tidak ingin override pesan dari model
                 return true;
             } else {
-                // Model PemesananTiket::delete() seharusnya sudah set_flash_message atau log error jika gagal
-                if (!isset($_SESSION['flash_message'])) { // Jaga-jaga jika model tidak set
-                    set_flash_message('danger', 'Gagal menghapus pemesanan tiket. Operasi di model tidak berhasil.');
+                if (!isset($_SESSION['flash_message'])) { // Hanya set jika model tidak set
+                    set_flash_message('danger', 'Gagal menghapus pemesanan tiket. ' . PemesananTiket::getLastError());
                 }
                 return false;
             }
         } catch (Exception $e) {
             error_log("PemesananTiketController::deletePemesananById({$id_val}) - Exception: " . $e->getMessage());
-            set_flash_message('danger', 'Gagal menghapus pemesanan: Terjadi kesalahan. ' . e($e->getMessage()));
+            set_flash_message('danger', 'Gagal menghapus pemesanan: Terjadi kesalahan sistem. ' . e($e->getMessage()));
             return false;
         }
     }
-} // End of class PemesananTiketController
+}
+// End of PemesananTiketController.php

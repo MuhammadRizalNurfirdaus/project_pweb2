@@ -4,10 +4,9 @@
 class PemesananTiket
 {
     private static $table_name = "pemesanan_tiket";
-    private static $db; // Properti untuk menyimpan koneksi database
+    private static $db;
 
-    // Daftar status yang diizinkan
-    private const ALLOWED_STATUSES = [
+    public const ALLOWED_STATUSES = [
         'pending',
         'waiting_payment',
         'paid',
@@ -17,20 +16,15 @@ class PemesananTiket
         'expired',
         'refunded'
     ];
+    // Tambahkan ini jika belum ada, untuk sinkronisasi dengan PembayaranController
+    public const SUCCESSFUL_PAYMENT_STATUSES = ['paid', 'success', 'confirmed'];
 
-    /**
-     * Mengatur koneksi database untuk digunakan oleh kelas ini.
-     * @param mysqli $connection Instance koneksi mysqli.
-     */
+
     public static function setDbConnection(mysqli $connection)
     {
         self::$db = $connection;
     }
 
-    /**
-     * Memeriksa apakah koneksi database tersedia.
-     * @return bool True jika koneksi valid, false jika tidak.
-     */
     private static function checkDbConnection()
     {
         if (!self::$db || (self::$db instanceof mysqli && self::$db->connect_error)) {
@@ -41,10 +35,6 @@ class PemesananTiket
         return true;
     }
 
-    /**
-     * Mengambil pesan error terakhir dari koneksi database model ini.
-     * @return string Pesan error.
-     */
     public static function getLastError()
     {
         if (self::$db instanceof mysqli && !empty(self::$db->error)) {
@@ -55,80 +45,121 @@ class PemesananTiket
         return 'Tidak ada error database spesifik yang dilaporkan dari model ' . get_called_class() . '.';
     }
 
-
-    /**
-     * Membuat header pemesanan tiket baru.
-     * @param array $data Data pemesanan.
-     * @return int|false ID pemesanan baru atau false jika gagal.
-     */
     public static function create($data)
     {
-        if (!self::checkDbConnection()) return false;
+        if (!self::checkDbConnection()) {
+            error_log(get_called_class() . "::create() - Gagal: Koneksi DB tidak valid di awal.");
+            return false;
+        }
 
+        // Log koneksi aktif sebelum operasi penting
+        if (self::$db instanceof mysqli && !self::$db->connect_error) {
+            $dbNameQueryTest = null;
+            $active_db_name_test = 'TIDAK DAPAT DIAMBIL (query gagal)';
+            try {
+                $dbNameQueryTest = self::$db->query("SELECT DATABASE()");
+                if ($dbNameQueryTest) {
+                    $dbNameRowTest = $dbNameQueryTest->fetch_row();
+                    $active_db_name_test = $dbNameRowTest[0] ?? 'NULL DARI FETCH';
+                    $dbNameQueryTest->close();
+                }
+            } catch (Exception $e) {
+                error_log(get_called_class() . "::create() - Exception saat get DATABASE(): " . $e->getMessage());
+            }
+            error_log(get_called_class() . "::create() - Menggunakan koneksi ke DB: " . $active_db_name_test . " | Host: " . (self::$db->host_info ?? 'N/A'));
+        } else {
+            error_log(get_called_class() . "::create() - self::\$db BUKAN koneksi mysqli yang valid atau ada connect_error sebelum prepare.");
+            return false; // Tambahkan return false jika koneksi ternyata bermasalah di sini
+        }
+
+        // Ambil dan proses data dari array $data
         $user_id = isset($data['user_id']) && !empty($data['user_id']) ? (int)$data['user_id'] : null;
         $nama_pemesan_tamu = ($user_id === null && isset($data['nama_pemesan_tamu'])) ? trim($data['nama_pemesan_tamu']) : null;
         $email_pemesan_tamu = ($user_id === null && isset($data['email_pemesan_tamu'])) ? trim($data['email_pemesan_tamu']) : null;
         $nohp_pemesan_tamu = ($user_id === null && isset($data['nohp_pemesan_tamu'])) ? trim($data['nohp_pemesan_tamu']) : null;
-        $kode_pemesanan = trim($data['kode_pemesanan'] ?? ('PT' . date('Ymd') . strtoupper(bin2hex(random_bytes(4)))));
-        $tanggal_kunjungan = trim($data['tanggal_kunjungan'] ?? '');
-        $total_harga_akhir = isset($data['total_harga_akhir']) ? (float)$data['total_harga_akhir'] : 0.0;
-        $status_pemesanan = strtolower(trim($data['status'] ?? 'pending'));
-        $catatan_umum_pemesanan = isset($data['catatan_umum_pemesanan']) ? trim($data['catatan_umum_pemesanan']) : null;
 
-        if (empty($kode_pemesanan)) {
-            error_log(get_called_class() . "::create() - Kode pemesanan kosong.");
+        $kode_pemesanan_to_bind = trim($data['kode_pemesanan'] ?? ('PT' . date('Ymd') . strtoupper(bin2hex(random_bytes(4)))));
+        $tanggal_kunjungan_to_bind = trim($data['tanggal_kunjungan'] ?? '');
+        $total_harga_akhir_to_bind = isset($data['total_harga_akhir']) ? (float)$data['total_harga_akhir'] : 0.0;
+        $status_pemesanan_to_bind = strtolower(trim($data['status'] ?? 'pending'));
+        $catatan_umum_pemesanan_to_bind = isset($data['catatan_umum_pemesanan']) ? trim($data['catatan_umum_pemesanan']) : null;
+
+        // Validasi Input Penting
+        if (empty($kode_pemesanan_to_bind)) {
+            error_log(get_called_class() . "::create() - Validasi Gagal: Kode pemesanan kosong setelah diproses.");
             return false;
         }
-        if (empty($tanggal_kunjungan) || !DateTime::createFromFormat('Y-m-d', $tanggal_kunjungan)) {
-            error_log(get_called_class() . "::create() - Tanggal kunjungan tidak valid: " . $tanggal_kunjungan);
+        if (
+            empty($tanggal_kunjungan_to_bind) ||
+            !($dtKunjungan = DateTime::createFromFormat('Y-m-d', $tanggal_kunjungan_to_bind)) ||
+            $dtKunjungan->format('Y-m-d') !== $tanggal_kunjungan_to_bind
+        ) {
+            error_log(get_called_class() . "::create() - Validasi Gagal: Tanggal kunjungan tidak valid: '" . $tanggal_kunjungan_to_bind . "'");
             return false;
         }
         if ($user_id === null) {
             if (empty($nama_pemesan_tamu)) {
-                error_log(get_called_class() . "::create() - Nama tamu kosong.");
+                error_log(get_called_class() . "::create() - Validasi Gagal: Nama tamu kosong.");
                 return false;
             }
             if (empty($email_pemesan_tamu) || !filter_var($email_pemesan_tamu, FILTER_VALIDATE_EMAIL)) {
-                error_log(get_called_class() . "::create() - Email tamu tidak valid: " . $email_pemesan_tamu);
+                error_log(get_called_class() . "::create() - Validasi Gagal: Email tamu tidak valid: '" . $email_pemesan_tamu . "'");
                 return false;
             }
             if (empty($nohp_pemesan_tamu)) {
-                error_log(get_called_class() . "::create() - No HP tamu kosong.");
+                error_log(get_called_class() . "::create() - Validasi Gagal: No HP tamu kosong.");
                 return false;
             }
         }
-        if (!in_array($status_pemesanan, self::ALLOWED_STATUSES)) {
-            error_log(get_called_class() . "::create() - Status pemesanan tidak valid: " . $status_pemesanan);
+        if (!in_array($status_pemesanan_to_bind, self::ALLOWED_STATUSES)) {
+            error_log(get_called_class() . "::create() - Validasi Gagal: Status pemesanan tidak valid: '" . $status_pemesanan_to_bind . "'");
             return false;
         }
+        // --- AKHIR VALIDASI INPUT PENTING ---
 
-        $sql = "INSERT INTO " . self::$table_name .
-            " (user_id, nama_pemesan_tamu, email_pemesan_tamu, nohp_pemesan_tamu, kode_pemesanan, tanggal_kunjungan, total_harga_akhir, status, catatan_umum_pemesanan, created_at, updated_at) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+        $sql = "INSERT INTO `" . self::$table_name . "` " .
+            " (`user_id`, `nama_pemesan_tamu`, `email_pemesan_tamu`, `nohp_pemesan_tamu`, `kode_pemesanan`, `tanggal_kunjungan`, `total_harga_akhir`, `status`, `catatan_umum_pemesanan`, `created_at`, `updated_at`) 
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+
+        error_log("PemesananTiket::create() - SQL String yang akan di-prepare: " . $sql); // <--- PASTIKAN INI ADA
 
         $stmt = mysqli_prepare(self::$db, $sql);
         if (!$stmt) {
-            error_log(get_called_class() . "::create() - MySQLi Prepare Error: " . mysqli_error(self::$db));
+            // INI PENTING JIKA PREPARE GAGAL
+            error_log(get_called_class() . "::create() - MySQLi Prepare Error: " . mysqli_error(self::$db) . " | Attempted SQL: " . $sql);
             return false;
         }
+        error_log(get_called_class() . "::create() - MySQLi Prepare SUKSES.");
 
-        mysqli_stmt_bind_param($stmt, "isssssdss", $user_id, $nama_pemesan_tamu, $email_pemesan_tamu, $nohp_pemesan_tamu, $kode_pemesanan, $tanggal_kunjungan, $total_harga_akhir, $status_pemesanan, $catatan_umum_pemesanan);
+        mysqli_stmt_bind_param(
+            $stmt,
+            "isssssdss",
+            $user_id, // Pastikan variabel ini sudah didefinisikan dengan benar di atas
+            $nama_pemesan_tamu, // dan seterusnya untuk semua variabel bind
+            $email_pemesan_tamu,
+            $nohp_pemesan_tamu,
+            $kode_pemesanan_to_bind,
+            $tanggal_kunjungan_to_bind,
+            $total_harga_akhir_to_bind,
+            $status_pemesanan_to_bind,
+            $catatan_umum_pemesanan_to_bind
+        );
+        error_log(get_called_class() . "::create() - MySQLi Bind Param SUKSES.");
+
 
         if (mysqli_stmt_execute($stmt)) {
             $new_id = mysqli_insert_id(self::$db);
             mysqli_stmt_close($stmt);
+            error_log(get_called_class() . "::create() - MySQLi Execute SUKSES. ID baru: " . $new_id);
             return $new_id;
         } else {
-            error_log(get_called_class() . "::create() - MySQLi Execute Error: " . mysqli_stmt_error($stmt));
+            // INI PENTING JIKA EXECUTE GAGAL
+            error_log(get_called_class() . "::create() - MySQLi Execute Error: " . mysqli_stmt_error($stmt) . " | Query yang disiapkan (struktur): " . $sql);
             mysqli_stmt_close($stmt);
             return false;
         }
     }
 
-    // ... (Metode getAll, findById, getByKodePemesanan, getByUserId, updateStatusPemesanan, updateTotalHargaAkhir, delete, countByStatus, countAll) ...
-    // SEMUA METODE LAIN DI SINI TETAP SAMA SEPERTI REVISI SEBELUMNYA,
-    // PASTIKAN MEREKA MENGGUNAKAN self::$db dan self::checkDbConnection()
-    // Contoh untuk findById:
     public static function findById($id)
     {
         if (!self::checkDbConnection()) return null;
@@ -159,15 +190,15 @@ class PemesananTiket
         mysqli_stmt_close($stmt);
         return null;
     }
-    // ... (Implementasikan SEMUA metode lain dengan pola yang sama, menggunakan self::$db) ...
-    // PASTIkan semua metode yang Anda sertakan dari versi sebelumnya dimasukkan kembali ke sini
-    // dengan `if (!self::checkDbConnection()) return ...;` di awal dan penggunaan `self::$db`
-    // untuk semua operasi database.
 
     public static function getAll()
     {
         if (!self::checkDbConnection()) return [];
-        $sql = "SELECT pt.*, u.nama_lengkap AS user_nama_lengkap, u.email AS user_email FROM " . self::$table_name . " pt LEFT JOIN users u ON pt.user_id = u.id ORDER BY pt.created_at DESC, pt.id DESC";
+        // Pastikan kolom 'kode_pemesanan' ada dan benar ejaannya
+        $sql = "SELECT pt.id, pt.user_id, pt.nama_pemesan_tamu, pt.email_pemesan_tamu, pt.nohp_pemesan_tamu, pt.kode_pemesanan, pt.tanggal_kunjungan, pt.total_harga_akhir, pt.status, pt.catatan_umum_pemesanan, pt.created_at, pt.updated_at, u.nama_lengkap AS user_nama_lengkap, u.email AS user_email 
+                FROM " . self::$table_name . " pt 
+                LEFT JOIN users u ON pt.user_id = u.id 
+                ORDER BY pt.created_at DESC, pt.id DESC";
         $result = mysqli_query(self::$db, $sql);
         if ($result) {
             $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -178,6 +209,7 @@ class PemesananTiket
             return [];
         }
     }
+
     public static function getByKodePemesanan($kode_pemesanan)
     {
         if (!self::checkDbConnection()) return null;
@@ -186,7 +218,11 @@ class PemesananTiket
             error_log(get_called_class() . "::getByKodePemesanan() - Kode pemesanan kosong.");
             return null;
         }
-        $sql = "SELECT pt.*, u.nama_lengkap AS user_nama_lengkap, u.email AS user_email, u.no_hp as user_no_hp FROM " . self::$table_name . " pt LEFT JOIN users u ON pt.user_id = u.id WHERE pt.kode_pemesanan = ?";
+        // Pastikan kolom 'kode_pemesanan' ada dan benar ejaannya
+        $sql = "SELECT pt.*, u.nama_lengkap AS user_nama_lengkap, u.email AS user_email, u.no_hp as user_no_hp 
+                FROM " . self::$table_name . " pt 
+                LEFT JOIN users u ON pt.user_id = u.id 
+                WHERE pt.kode_pemesanan = ?";
         $stmt = mysqli_prepare(self::$db, $sql);
         if (!$stmt) {
             error_log(get_called_class() . "::getByKodePemesanan() Prepare Error: " . mysqli_error(self::$db));
@@ -204,6 +240,7 @@ class PemesananTiket
         mysqli_stmt_close($stmt);
         return null;
     }
+
     public static function getByUserId($user_id, $limit = null)
     {
         if (!self::checkDbConnection()) return [];
@@ -212,7 +249,11 @@ class PemesananTiket
             error_log(get_called_class() . "::getByUserId() - User ID tidak valid: " . $user_id);
             return [];
         }
-        $sql = "SELECT pt.*, u.nama_lengkap AS user_nama_lengkap, u.email AS user_email FROM " . self::$table_name . " pt LEFT JOIN users u ON pt.user_id = u.id WHERE pt.user_id = ? ORDER BY pt.created_at DESC, pt.id DESC";
+        $sql = "SELECT pt.*, u.nama_lengkap AS user_nama_lengkap, u.email AS user_email 
+                FROM " . self::$table_name . " pt 
+                LEFT JOIN users u ON pt.user_id = u.id 
+                WHERE pt.user_id = ? 
+                ORDER BY pt.created_at DESC, pt.id DESC";
         $params = [$user_id_val];
         $types = "i";
         if (is_numeric($limit) && $limit > 0) {
@@ -237,6 +278,7 @@ class PemesananTiket
         mysqli_stmt_close($stmt);
         return [];
     }
+
     public static function updateStatusPemesanan($id, $new_status)
     {
         if (!self::checkDbConnection()) return false;
@@ -256,19 +298,20 @@ class PemesananTiket
         if (mysqli_stmt_execute($stmt)) {
             $affected_rows = mysqli_stmt_affected_rows($stmt);
             mysqli_stmt_close($stmt);
-            return $affected_rows >= 0;
+            return $affected_rows >= 0; // Berhasil jika 0 baris terpengaruh (data sama) atau lebih
         } else {
             error_log(get_called_class() . "::updateStatusPemesanan() Execute Error: " . mysqli_stmt_error($stmt));
         }
         mysqli_stmt_close($stmt);
         return false;
     }
+
     public static function updateTotalHargaAkhir($pemesanan_tiket_id, $total_harga_baru)
     {
         if (!self::checkDbConnection()) return false;
         $id_val = filter_var($pemesanan_tiket_id, FILTER_VALIDATE_INT);
         $harga_val = filter_var($total_harga_baru, FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0]]);
-        if ($id_val === false || $id_val <= 0 || $harga_val === false) {
+        if ($id_val === false || $id_val <= 0 || $harga_val === false) { // harga 0.00 valid
             error_log(get_called_class() . "::updateTotalHargaAkhir() - Input tidak valid. ID: " . $pemesanan_tiket_id . ", Harga: " . $total_harga_baru);
             return false;
         }
@@ -289,6 +332,7 @@ class PemesananTiket
         mysqli_stmt_close($stmt);
         return false;
     }
+
     public static function delete($id)
     {
         if (!self::checkDbConnection()) return false;
@@ -297,55 +341,76 @@ class PemesananTiket
             error_log(get_called_class() . "::delete() - ID tidak valid: " . $id);
             return false;
         }
+
         mysqli_begin_transaction(self::$db);
         try {
-            $tables_to_delete_from = ["detail_pemesanan_tiket" => "pemesanan_tiket_id", "detail_pemesanan_sewa" => "pemesanan_tiket_id", "pembayaran" => "pemesanan_tiket_id"];
-            foreach ($tables_to_delete_from as $table_relasi => $foreign_key_column) {
-                $sql_delete_related = "DELETE FROM `{$table_relasi}` WHERE `{$foreign_key_column}` = ?";
-                $stmt_related = mysqli_prepare(self::$db, $sql_delete_related);
-                if ($stmt_related) {
-                    mysqli_stmt_bind_param($stmt_related, "i", $id_val);
-                    if (!mysqli_stmt_execute($stmt_related)) {
-                        throw new Exception("Gagal execute hapus dari {$table_relasi}: " . mysqli_stmt_error($stmt_related));
+            // Hapus dari tabel anak terlebih dahulu
+            if (class_exists('DetailPemesananTiket') && method_exists('DetailPemesananTiket', 'deleteByPemesananTiketId')) {
+                if (!DetailPemesananTiket::deleteByPemesananTiketId($id_val)) {
+                    // Tidak melempar exception jika tidak ada detail, tapi log jika ada error DB dari model tsb
+                    $dptError = DetailPemesananTiket::getLastError();
+                    if ($dptError && strpos(strtolower($dptError), 'tidak ada error') === false) { // Cek jika ada error DB riil
+                        throw new Exception("Gagal menghapus detail pemesanan tiket terkait: " . $dptError);
                     }
-                    mysqli_stmt_close($stmt_related);
-                } else {
-                    throw new Exception("Gagal prepare statement hapus dari {$table_relasi}: " . mysqli_error(self::$db));
                 }
             }
+            if (class_exists('PemesananSewaAlat') && method_exists('PemesananSewaAlat', 'deleteByPemesananTiketId')) {
+                if (!PemesananSewaAlat::delete($id_val)) { // Asumsi metode ini ada
+                    $psaError = PemesananSewaAlat::getLastError();
+                    if ($psaError && strpos(strtolower($psaError), 'tidak ada error') === false) {
+                        throw new Exception("Gagal menghapus detail pemesanan sewa terkait: " . $psaError);
+                    }
+                }
+            }
+            if (class_exists('Pembayaran') && method_exists('Pembayaran', 'deleteByPemesananId')) {
+                if (!Pembayaran::delete($id_val)) { // Asumsi metode ini ada
+                    $pembayaranError = Pembayaran::getLastError();
+                    if ($pembayaranError && strpos(strtolower($pembayaranError), 'tidak ada error') === false) {
+                        throw new Exception("Gagal menghapus pembayaran terkait: " . $pembayaranError);
+                    }
+                }
+            }
+
+            // Hapus header pemesanan
             $sql_delete_header = "DELETE FROM " . self::$table_name . " WHERE id = ?";
             $stmt_header = mysqli_prepare(self::$db, $sql_delete_header);
             if (!$stmt_header) {
                 throw new Exception("Gagal prepare statement hapus header pemesanan: " . mysqli_error(self::$db));
             }
             mysqli_stmt_bind_param($stmt_header, "i", $id_val);
-            if (mysqli_stmt_execute($stmt_header)) {
-                $affected_rows = mysqli_stmt_affected_rows($stmt_header);
-                mysqli_stmt_close($stmt_header);
-                mysqli_commit(self::$db);
-                return $affected_rows > 0;
-            } else {
+            if (!mysqli_stmt_execute($stmt_header)) {
                 throw new Exception("Gagal execute statement hapus header pemesanan: " . mysqli_stmt_error($stmt_header));
             }
+            $affected_rows = mysqli_stmt_affected_rows($stmt_header);
+            mysqli_stmt_close($stmt_header);
+
+            mysqli_commit(self::$db);
+            return $affected_rows > 0;
         } catch (Exception $e) {
-            mysqli_rollback(self::$db);
+            if (self::$db->thread_id) { // Cek apakah koneksi masih ada
+                mysqli_rollback(self::$db);
+            }
             error_log(get_called_class() . "::delete() Exception: " . $e->getMessage());
             return false;
         }
     }
+
     public static function countByStatus($status_filter)
     {
         if (!self::checkDbConnection()) return 0;
         $statuses_to_check = is_array($status_filter) ? $status_filter : [$status_filter];
         if (empty($statuses_to_check)) return 0;
+
         $valid_statuses = array_filter($statuses_to_check, fn($s) => in_array(strtolower(trim($s)), self::ALLOWED_STATUSES));
         if (empty($valid_statuses)) {
             error_log(get_called_class() . "::countByStatus() - Tidak ada status valid yang diberikan: " . print_r($status_filter, true));
             return 0;
         }
+
         $placeholders = implode(',', array_fill(0, count($valid_statuses), '?'));
         $types = str_repeat('s', count($valid_statuses));
         $sql = "SELECT COUNT(id) as total FROM " . self::$table_name . " WHERE status IN (" . $placeholders . ")";
+
         $stmt = mysqli_prepare(self::$db, $sql);
         if (!$stmt) {
             error_log(get_called_class() . "::countByStatus() - MySQLi Prepare Error: " . mysqli_error(self::$db));
@@ -363,6 +428,7 @@ class PemesananTiket
         mysqli_stmt_close($stmt);
         return 0;
     }
+
     public static function countAll()
     {
         if (!self::checkDbConnection()) return 0;
@@ -377,4 +443,4 @@ class PemesananTiket
         }
         return 0;
     }
-} // End of class PemesananTiket
+}
