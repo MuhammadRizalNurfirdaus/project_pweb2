@@ -25911,3 +25911,1686 @@ fd12f87e01a6fc8662b8067d5d00fdcdd8ef078c
 [14-May-2025 18:30:42 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
 [14-May-2025 18:30:42 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
 [14-May-2025 18:30:42 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:25 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:25 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 11:05:25 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 11:05:26 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:28 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 11:14:28 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 11:14:29 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:51:26 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:27 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:51:27 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:31 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:31 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:56:31 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:32 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:56:32 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:00 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:00 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:57:00 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:01 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:57:01 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:41 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:41 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:57:41 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:42 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:57:42 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:58:20 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:27 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:27 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:59:27 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:28 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 14:59:28 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:00:14 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:04:44 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:45 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:04:45 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:05:02 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:03 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:05:03 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:37 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:37 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:05:37 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:41 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:41 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:05:41 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:07:23 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:07:23 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:07:23 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:08:15 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:08:15 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:09:02 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4.
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Memulai proses inisialisasi model.
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model Artikel diinisialisasi dengan init(conn, path).
+[15-May-2025 15:09:02 Asia/Jakarta] PERINGATAN config.php: Model Contact tidak memiliki metode init() atau setDbConnection() yang cocok untuk inisialisasi database otomatis, atau parameter tidak cocok.
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model DetailPemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model Feedback diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model Galeri diinisialisasi dengan init(conn, path).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model JadwalKetersediaanTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model JenisTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model Pembayaran diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model PemesananSewaAlat diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model PemesananTiket diinisialisasi dengan setDbConnection(conn).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model SewaAlat diinisialisasi dengan init(conn, path).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model User diinisialisasi dengan init(conn, path).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Model Wisata diinisialisasi dengan init(conn, path).
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Selesai proses inisialisasi model.
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Memulai proses pemuatan semua Controller.
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: ArtikelController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: AuthController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: ContactController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: DetailPemesananTiketController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: FeedbackController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: GaleriController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: JadwalKetersediaanTiketController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: JenisTiketController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: PembayaranController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananSewaAlatController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: PemesananTiketController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: SewaAlatController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: UserController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Controller dimuat: WisataController.php
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Selesai proses pemuatan semua Controller.
+[15-May-2025 15:09:02 Asia/Jakarta] INFO config.php: Konfigurasi selesai dimuat. BASE_URL: http://localhost/project_pweb2/

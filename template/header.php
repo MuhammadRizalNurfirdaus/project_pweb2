@@ -50,11 +50,13 @@ if ($user_photo_url === null && defined('ASSETS_URL')) {
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
 
     <link rel="stylesheet" href="<?= e($base_url) ?>public/css/style.css?v=<?= time() ?>">
-    <link rel="icon" href="<?= e($base_url) ?>public/img/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="<?= $base_url ?>public/img/logo.png" type="image/png">
     <link rel="apple-touch-icon" href="<?= e($base_url) ?>public/img/logo_apple_touch.png">
     <style>
+
         .navbar-user-avatar {
             width: 30px;
             height: 30px;
