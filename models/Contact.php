@@ -3,7 +3,37 @@
 
 class Contact
 {
-    private static $table_name = "contacts"; // Sesuai dengan tabel di database Anda
+    private static $table_name = "contacts";
+    private static $db; // Tambahkan properti untuk koneksi
+    private static $last_error = null;
+
+    /**
+     * Mengatur koneksi database untuk digunakan oleh kelas ini.
+     * @param mysqli $connection Instance koneksi mysqli.
+     */
+    public static function setDbConnection(mysqli $connection)
+    {
+        self::$db = $connection;
+    }
+
+    private static function checkDbConnection(): bool
+    {
+        self::$last_error = null;
+        if (!self::$db || (self::$db instanceof mysqli && self::$db->connect_error)) {
+            self::$last_error = (self::$db instanceof mysqli ? self::$db->connect_error : (self::$db === null ? 'Koneksi DB (self::$db) belum diset.' : 'Koneksi DB bukan objek mysqli.'));
+            error_log(get_called_class() . " - Koneksi Error: " . self::$last_error);
+            return false;
+        }
+        return true;
+    }
+
+    public static function getLastError(): ?string
+    {
+        if (self::$last_error) return self::$last_error;
+        if (self::$db instanceof mysqli && !empty(self::$db->error)) return self::$db->error;
+        return null;
+    }
+
 
     /**
      * Menyisipkan pesan kontak baru ke database.
@@ -12,106 +42,94 @@ class Contact
      */
     public static function create($data)
     {
-        global $conn; // Menggunakan koneksi global dari config.php
-        if (!$conn) {
-            error_log("Contact::create() - Koneksi database gagal.");
+        // global $conn; // HAPUS PENGGUNAAN GLOBAL $conn
+        if (!self::checkDbConnection()) { // GUNAKAN KONEKSI DARI self::$db
+            // error_log("Contact::create() - Koneksi database gagal."); // Sudah di-log oleh checkDbConnection
             return false;
         }
 
-        // Ambil dan trim data, berikan default string kosong jika tidak ada
         $nama = trim($data['nama'] ?? '');
         $email = trim($data['email'] ?? '');
         $pesan = trim($data['pesan'] ?? '');
 
-        // Validasi dasar di Model
         if (empty($nama)) {
-            error_log("Contact::create() - Error: Nama tidak boleh kosong.");
+            self::$last_error = "Nama tidak boleh kosong.";
+            error_log(get_called_class() . "::create() - " . self::$last_error);
             return false;
         }
-        if (empty($email)) {
-            error_log("Contact::create() - Error: Email tidak boleh kosong.");
-            return false;
-        }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            error_log("Contact::create() - Error: Format email tidak valid untuk email: " . $email);
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            self::$last_error = "Email tidak valid: " . $email;
+            error_log(get_called_class() . "::create() - " . self::$last_error);
             return false;
         }
         if (empty($pesan)) {
-            error_log("Contact::create() - Error: Pesan tidak boleh kosong.");
+            self::$last_error = "Pesan tidak boleh kosong.";
+            error_log(get_called_class() . "::create() - " . self::$last_error);
             return false;
         }
 
-        // Kolom 'created_at' diasumsikan memiliki DEFAULT CURRENT_TIMESTAMP di database
-        $sql = "INSERT INTO " . self::$table_name . " (nama, email, pesan) VALUES (?, ?, ?)";
-        $stmt = mysqli_prepare($conn, $sql);
+        $sql = "INSERT INTO " . self::$table_name . " (nama, email, pesan, created_at) VALUES (?, ?, ?, NOW())"; // Asumsi created_at ada
+        $stmt = mysqli_prepare(self::$db, $sql); // Gunakan self::$db
 
         if (!$stmt) {
-            error_log("Contact::create() - MySQLi Prepare Error: " . mysqli_error($conn) . " SQL: " . $sql);
+            self::$last_error = "MySQLi Prepare Error: " . mysqli_error(self::$db);
+            error_log(get_called_class() . "::create() - " . self::$last_error . " SQL: " . $sql);
             return false;
         }
 
         mysqli_stmt_bind_param($stmt, "sss", $nama, $email, $pesan);
 
         if (mysqli_stmt_execute($stmt)) {
-            $new_id = mysqli_insert_id($conn);
+            $new_id = mysqli_insert_id(self::$db); // Gunakan self::$db
             mysqli_stmt_close($stmt);
-            return $new_id; // Kembalikan ID jika berhasil
+            return $new_id;
         } else {
-            error_log("Contact::create() - MySQLi Execute Error: " . mysqli_stmt_error($stmt) . " SQL: " . $sql);
+            self::$last_error = "MySQLi Execute Error: " . mysqli_stmt_error($stmt);
+            error_log(get_called_class() . "::create() - " . self::$last_error . " SQL: " . $sql);
             mysqli_stmt_close($stmt);
             return false;
         }
     }
 
-    /**
-     * Mengambil semua pesan kontak dari database.
-     * @return array Array data pesan kontak, atau array kosong jika tidak ada data atau terjadi error.
-     */
     public static function getAll()
     {
-        global $conn;
-        if (!$conn) {
-            error_log("Contact::getAll() - Koneksi database gagal.");
-            return [];
-        }
+        // global $conn; // HAPUS
+        if (!self::checkDbConnection()) return []; // GUNAKAN self::$db
 
         $sql = "SELECT id, nama, email, pesan, created_at 
                 FROM " . self::$table_name . " 
                 ORDER BY created_at DESC";
-        $result = mysqli_query($conn, $sql);
+        $result = mysqli_query(self::$db, $sql); // Gunakan self::$db
 
         if ($result) {
-            return mysqli_fetch_all($result, MYSQLI_ASSOC);
+            $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            mysqli_free_result($result);
+            return $data;
         } else {
-            error_log("Contact::getAll() - MySQLi Query Error: " . mysqli_error($conn) . " SQL: " . $sql);
-            return []; // Kembalikan array kosong jika error
+            self::$last_error = "MySQLi Query Error: " . mysqli_error(self::$db);
+            error_log(get_called_class() . "::getAll() - " . self::$last_error . " SQL: " . $sql);
+            return [];
         }
     }
 
-    /**
-     * Menghapus pesan kontak berdasarkan ID.
-     * @param int $id ID pesan kontak yang akan dihapus.
-     * @return bool True jika berhasil menghapus, false jika gagal atau ID tidak valid/ditemukan.
-     */
     public static function delete($id)
     {
-        global $conn;
-        if (!$conn) {
-            error_log("Contact::delete() - Koneksi database gagal.");
-            return false;
-        }
+        // global $conn; // HAPUS
+        if (!self::checkDbConnection()) return false; // GUNAKAN self::$db
 
         $id_to_delete = filter_var($id, FILTER_VALIDATE_INT);
         if ($id_to_delete === false || $id_to_delete <= 0) {
-            error_log("Contact::delete() - Error: ID tidak valid (" . $id . ").");
+            self::$last_error = "ID tidak valid (" . $id . ").";
+            error_log(get_called_class() . "::delete() - " . self::$last_error);
             return false;
         }
 
         $sql = "DELETE FROM " . self::$table_name . " WHERE id = ?";
-        $stmt = mysqli_prepare($conn, $sql);
+        $stmt = mysqli_prepare(self::$db, $sql); // Gunakan self::$db
 
         if (!$stmt) {
-            error_log("Contact::delete() - MySQLi Prepare Error: " . mysqli_error($conn) . " SQL: " . $sql);
+            self::$last_error = "MySQLi Prepare Error: " . mysqli_error(self::$db);
+            error_log(get_called_class() . "::delete() - " . self::$last_error . " SQL: " . $sql);
             return false;
         }
 
@@ -121,18 +139,17 @@ class Contact
             $affected_rows = mysqli_stmt_affected_rows($stmt);
             mysqli_stmt_close($stmt);
             if ($affected_rows > 0) {
-                return true; // Berhasil menghapus
+                return true;
             } else {
-                error_log("Contact::delete() - Tidak ada baris yang terhapus untuk ID: " . $id_to_delete . " (mungkin ID tidak ditemukan).");
-                return false; // Tidak ada baris yang terpengaruh
+                // self::$last_error = "Tidak ada baris yang terhapus untuk ID: " . $id_to_delete; // Tidak perlu set error jika memang tidak ada
+                // error_log(get_called_class() . "::delete() - " . self::$last_error);
+                return false;
             }
         } else {
-            error_log("Contact::delete() - MySQLi Execute Error: " . mysqli_stmt_error($stmt) . " SQL: " . $sql);
+            self::$last_error = "MySQLi Execute Error: " . mysqli_stmt_error($stmt);
+            error_log(get_called_class() . "::delete() - " . self::$last_error . " SQL: " . $sql);
             mysqli_stmt_close($stmt);
             return false;
         }
     }
-
-    // Jika Anda memerlukan method getById() di masa depan:
-    // public static function getById($id) { ... }
 }

@@ -51,7 +51,7 @@ class DetailPemesananTiketController
 
 
         // Ambil informasi harga dari JenisTiket Model
-        $jenisTiketInfo = JenisTiket::getById($jenis_tiket_id);
+        $jenisTiketInfo = JenisTiket::findById($jenis_tiket_id);
         if (!$jenisTiketInfo || $jenisTiketInfo['aktif'] == 0) {
             error_log("DetailPemesananTiketController::create() - Jenis tiket ID {$jenis_tiket_id} tidak ditemukan atau tidak aktif.");
             set_flash_message('danger', "Jenis tiket yang dipilih (ID: {$jenis_tiket_id}) tidak ditemukan atau tidak aktif.");

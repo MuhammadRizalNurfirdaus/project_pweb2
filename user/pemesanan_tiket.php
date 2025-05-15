@@ -1,29 +1,37 @@
 <?php
+// File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\user\pemesanan_tiket.php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once __DIR__ . '/../config/config.php';
-// Controller utama yang akan menangani proses gabungan
-require_once __DIR__ . '/../controllers/PemesananTiketController.php';
-// Model yang dibutuhkan untuk mengisi dropdown di form
-require_once __DIR__ . '/../models/JenisTiket.php';
-require_once __DIR__ . '/../models/SewaAlat.php';
-require_once __DIR__ . '/../models/Wisata.php'; // Jika ingin ada filter berdasarkan wisata
+
+if (!class_exists('PemesananTiketController')) {
+    error_log("FATAL pemesanan_tiket.php: PemesananTiketController tidak ditemukan.");
+    exit("Kesalahan sistem kritis. Komponen pemesanan tidak tersedia.");
+}
+
+if (!class_exists('JenisTiket')) error_log("PERINGATAN pemesanan_tiket.php: Model JenisTiket tidak ditemukan.");
+if (!class_exists('SewaAlat')) error_log("PERINGATAN pemesanan_tiket.php: Model SewaAlat tidak ditemukan.");
 
 require_login();
 
-// --- Data Awal untuk Form ---
 $tanggal_kunjungan_input = date('Y-m-d', strtotime('+1 day'));
 $catatan_umum_input = '';
+$items_tiket_input = [];
+$items_sewa_input = [];
 
-// Untuk menyimpan item tiket yang dipilih pengguna (jika ada error dan form di-reload)
-$items_tiket_input = isset($_SESSION['form_data_pemesanan']['items_tiket']) ? $_SESSION['form_data_pemesanan']['items_tiket'] : [];
-// Untuk menyimpan item sewa yang dipilih pengguna
-$items_sewa_input = isset($_SESSION['form_data_pemesanan']['items_sewa']) ? $_SESSION['form_data_pemesanan']['items_sewa'] : [];
+if (!is_post() && isset($_SESSION['form_data_pemesanan'])) {
+    $tanggal_kunjungan_input = $_SESSION['form_data_pemesanan']['tanggal_kunjungan'] ?? $tanggal_kunjungan_input;
+    $catatan_umum_input = $_SESSION['form_data_pemesanan']['catatan_umum_pemesanan'] ?? $catatan_umum_input;
+    $items_tiket_input = $_SESSION['form_data_pemesanan']['items_tiket'] ?? [];
+    $items_sewa_input = $_SESSION['form_data_pemesanan']['items_sewa'] ?? [];
+    unset($_SESSION['form_data_pemesanan']);
+}
 
 if (is_post()) {
-    // Ambil data pemesan dasar
-    $tanggal_kunjungan_input = input('tanggal_kunjungan');
-    $catatan_umum_input = input('catatan_umum_pemesanan');
+    $tanggal_kunjungan_input_post = input('tanggal_kunjungan');
+    $catatan_umum_input_post = input('catatan_umum_pemesanan');
 
-    // Ambil item tiket dari form (ini akan berupa array)
     $posted_items_tiket = $_POST['items_tiket'] ?? [];
     $items_tiket_to_process = [];
     foreach ($posted_items_tiket as $item_t) {
@@ -35,7 +43,6 @@ if (is_post()) {
         }
     }
 
-    // Ambil item sewa dari form (juga array)
     $posted_items_sewa = $_POST['items_sewa'] ?? [];
     $items_sewa_to_process = [];
     foreach ($posted_items_sewa as $item_s) {
@@ -51,8 +58,8 @@ if (is_post()) {
     }
 
     $_SESSION['form_data_pemesanan'] = [
-        'tanggal_kunjungan' => $tanggal_kunjungan_input,
-        'catatan_umum_pemesanan' => $catatan_umum_input,
+        'tanggal_kunjungan' => $tanggal_kunjungan_input_post,
+        'catatan_umum_pemesanan' => $catatan_umum_input_post,
         'items_tiket' => $items_tiket_to_process,
         'items_sewa' => $items_sewa_to_process
     ];
@@ -61,55 +68,60 @@ if (is_post()) {
         set_flash_message('danger', 'Anda harus memilih minimal satu jenis tiket dan jumlahnya.');
         redirect('user/pemesanan_tiket.php');
         exit;
-    } else {
-        $data_pemesan_info = [
-            'user_id' => get_current_user_id(),
-            'tanggal_kunjungan' => $tanggal_kunjungan_input,
-            'catatan_umum_pemesanan' => $catatan_umum_input,
-            'metode_pembayaran_pilihan' => 'Belum Dipilih'
-        ];
-
-        $kode_pemesanan_hasil = PemesananTiketController::prosesPemesananLengkap(
-            $data_pemesan_info,
-            $items_tiket_to_process,
-            $items_sewa_to_process
-        );
-
-        if ($kode_pemesanan_hasil) {
-            unset($_SESSION['form_data_pemesanan']);
-
-            // Pesan flash disarankan diatur oleh Controller, tapi jika tidak, ini fallbacknya
-            if (!isset($_SESSION['flash_message'])) {
-                set_flash_message('success', 'Pemesanan Anda dengan kode ' . e($kode_pemesanan_hasil) . ' berhasil dibuat. Silakan lanjutkan ke pembayaran.');
-            }
-
-            // ---- PERUBAHAN UTAMA DI SINI ----
-            redirect('user/detail_pemesanan.php?kode=' . $kode_pemesanan_hasil);
-            // Pengguna diarahkan ke detail pemesanan dengan membawa kode pemesanan
-            exit;
-        } else {
-            if (!isset($_SESSION['flash_message'])) {
-                set_flash_message('danger', 'Gagal memproses pemesanan. Silakan coba lagi.');
-            }
-            redirect('user/pemesanan_tiket.php');
-            exit;
-        }
     }
-} else {
-    if (isset($_SESSION['form_data_pemesanan'])) {
-        $tanggal_kunjungan_input = $_SESSION['form_data_pemesanan']['tanggal_kunjungan'] ?? $tanggal_kunjungan_input;
-        $catatan_umum_input = $_SESSION['form_data_pemesanan']['catatan_umum_pemesanan'] ?? $catatan_umum_input;
-        $items_tiket_input = $_SESSION['form_data_pemesanan']['items_tiket'] ?? [];
-        $items_sewa_input = $_SESSION['form_data_pemesanan']['items_sewa'] ?? [];
+
+    $data_pemesan_info = [
+        'user_id' => get_current_user_id(),
+        'tanggal_kunjungan' => $tanggal_kunjungan_input_post,
+        'catatan_umum_pemesanan' => $catatan_umum_input_post,
+        'metode_pembayaran_pilihan' => 'Belum Dipilih'
+    ];
+
+    $kode_pemesanan_hasil = PemesananTiketController::prosesPemesananLengkap(
+        $data_pemesan_info,
+        $items_tiket_to_process,
+        $items_sewa_to_process
+    );
+
+    if ($kode_pemesanan_hasil) {
         unset($_SESSION['form_data_pemesanan']);
+        if (!isset($_SESSION['flash_message'])) {
+            set_flash_message('success', 'Pemesanan Anda dengan kode ' . e($kode_pemesanan_hasil) . ' berhasil dibuat. Silakan lanjutkan ke pembayaran.');
+        }
+        redirect('user/detail_pemesanan.php?kode=' . urlencode($kode_pemesanan_hasil));
+        exit;
+    } else {
+        if (!isset($_SESSION['flash_message'])) {
+            set_flash_message('danger', 'Gagal memproses pemesanan. Periksa kembali input Anda atau kuota/stok mungkin tidak mencukupi.');
+        }
+        redirect('user/pemesanan_tiket.php');
+        exit;
     }
 }
 
-$jenis_tiket_list = JenisTiket::getAll();
-$alat_sewa_list = SewaAlat::getAll();
+$jenis_tiket_list = [];
+$alat_sewa_list = [];
+try {
+    if (class_exists('JenisTiket')) {
+        $jenis_tiket_list = JenisTiket::getAll();
+    }
+    if (class_exists('SewaAlat')) {
+        $alat_sewa_list = SewaAlat::getAll();
+    }
+} catch (Exception $e) {
+    error_log("Error saat mengambil data list tiket/alat di pemesanan_tiket.php: " . $e->getMessage());
+    set_flash_message('danger', 'Tidak dapat memuat daftar pilihan tiket/alat saat ini. Coba lagi nanti.');
+}
 
 $page_title = "Form Pemesanan Tiket & Sewa Alat";
-include_once __DIR__ . '/../template/header_user.php';
+// Pastikan VIEWS_PATH sudah didefinisikan di config.php
+$header_path = (defined('VIEWS_PATH') ? VIEWS_PATH : __DIR__ . '/../template') . '/header_user.php';
+if (file_exists($header_path)) {
+    include_once $header_path;
+} else {
+    error_log("FATAL pemesanan_tiket.php: File header_user.php tidak ditemukan di " . $header_path);
+    exit("Kesalahan tampilan: Komponen header tidak ditemukan.");
+}
 ?>
 
 <div class="main-page-content">
@@ -132,8 +144,7 @@ include_once __DIR__ . '/../template/header_user.php';
                                     <label for="tanggal_kunjungan" class="form-label fs-5">Tanggal Kunjungan</label>
                                     <input type="date" class="form-control form-control-lg" id="tanggal_kunjungan" name="tanggal_kunjungan"
                                         value="<?= e($tanggal_kunjungan_input) ?>"
-                                        min="<?= date('Y-m-d') // Bisa juga '+0 day' jika ingin hari ini juga bisa 
-                                                ?>" required>
+                                        min="<?= date('Y-m-d') ?>" required>
                                     <div class="invalid-feedback">Silakan pilih tanggal kunjungan yang valid.</div>
                                 </div>
                             </div>
@@ -150,11 +161,15 @@ include_once __DIR__ . '/../template/header_user.php';
                                             <label for="jenis_tiket_id_<?= $i ?>" class="form-label">Jenis Tiket</label>
                                             <select class="form-select" name="items_tiket[<?= $i ?>][jenis_tiket_id]" id="jenis_tiket_id_<?= $i ?>" required>
                                                 <option value="" disabled <?= empty($current_item_tiket['jenis_tiket_id']) ? 'selected' : '' ?>>-- Pilih Jenis Tiket --</option>
-                                                <?php foreach ($jenis_tiket_list as $jt) : ?>
-                                                    <option value="<?= e($jt['id']) ?>" data-harga="<?= e($jt['harga']) ?>" <?= ((string)$current_item_tiket['jenis_tiket_id'] === (string)$jt['id']) ? 'selected' : '' ?>>
-                                                        <?= e($jt['nama_layanan_display']) ?> (<?= e($jt['tipe_hari']) ?>) - Rp <?= e(number_format($jt['harga'], 0, ',', '.')) ?>
-                                                    </option>
-                                                <?php endforeach; ?>
+                                                <?php if (!empty($jenis_tiket_list)): ?>
+                                                    <?php foreach ($jenis_tiket_list as $jt) : ?>
+                                                        <?php if ($jt['aktif']): ?>
+                                                            <option value="<?= e($jt['id']) ?>" data-harga="<?= e($jt['harga']) ?>" <?= ((string)$current_item_tiket['jenis_tiket_id'] === (string)$jt['id']) ? 'selected' : '' ?>>
+                                                                <?= e($jt['nama_layanan_display']) ?> (<?= e($jt['tipe_hari']) ?>) - Rp <?= e(number_format($jt['harga'], 0, ',', '.')) ?>
+                                                            </option>
+                                                        <?php endif; ?>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
                                             </select>
                                             <div class="invalid-feedback">Jenis tiket wajib dipilih.</div>
                                         </div>
@@ -192,11 +207,13 @@ include_once __DIR__ . '/../template/header_user.php';
                                                 <label for="sewa_alat_id_<?= $j ?>" class="form-label">Alat Sewa</label>
                                                 <select class="form-select" name="items_sewa[<?= $j ?>][sewa_alat_id]" id="sewa_alat_id_<?= $j ?>">
                                                     <option value="" disabled <?= empty($current_item_sewa['sewa_alat_id']) ? 'selected' : '' ?>>-- Pilih Alat --</option>
-                                                    <?php foreach ($alat_sewa_list as $as) : ?>
-                                                        <option value="<?= e($as['id']) ?>" <?= ((string)$current_item_sewa['sewa_alat_id'] === (string)$as['id']) ? 'selected' : '' ?>>
-                                                            <?= e($as['nama_item']) ?> (Stok: <?= e($as['stok_tersedia']) ?>) - Rp <?= e(number_format($as['harga_sewa'], 0, ',', '.')) ?> /<?= e($as['durasi_harga_sewa']) ?> <?= e($as['satuan_durasi_harga']) ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
+                                                    <?php if (!empty($alat_sewa_list)): ?>
+                                                        <?php foreach ($alat_sewa_list as $as) : ?>
+                                                            <option value="<?= e($as['id']) ?>" <?= ((string)$current_item_sewa['sewa_alat_id'] === (string)$as['id']) ? 'selected' : '' ?>>
+                                                                <?= e($as['nama_item']) ?> (Stok: <?= e($as['stok_tersedia']) ?>) - Rp <?= e(number_format($as['harga_sewa'], 0, ',', '.')) ?> /<?= e($as['durasi_harga_sewa']) ?> <?= e($as['satuan_durasi_harga']) ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
                                                 </select>
                                             </div>
                                             <div class="col-md-3">
@@ -243,13 +260,27 @@ include_once __DIR__ . '/../template/header_user.php';
 </div>
 
 <?php
-include_once __DIR__ . '/../template/footer.php';
+// Pastikan VIEWS_PATH sudah didefinisikan di config.php
+// DAN pastikan file footer_user.php benar-benar ada di folder template
+$footer_path = (defined('VIEWS_PATH') ? VIEWS_PATH : __DIR__ . '/../template') . '/footer.php';
+if (file_exists($footer_path)) {
+    include_once $footer_path;
+} else {
+    // Fallback ke footer.php jika footer_user.php tidak ada
+    $fallback_footer_path = (defined('VIEWS_PATH') ? VIEWS_PATH : __DIR__ . '/../template') . '/footer.php';
+    if (file_exists($fallback_footer_path)) {
+        error_log("PERINGATAN pemesanan_tiket.php: File footer_user.php tidak ditemukan, menggunakan footer.php sebagai fallback.");
+        include_once $fallback_footer_path;
+    } else {
+        error_log("FATAL pemesanan_tiket.php: File footer_user.php dan footer.php tidak ditemukan di " . $footer_path . " atau " . $fallback_footer_path);
+        // echo "<p style='text-align:center;color:red;'>Error: Komponen footer tidak ditemukan.</p>";
+    }
+}
 ?>
 
 <script>
-    // --- KODE JAVASCRIPT SAMA PERSIS DENGAN YANG SEBELUMNYA ---
-    // Tidak ada perubahan pada JavaScript karena logika frontend tetap sama.
-    // Perubahan hanya pada redirect di sisi PHP.
+    // --- Kode JavaScript dari respons sebelumnya ---
+    // (Salin dan tempel kode JavaScript yang sudah stabil di sini)
     document.addEventListener('DOMContentLoaded', function() {
         const tiketContainer = document.getElementById('items-tiket-container');
         const addTiketButton = document.getElementById('add-item-tiket');
@@ -262,7 +293,7 @@ include_once __DIR__ . '/../template/footer.php';
         const tanggalKunjunganInput = document.getElementById('tanggal_kunjungan');
         const formPemesanan = document.querySelector('form.needs-validation');
 
-        const ajaxHandlerUrl = "<?= defined('BASE_URL') ? BASE_URL . 'public/stok_form_handler.php' : '../public/stok_form_handler.php' ?>";
+        const ajaxHandlerUrl = "<?= defined('BASE_URL') ? rtrim(BASE_URL, '/') . '/public/stok_form_handler.php' : '../public/stok_form_handler.php' ?>";
 
         function createFeedbackElement(siblingElement, idSuffix) {
             const feedbackElementId = `feedback-ajax-${idSuffix}`;
@@ -271,15 +302,21 @@ include_once __DIR__ . '/../template/footer.php';
                 feedbackElement = document.createElement('div');
                 feedbackElement.id = feedbackElementId;
                 feedbackElement.classList.add('form-text', 'mt-1', 'feedback-ajax');
-                siblingElement.parentNode.appendChild(feedbackElement);
+                if (siblingElement.nextElementSibling && siblingElement.nextElementSibling.classList.contains('invalid-feedback')) {
+                    siblingElement.nextElementSibling.after(feedbackElement);
+                } else {
+                    siblingElement.after(feedbackElement);
+                }
             }
             return feedbackElement;
         }
 
+
         async function cekKuotaTiket(jenisTiketSelect, jumlahInput, tanggalKunjungan) {
             const jenisTiketId = jenisTiketSelect.value;
             const jumlahDiminta = parseInt(jumlahInput.value);
-            const feedbackElement = jumlahInput.parentNode.querySelector('.feedback-ajax');
+            const feedbackElement = jumlahInput.closest('.item-tiket').querySelector('.feedback-ajax');
+
 
             if (!feedbackElement) {
                 console.error('Feedback element tiket tidak ditemukan untuk:', jumlahInput.id);
@@ -288,6 +325,7 @@ include_once __DIR__ . '/../template/footer.php';
             feedbackElement.textContent = '';
             feedbackElement.className = 'form-text mt-1 feedback-ajax';
             jumlahInput.setCustomValidity('');
+
             if (!jenisTiketId || !tanggalKunjungan || isNaN(jumlahDiminta) || jumlahDiminta <= 0) return;
 
             try {
@@ -296,15 +334,18 @@ include_once __DIR__ . '/../template/footer.php';
                 formData.append('jenis_tiket_id', jenisTiketId);
                 formData.append('tanggal_kunjungan', tanggalKunjungan);
                 formData.append('jumlah_diminta', jumlahDiminta);
+
                 feedbackElement.textContent = 'Mengecek kuota...';
                 feedbackElement.classList.add('text-muted');
+
                 const response = await fetch(ajaxHandlerUrl, {
                     method: 'POST',
                     body: formData
                 });
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
-                feedbackElement.classList.remove('text-muted');
+
+                feedbackElement.classList.remove('text-muted', 'text-success', 'text-danger');
                 if (data.success) {
                     feedbackElement.textContent = `Kuota tersedia (sisa: ${data.available}).`;
                     feedbackElement.classList.add('text-success');
@@ -315,8 +356,8 @@ include_once __DIR__ . '/../template/footer.php';
                 }
             } catch (error) {
                 console.error('Error cek kuota tiket:', error);
+                feedbackElement.classList.remove('text-muted', 'text-success');
                 feedbackElement.textContent = 'Gagal mengecek kuota. Coba lagi.';
-                feedbackElement.classList.remove('text-muted');
                 feedbackElement.classList.add('text-danger');
             }
         }
@@ -324,7 +365,8 @@ include_once __DIR__ . '/../template/footer.php';
         async function cekStokAlat(alatSewaSelect, jumlahInput) {
             const sewaAlatId = alatSewaSelect.value;
             const jumlahDiminta = parseInt(jumlahInput.value);
-            const feedbackElement = jumlahInput.parentNode.querySelector('.feedback-ajax');
+            const feedbackElement = jumlahInput.closest('.item-sewa').querySelector('.feedback-ajax');
+
             if (!feedbackElement) {
                 console.error('Feedback element sewa tidak ditemukan untuk:', jumlahInput.id);
                 return;
@@ -332,6 +374,7 @@ include_once __DIR__ . '/../template/footer.php';
             feedbackElement.textContent = '';
             feedbackElement.className = 'form-text mt-1 feedback-ajax';
             jumlahInput.setCustomValidity('');
+
             if (!sewaAlatId || isNaN(jumlahDiminta) || jumlahDiminta <= 0) return;
 
             try {
@@ -339,15 +382,18 @@ include_once __DIR__ . '/../template/footer.php';
                 formData.append('action', 'cek_stok_alat');
                 formData.append('sewa_alat_id', sewaAlatId);
                 formData.append('jumlah_diminta', jumlahDiminta);
+
                 feedbackElement.textContent = 'Mengecek stok...';
                 feedbackElement.classList.add('text-muted');
+
                 const response = await fetch(ajaxHandlerUrl, {
                     method: 'POST',
                     body: formData
                 });
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
-                feedbackElement.classList.remove('text-muted');
+
+                feedbackElement.classList.remove('text-muted', 'text-success', 'text-danger');
                 if (data.success) {
                     feedbackElement.textContent = `Stok tersedia (sisa: ${data.available}).`;
                     feedbackElement.classList.add('text-success');
@@ -358,8 +404,8 @@ include_once __DIR__ . '/../template/footer.php';
                 }
             } catch (error) {
                 console.error('Error cek stok alat:', error);
+                feedbackElement.classList.remove('text-muted', 'text-success');
                 feedbackElement.textContent = 'Gagal mengecek stok. Coba lagi.';
-                feedbackElement.classList.remove('text-muted');
                 feedbackElement.classList.add('text-danger');
             }
         }
@@ -368,12 +414,17 @@ include_once __DIR__ . '/../template/footer.php';
             const jenisTiketSelect = itemTiketDiv.querySelector('select[name^="items_tiket["]');
             const jumlahInput = itemTiketDiv.querySelector('input[name^="items_tiket["][name$="][jumlah]"]');
             if (jenisTiketSelect && jumlahInput) {
+                createFeedbackElement(jumlahInput, `kuota-${jumlahInput.id}`);
+
                 jenisTiketSelect.addEventListener('change', function() {
                     cekKuotaTiket(this, jumlahInput, tanggalKunjunganInput.value);
                 });
                 jumlahInput.addEventListener('input', function() {
                     cekKuotaTiket(jenisTiketSelect, this, tanggalKunjunganInput.value);
                 });
+                if (jenisTiketSelect.value && jumlahInput.value > 0 && tanggalKunjunganInput.value) {
+                    cekKuotaTiket(jenisTiketSelect, jumlahInput, tanggalKunjunganInput.value);
+                }
             }
         }
 
@@ -381,12 +432,17 @@ include_once __DIR__ . '/../template/footer.php';
             const alatSewaSelect = itemSewaDiv.querySelector('select[name^="items_sewa["]');
             const jumlahInput = itemSewaDiv.querySelector('input[name^="items_sewa["][name$="][jumlah_sewa]"]');
             if (alatSewaSelect && jumlahInput) {
+                createFeedbackElement(jumlahInput, `stok-${jumlahInput.id}`);
+
                 alatSewaSelect.addEventListener('change', function() {
                     cekStokAlat(this, jumlahInput);
                 });
                 jumlahInput.addEventListener('input', function() {
                     cekStokAlat(alatSewaSelect, this);
                 });
+                if (alatSewaSelect.value && jumlahInput.value > 0) {
+                    cekStokAlat(alatSewaSelect, jumlahInput);
+                }
             }
         }
 
@@ -398,11 +454,15 @@ include_once __DIR__ . '/../template/footer.php';
                         <label for="jenis_tiket_id_${tiketIndex}" class="form-label">Jenis Tiket</label>
                         <select class="form-select" name="items_tiket[${tiketIndex}][jenis_tiket_id]" id="jenis_tiket_id_${tiketIndex}" required>
                             <option value="" disabled selected>-- Pilih Jenis Tiket --</option>
-                            <?php foreach ($jenis_tiket_list as $jt) : ?>
+                            <?php if (!empty($jenis_tiket_list)) {
+                                foreach ($jenis_tiket_list as $jt) : ?>
+                                <?php if ($jt['aktif']): ?>
                                 <option value="<?= e($jt['id']) ?>" data-harga="<?= e($jt['harga']) ?>">
                                     <?= e($jt['nama_layanan_display']) ?> (<?= e($jt['tipe_hari']) ?>) - Rp <?= e(number_format($jt['harga'], 0, ',', '.')) ?>
                                 </option>
-                            <?php endforeach; ?>
+                                <?php endif; ?>
+                            <?php endforeach;
+                            } ?>
                         </select>
                         <div class="invalid-feedback">Jenis tiket wajib dipilih.</div>
                     </div>
@@ -433,16 +493,22 @@ include_once __DIR__ . '/../template/footer.php';
                 const tanggalKunjunganValue = tanggalKunjunganInput.value;
                 let baseDate;
                 if (tanggalKunjunganValue) {
-                    baseDate = new Date(tanggalKunjunganValue + 'T00:00:00');
+                    baseDate = new Date(tanggalKunjunganValue + 'T00:00:00Z');
                     if (isNaN(baseDate.getTime())) baseDate = new Date();
                 } else {
                     baseDate = new Date();
                 }
                 const formatDateTimeLocal = (dateObj, hours, minutes) => {
-                    dateObj.setHours(hours, minutes, 0, 0);
-                    const offset = dateObj.getTimezoneOffset() * 60000;
-                    return (new Date(dateObj.getTime() - offset)).toISOString().slice(0, 16);
+                    const tempDate = new Date(dateObj);
+                    tempDate.setHours(hours, minutes, 0, 0);
+                    const year = tempDate.getFullYear();
+                    const month = (tempDate.getMonth() + 1).toString().padStart(2, '0');
+                    const day = tempDate.getDate().toString().padStart(2, '0');
+                    const hour = tempDate.getHours().toString().padStart(2, '0');
+                    const minute = tempDate.getMinutes().toString().padStart(2, '0');
+                    return `${year}-${month}-${day}T${hour}:${minute}`;
                 };
+
                 let defaultMulaiSewa = formatDateTimeLocal(new Date(baseDate), 14, 0);
                 const defaultAkhirDate = new Date(baseDate);
                 defaultAkhirDate.setDate(baseDate.getDate() + 1);
@@ -458,17 +524,19 @@ include_once __DIR__ . '/../template/footer.php';
                             <label for="sewa_alat_id_${sewaIndex}" class="form-label">Alat Sewa</label>
                             <select class="form-select" name="items_sewa[${sewaIndex}][sewa_alat_id]" id="sewa_alat_id_${sewaIndex}">
                                 <option value="" disabled selected>-- Pilih Alat --</option>
-                                <?php foreach ($alat_sewa_list as $as) : ?>
+                                <?php if (!empty($alat_sewa_list)) {
+                                    foreach ($alat_sewa_list as $as) : ?>
                                     <option value="<?= e($as['id']) ?>">
                                         <?= e($as['nama_item']) ?> (Stok: <?= e($as['stok_tersedia']) ?>) - Rp <?= e(number_format($as['harga_sewa'], 0, ',', '.')) ?> /<?= e($as['durasi_harga_sewa']) ?> <?= e($as['satuan_durasi_harga']) ?>
                                     </option>
-                                <?php endforeach; ?>
+                                <?php endforeach;
+                                } ?>
                             </select>
                         </div>
                         <div class="col-md-3">
                             <label for="jumlah_sewa_${sewaIndex}" class="form-label">Jumlah</label>
                             <input type="number" class="form-control" name="items_sewa[${sewaIndex}][jumlah_sewa]" id="jumlah_sewa_${sewaIndex}" min="1" value="1">
-                            <div class="form-text mt-1 feedback-ajax" id="feedback-stok-jumlah_sewa_${sewaIndex}"></div>
+                             <div class="form-text mt-1 feedback-ajax" id="feedback-stok-jumlah_sewa_${sewaIndex}"></div>
                         </div>
                         <div class="col-md-6 mt-2">
                             <label for="tanggal_mulai_sewa_${sewaIndex}" class="form-label">Tgl & Jam Mulai Sewa</label>
@@ -501,7 +569,7 @@ include_once __DIR__ . '/../template/footer.php';
                 document.querySelectorAll('.item-tiket').forEach(itemTiketDiv => {
                     const jenisTiketSelect = itemTiketDiv.querySelector('select[name^="items_tiket["]');
                     const jumlahInput = itemTiketDiv.querySelector('input[name^="items_tiket["][name$="][jumlah]"]');
-                    if (jenisTiketSelect && jenisTiketSelect.value && jumlahInput) {
+                    if (jenisTiketSelect && jenisTiketSelect.value && jumlahInput && jumlahInput.value > 0) {
                         cekKuotaTiket(jenisTiketSelect, jumlahInput, this.value);
                     }
                 });
@@ -511,23 +579,6 @@ include_once __DIR__ . '/../template/footer.php';
         document.querySelectorAll('.item-tiket').forEach(addEventListenersToTiketItem);
         document.querySelectorAll('.item-sewa').forEach(addEventListenersToSewaItem);
 
-        if (tanggalKunjunganInput && tanggalKunjunganInput.value) {
-            document.querySelectorAll('.item-tiket').forEach(itemTiketDiv => {
-                const jenisTiketSelect = itemTiketDiv.querySelector('select[name^="items_tiket["]');
-                const jumlahInput = itemTiketDiv.querySelector('input[name^="items_tiket["][name$="][jumlah]"]');
-                if (jenisTiketSelect && jenisTiketSelect.value && jumlahInput && jumlahInput.value > 0) {
-                    cekKuotaTiket(jenisTiketSelect, jumlahInput, tanggalKunjunganInput.value);
-                }
-            });
-            document.querySelectorAll('.item-sewa').forEach(itemSewaDiv => {
-                const alatSewaSelect = itemSewaDiv.querySelector('select[name^="items_sewa["]');
-                const jumlahInput = itemSewaDiv.querySelector('input[name^="items_sewa["][name$="][jumlah_sewa]"]');
-                if (alatSewaSelect && alatSewaSelect.value && jumlahInput && jumlahInput.value > 0) {
-                    cekStokAlat(alatSewaSelect, jumlahInput);
-                }
-            });
-        }
-
         (function() {
             'use strict'
             var forms = document.querySelectorAll('.needs-validation')
@@ -535,31 +586,34 @@ include_once __DIR__ . '/../template/footer.php';
                 .forEach(function(form) {
                     form.addEventListener('submit', function(event) {
                         let formIsValid = true;
+
+                        const existingManualAlert = form.querySelector('.alert.alert-danger.manual-alert-validation');
+                        if (existingManualAlert) existingManualAlert.remove();
+
                         document.querySelectorAll('.item-tiket input[name$="[jumlah]"], .item-sewa input[name$="[jumlah_sewa]"]').forEach(input => {
                             if (input.validationMessage !== '') {
                                 formIsValid = false;
                             }
                         });
-                        if (!form.checkValidity()) formIsValid = false;
+
+                        if (!form.checkValidity()) {
+                            formIsValid = false;
+                        }
+
                         if (!formIsValid) {
                             event.preventDefault();
                             event.stopPropagation();
-                            let generalErrorDiv = form.querySelector('.alert.alert-danger.manual-alert-validation');
-                            if (!generalErrorDiv) {
-                                generalErrorDiv = document.createElement('div');
-                                generalErrorDiv.className = 'alert alert-danger manual-alert-validation mt-3';
-                                generalErrorDiv.setAttribute('role', 'alert');
-                                generalErrorDiv.textContent = 'Periksa kembali form Anda. Ada input yang tidak valid atau kuota/stok tidak mencukupi.';
-                                const submitButton = form.querySelector('button[type="submit"]');
-                                if (submitButton && submitButton.parentNode) {
-                                    submitButton.parentNode.before(generalErrorDiv);
-                                } else {
-                                    form.prepend(generalErrorDiv);
-                                }
+                            let generalErrorDiv = document.createElement('div');
+                            generalErrorDiv.className = 'alert alert-danger manual-alert-validation mt-3';
+                            generalErrorDiv.setAttribute('role', 'alert');
+                            generalErrorDiv.textContent = 'Periksa kembali form Anda. Ada input yang tidak valid atau kuota/stok tidak mencukupi.';
+
+                            const submitButton = form.querySelector('button[type="submit"]');
+                            if (submitButton && submitButton.parentNode) {
+                                submitButton.parentNode.before(generalErrorDiv);
+                            } else {
+                                form.prepend(generalErrorDiv);
                             }
-                        } else {
-                            const manualAlert = form.querySelector('.alert.alert-danger.manual-alert-validation');
-                            if (manualAlert) manualAlert.remove();
                         }
                         form.classList.add('was-validated');
                     }, false)
