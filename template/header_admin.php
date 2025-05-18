@@ -49,8 +49,7 @@ if (!function_exists('isAdminSidebarActive')) {
 
     <!-- PASTIKAN BARIS INI ADA, TIDAK DIKOMENTARI, DAN URL-NYA BENAR -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <link rel="icon" href="<?= isset($base_url) ? e($base_url . 'public/img/favicon.ico') : '#' ?>" type="image/x-icon">
+    <link rel="icon" href="<?= $base_url ?>public/img/logo.png" type="image/png">
 
     <style>
         /* --- Variabel Warna Dasar Admin (Mode Terang) --- */

@@ -194,51 +194,58 @@ if (!@include_once __DIR__ . '/template/header.php') {
       </div>
     </section>
   <?php endif; ?>
-
-  <section class="section-padding bg-light-custom testimonial-section">
-    <div class="container">
-      <h2 class="section-title">Apa Kata Mereka?</h2>
-      <div class="row justify-content-center">
-        <div class="col-lg-9">
-          <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="7000">
-            <div class="carousel-indicators">
-              <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Testimoni 1"></button>
-              <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1" aria-label="Testimoni 2"></button>
-              <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="2" aria-label="Testimoni 3"></button>
-            </div>
-            <div class="carousel-inner rounded shadow-lg">
-              <?php
-              // Data testimoni ini idealnya dari database
-              $testimonies = [
-                ['avatar' => 'avatar1.jpg', 'nama' => 'Rina Amelia - Bandung', 'testimoni' => 'Pengalaman luar biasa! Air panasnya benar-benar menyegarkan dan pemandangannya indah sekali. Sangat cocok untuk liburan keluarga.'],
-                ['avatar' => 'avatar2.jpg', 'nama' => 'Budi Santoso - Jakarta', 'testimoni' => 'Stafnya ramah dan fasilitasnya cukup bersih. Anak-anak senang bermain di area curug yang sejuk. Pasti akan kembali lagi suatu saat!'],
-                ['avatar' => 'avatar3.jpg', 'nama' => 'Siti Nurhaliza - Cimahi', 'testimoni' => 'Tempat yang tepat untuk healing dari hiruk pikuk kota. Suasana hutannya menenangkan, dan air panasnya bikin rileks. Recommended!'],
-              ];
-              foreach ($testimonies as $index => $testi) :
-              ?>
-                <div class="carousel-item <?= $index == 0 ? 'active' : '' ?>">
-                  <div class="testimonial-card-item p-4 p-md-5">
-                    <!-- Pastikan gambar avatar ada dan DIOPTIMASI -->
-                    <img src="<?= $base_url ?>public/img/<?= e($testi['avatar']) ?>" loading="lazy" class="testimonial-avatar rounded-circle mb-3" alt="Foto <?= e($testi['nama']) ?>">
-                    <blockquote><?= e($testi['testimoni']) ?></blockquote>
-                    <cite class="testimonial-author"><?= e($testi['nama']) ?></cite>
-                  </div>
-                </div>
-              <?php endforeach; ?>
-            </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Next</span>
-            </button>
+ <section class="section-padding bg-light-custom testimonial-section">
+  <div class="container">
+    <h2 class="section-title text-center mb-5">Apa Kata Mereka?</h2>
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="7000">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Testimoni 1"></button>
+            <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1" aria-label="Testimoni 2"></button>
+            <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="2" aria-label="Testimoni 3"></button>
           </div>
+          <div class="carousel-inner rounded shadow-lg">
+            <?php
+            // Ganti base URL sesuai struktur direktori kamu
+            $base_url = '/'; // misalnya http://localhost/namaprojek/
+
+            // Data testimoni - idealnya dari database
+            $testimonies = [
+              ['avatar' => 'logo.jpg', 'nama' => 'Rina Amelia - Bandung', 'testimoni' => 'Pengalaman luar biasa! Air panasnya benar-benar menyegarkan dan pemandangannya indah sekali. Sangat cocok untuk liburan keluarga.'],
+              ['avatar' => 'avatar2.jpg', 'nama' => 'Budi Santoso - Jakarta', 'testimoni' => 'Stafnya ramah dan fasilitasnya cukup bersih. Anak-anak senang bermain di area curug yang sejuk. Pasti akan kembali lagi suatu saat!'],
+              ['avatar' => 'avatar3.jpg', 'nama' => 'Siti Nurhaliza - Cimahi', 'testimoni' => 'Tempat yang tepat untuk healing dari hiruk pikuk kota. Suasana hutannya menenangkan, dan air panasnya bikin rileks. Recommended!'],
+            ];
+
+            function e($string) {
+              return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+            }
+
+            foreach ($testimonies as $index => $testi) :
+            ?>
+              <div class="carousel-item <?= $index == 0 ? 'active' : '' ?>">
+                <div class="testimonial-card-item p-4 p-md-5 text-center">
+                  <img src="<?= $base_url ?>public/img/<?= e($testi['avatar']) ?>" loading="lazy" class="testimonial-avatar rounded-circle mb-3" alt="Foto <?= e($testi['nama']) ?>" width="100" height="100">
+                  <blockquote class="mb-3 fs-5 fst-italic">"<?= e($testi['testimoni']) ?>"</blockquote>
+                  <cite class="testimonial-author fw-bold"><?= e($testi['nama']) ?></cite>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Sebelumnya</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Selanjutnya</span>
+          </button>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
+
 
   <style>
     .cta-section {
