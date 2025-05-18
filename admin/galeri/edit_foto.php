@@ -1,278 +1,248 @@
 <?php
 // File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\admin\galeri\edit_foto.php
 
-// 1. Sertakan konfigurasi dan Controller/Model yang relevan
+// LANGKAH 1: Sertakan konfigurasi
 if (!require_once __DIR__ . '/../../config/config.php') {
     http_response_code(503);
     error_log("FATAL: Gagal memuat config.php dari admin/galeri/edit_foto.php");
     exit("Kesalahan konfigurasi server.");
 }
-require_admin(); // Pastikan hanya admin yang bisa akses
 
-// Diasumsikan config.php sudah memuat GaleriController.php dan Galeri.php (Model)
-// serta sudah memanggil Galeri::init($conn, UPLOADS_GALERI_PATH)
-if (!class_exists('GaleriController') || !method_exists('GaleriController', 'getById') || !method_exists('GaleriController', 'update')) {
+// LANGKAH 2: Otentikasi Admin
+if (function_exists('require_admin')) {
+    require_admin();
+} else {
+    error_log("FATAL ERROR di edit_foto.php: Fungsi require_admin() tidak ditemukan.");
+    if (session_status() == PHP_SESSION_NONE) session_start();
+    if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+        if (function_exists('set_flash_message')) set_flash_message('danger', 'Akses ditolak.');
+        if (defined('AUTH_URL') && function_exists('redirect')) redirect(AUTH_URL . 'login.php');
+        else exit('Akses ditolak.');
+    }
+}
+
+// LANGKAH 3: Pastikan Controller dan Model Galeri ada
+if (!class_exists('GaleriController') || !method_exists('GaleriController', 'getById') || !method_exists('GaleriController', 'handleUpdateFoto')) {
     error_log("FATAL ERROR di edit_foto.php: GaleriController atau metode yang dibutuhkan tidak ditemukan.");
-    set_flash_message('danger', 'Kesalahan sistem: Komponen galeri tidak dapat dimuat.');
-    redirect(ADMIN_URL . '/galeri/kelola_galeri.php');
+    if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan sistem: Komponen galeri tidak dapat dimuat.');
+    if (function_exists('redirect') && defined('ADMIN_URL')) redirect(ADMIN_URL . 'galeri/kelola_galeri.php');
     exit;
 }
 
-// Variabel awal
-$error_message = '';
-$foto_galeri_data = null;
-$id_foto = null;
-
-// Validasi dan ambil ID foto dari URL
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $id_foto = (int)$_GET['id'];
-    $foto_galeri_data = GaleriController::getById($id_foto);
-
-    if (!$foto_galeri_data) {
-        set_flash_message('danger', 'Foto dengan ID tersebut tidak ditemukan.');
-        redirect(ADMIN_URL . '/galeri/kelola_galeri.php');
-        // exit sudah ada di redirect()
-    }
-} else {
-    set_flash_message('danger', 'ID foto tidak valid atau tidak disediakan.');
-    redirect(ADMIN_URL . '/galeri/kelola_galeri.php');
-    // exit sudah ada di redirect()
+// LANGKAH 4: Validasi ID Foto dari URL
+$id_foto = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : 0;
+if ($id_foto <= 0) {
+    if (function_exists('set_flash_message')) set_flash_message('danger', 'ID foto tidak valid atau tidak disediakan.');
+    if (function_exists('redirect') && defined('ADMIN_URL')) redirect(ADMIN_URL . 'galeri/kelola_galeri.php');
+    exit;
 }
 
-// Inisialisasi variabel form dari data yang ada atau dari flash session
+// Variabel untuk form dan data
+$current_nama_file_db = ''; // Akan diisi dari DB
+$current_keterangan_db = ''; // Akan diisi dari DB
 $session_form_data_key = 'flash_form_data_edit_foto_' . $id_foto;
-$keterangan_form = $_SESSION[$session_form_data_key]['keterangan'] ?? $foto_galeri_data['keterangan'] ?? '';
-// Nama file gambar saat ini, tidak diambil dari session flash data gambar
-$current_nama_file_db = $foto_galeri_data['nama_file'] ?? '';
-unset($_SESSION[$session_form_data_key]);
 
-
-// Proses form jika ada POST request
-if (is_post() && $id_foto) { // Pastikan $id_foto valid dari GET
-    // Validasi CSRF Token
-    if (!function_exists('verify_csrf_token') || !verify_csrf_token(null, true)) {
+// LANGKAH 5: Proses Form Jika Ada POST Request
+if (is_post() && isset($_POST['submit_edit_foto'])) {
+    if (!function_exists('verify_csrf_token') || !verify_csrf_token('csrf_token', true)) {
         set_flash_message('danger', 'Permintaan tidak valid atau token CSRF salah/kadaluarsa.');
-        redirect(ADMIN_URL . '/galeri/edit_foto.php?id=' . $id_foto);
+        redirect(ADMIN_URL . 'galeri/edit_foto.php?id=' . $id_foto);
         exit;
     }
 
-    $keterangan_form_post = trim(input('keterangan', '', 'post'));
-    $gambar_action = input('gambar_action', 'keep', 'post');
-    $new_uploaded_filename = null; // Nama file yang baru diupload ke server
-    $final_filename_for_db = $current_nama_file_db; // Defaultnya adalah gambar lama
-    $old_image_to_delete_if_replaced = null; // File lama yang akan dihapus JIKA penggantian berhasil
+    $keterangan_form_post = trim(input('keterangan', '', 'POST'));
+    $gambar_action = input('gambar_action', 'keep', 'POST'); // 'keep', 'remove', 'change'
+    $new_uploaded_filename = null; // Nama file baru yang berhasil diupload ke server
+    $error_message_form = '';
 
-    // Simpan input ke session untuk repopulasi jika ada error di bawah
-    $_SESSION['flash_form_data_edit_foto_' . $id_foto] = ['keterangan' => $keterangan_form_post];
+    // Ambil nama file lama dari DB untuk perbandingan dan penghapusan jika diganti
+    $foto_data_sebelum_update_post = GaleriController::getById($id_foto);
+    if (!$foto_data_sebelum_update_post) {
+        set_flash_message('danger', "Foto galeri dengan ID {$id_foto} tidak ditemukan lagi saat proses update.");
+        redirect(ADMIN_URL . 'galeri/kelola_galeri.php');
+        exit;
+    }
+    $current_nama_file_db_post = $foto_data_sebelum_update_post['nama_file'] ?? '';
 
-    // Cek apakah ada perubahan yang dilakukan
-    $keterangan_changed = ($keterangan_form_post !== $foto_galeri_data['keterangan']);
-    $gambar_action_chosen = ($gambar_action !== 'keep');
-    $new_file_uploaded = (isset($_FILES['gambar_baru']) && $_FILES['gambar_baru']['error'] == UPLOAD_ERR_OK && !empty($_FILES['gambar_baru']['name']));
+    $_SESSION[$session_form_data_key] = ['keterangan' => $keterangan_form_post];
 
-    if (!$keterangan_changed && !$gambar_action_chosen && !$new_file_uploaded && $gambar_action === 'keep') {
-        $error_message = "Tidak ada perubahan yang dilakukan. Setidaknya ubah keterangan atau pilih tindakan untuk gambar.";
-    } else {
-        // Logika penanganan upload gambar baru atau penghapusan gambar
-        if ($gambar_action === 'remove' && !empty($current_nama_file_db)) {
-            $final_filename_for_db = null; // Akan di-set NULL di DB
-            $old_image_to_delete_if_replaced = $current_nama_file_db;
-        } elseif ($gambar_action === 'change' && $new_file_uploaded) {
-            $target_dir_upload = UPLOADS_GALERI_PATH . '/'; // Dari config.php
-            if (!is_dir($target_dir_upload)) {
-                if (!mkdir($target_dir_upload, 0775, true) && !is_dir($target_dir_upload)) {
-                    $error_message = "Gagal membuat direktori unggah.";
-                }
-            }
+    // Validasi Keterangan (jika wajib)
+    if (empty($keterangan_form_post)) {
+        $error_message_form = "Keterangan foto wajib diisi.";
+    }
 
-            if (empty($error_message) && is_writable($target_dir_upload)) {
+    // Logika penanganan upload gambar baru atau penghapusan gambar
+    if (empty($error_message_form)) {
+        if ($gambar_action === 'remove') {
+            $new_uploaded_filename = "REMOVE_IMAGE_FLAG"; // Signal untuk controller
+        } elseif ($gambar_action === 'change' && isset($_FILES['gambar_baru']) && $_FILES['gambar_baru']['error'] == UPLOAD_ERR_OK && !empty($_FILES['gambar_baru']['name'])) {
+            $upload_path_galeri = defined('UPLOADS_GALERI_PATH') ? rtrim(UPLOADS_GALERI_PATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : null;
+            if (!$upload_path_galeri || !is_writable($upload_path_galeri)) {
+                $error_message_form = "Konfigurasi direktori unggah galeri bermasalah.";
+            } else {
                 $imageFileType = strtolower(pathinfo($_FILES["gambar_baru"]["name"], PATHINFO_EXTENSION));
                 $new_uploaded_filename_temp = "galeri_" . uniqid() . '_' . time() . '.' . $imageFileType;
-                $target_file_upload = $target_dir_upload . $new_uploaded_filename_temp;
+                $target_file_upload = $upload_path_galeri . $new_uploaded_filename_temp;
                 $uploadOk = 1;
-
                 $check = @getimagesize($_FILES["gambar_baru"]["tmp_name"]);
                 if ($check === false) {
-                    $error_message = "File baru bukan gambar.";
+                    $error_message_form = "File baru bukan gambar.";
                     $uploadOk = 0;
                 }
-                if ($_FILES["gambar_baru"]["size"] > 5242880) {
-                    $error_message = "Ukuran file baru terlalu besar (maks 5MB).";
+                if ($_FILES["gambar_baru"]["size"] > 5 * 1024 * 1024) {
+                    $error_message_form = "Ukuran file baru maks 5MB.";
                     $uploadOk = 0;
-                } // 5MB
+                }
                 $allowed_formats = ["jpg", "png", "jpeg", "gif", "webp"];
                 if (!in_array($imageFileType, $allowed_formats)) {
-                    $error_message = "Format file baru tidak diizinkan (JPG, PNG, JPEG, GIF, WEBP).";
+                    $error_message_form = "Format file tidak diizinkan.";
                     $uploadOk = 0;
                 }
-
                 if ($uploadOk == 1) {
                     if (move_uploaded_file($_FILES["gambar_baru"]["tmp_name"], $target_file_upload)) {
-                        $final_filename_for_db = $new_uploaded_filename_temp; // Gunakan nama file baru untuk DB
-                        if (!empty($current_nama_file_db)) {
-                            $old_image_to_delete_if_replaced = $current_nama_file_db;
-                        }
+                        $new_uploaded_filename = $new_uploaded_filename_temp;
                     } else {
-                        $error_message = "Gagal memindahkan file gambar baru.";
+                        $error_message_form = "Gagal unggah file baru.";
                     }
                 }
-            } elseif (empty($error_message)) {
-                $error_message = "Direktori upload tidak writable.";
             }
-        } elseif ($gambar_action === 'change' && !$new_file_uploaded) {
-            $error_message = "Anda memilih untuk mengganti gambar, tetapi tidak ada file baru yang diunggah atau file tidak valid.";
+        } elseif ($gambar_action === 'change' && (!isset($_FILES['gambar_baru']) || $_FILES['gambar_baru']['error'] == UPLOAD_ERR_NO_FILE || empty($_FILES['gambar_baru']['name']))) {
+            $error_message_form = "Anda memilih ganti gambar, tapi tidak ada file baru diunggah.";
+        } elseif (isset($_FILES['gambar_baru']) && $_FILES['gambar_baru']['error'] != UPLOAD_ERR_NO_FILE) {
+            $error_message_form = "Error unggah file: " . $_FILES['gambar_baru']['error'];
         }
+    }
 
-        if (empty($error_message)) {
-            $update_result = GaleriController::update(
-                $id_foto,
-                $keterangan_form_post,
-                $final_filename_for_db, // Ini adalah nama file yang akan disimpan ke DB (bisa null, baru, atau lama jika 'keep')
-                $old_image_to_delete_if_replaced // Ini adalah file lama yang akan dihapus dari server jika ada penggantian/penghapusan
-            );
-
-            if ($update_result === true) {
-                unset($_SESSION['flash_form_data_edit_foto_' . $id_foto]);
-                set_flash_message('success', 'Foto galeri berhasil diperbarui!');
-                redirect(ADMIN_URL . '/galeri/kelola_galeri.php');
-            } else {
-                // Jika Controller mengembalikan string error, gunakan itu
-                $error_message_from_controller = is_string($update_result) ? $update_result : "Gagal memperbarui foto galeri di database.";
-                $error_message = $error_message_from_controller . (method_exists('Galeri', 'getLastError') ? " DB Info: " . Galeri::getLastError() : "");
-
-                // Rollback upload jika update DB gagal tapi file baru sudah terlanjur diupload
-                if ($gambar_action === 'change' && $new_file_uploaded && isset($target_file_upload) && file_exists($target_file_upload) && $final_filename_for_db === $new_uploaded_filename_temp) {
-                    @unlink($target_file_upload);
-                    error_log("Rollback Upload: Menghapus gambar baru {$target_file_upload} karena update DB galeri gagal.");
-                }
+    if (empty($error_message_form)) {
+        $data_to_controller = [
+            'id' => $id_foto,
+            'keterangan' => $keterangan_form_post,
+            'nama_file_baru_uploaded' => $new_uploaded_filename,
+            'nama_file_lama_db' => $current_nama_file_db_post // Gunakan nama file dari DB sebelum potensi update
+        ];
+        $update_result = GaleriController::handleUpdateFoto($data_to_controller);
+        if ($update_result === true) {
+            unset($_SESSION[$session_form_data_key]);
+            set_flash_message('success', 'Foto galeri berhasil diperbarui!');
+            redirect(ADMIN_URL . 'galeri/kelola_galeri.php');
+            exit;
+        } else {
+            $error_message_form = is_string($update_result) ? $update_result : "Gagal memperbarui foto galeri.";
+            if ($gambar_action === 'change' && $new_uploaded_filename && isset($target_file_upload) && file_exists($target_file_upload)) {
+                @unlink($target_file_upload);
             }
         }
     }
-    // Jika ada $error_message setelah proses POST, set flash message dan redirect kembali ke form edit
-    if (!empty($error_message)) {
-        set_flash_message('danger', $error_message);
-        redirect(ADMIN_URL . '/galeri/edit_foto.php?id=' . $id_foto);
+
+    if (!empty($error_message_form)) {
+        set_flash_message('danger', $error_message_form);
+        redirect(ADMIN_URL . 'galeri/edit_foto.php?id=' . $id_foto);
         exit;
     }
 }
 
-// Set judul halaman lagi jika ada perubahan pada $foto_galeri_data setelah POST (meskipun biasanya redirect)
-$pageTitle = "Edit Foto Galeri: " . e($foto_galeri_data['keterangan'] ?: 'Tanpa Keterangan');
-
-// Sertakan header admin (HANYA JIKA BELUM DIMUAT)
-// Ini penting untuk dipanggil setelah semua potensi redirect agar flash message bekerja
-if (!defined('HEADER_ADMIN_LOADED_EDIT_FOTO')) { // Gunakan define yang unik
-    require_once ROOT_PATH . '/template/header_admin.php';
-    define('HEADER_ADMIN_LOADED_EDIT_FOTO', true);
+// LANGKAH 6: Ambil Data Terbaru untuk Tampilan
+$foto_galeri_data_display = GaleriController::getById($id_foto);
+if (!$foto_galeri_data_display) {
+    set_flash_message('danger', "Foto galeri dengan ID {$id_foto} tidak ditemukan.");
+    redirect(ADMIN_URL . 'galeri/kelola_galeri.php');
+    exit;
 }
+$keterangan_display = $_SESSION[$session_form_data_key]['keterangan'] ?? $foto_galeri_data_display['keterangan'] ?? '';
+$current_gambar_filename_display = $foto_galeri_data_display['nama_file'] ?? '';
+if (isset($_SESSION[$session_form_data_key])) unset($_SESSION[$session_form_data_key]);
+
+// LANGKAH 7: Set Judul Halaman
+$pageTitle = "Edit Foto: " . e($keterangan_display ?: ($current_gambar_filename_display ?: 'ID #' . $id_foto));
+
+// LANGKAH 8: Sertakan Header Admin
+$header_admin_path = defined('VIEWS_PATH') ? VIEWS_PATH . '/header_admin.php' : (defined('ROOT_PATH') ? ROOT_PATH . '/template/header_admin.php' : null);
+if (!$header_admin_path || !file_exists($header_admin_path)) {
+    error_log("FATAL ERROR di edit_foto.php: Path header admin tidak valid.");
+    exit("Error kritis: Komponen tampilan header tidak dapat dimuat.");
+}
+require_once $header_admin_path;
 ?>
 
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="<?= e(ADMIN_URL . '/dashboard.php') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="<?= e(ADMIN_URL . '/galeri/kelola_galeri.php') ?>"><i class="fas fa-images"></i> Kelola Galeri</a></li>
+        <li class="breadcrumb-item"><a href="<?= e(ADMIN_URL . 'dashboard.php') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="<?= e(ADMIN_URL . 'galeri/kelola_galeri.php') ?>"><i class="fas fa-images"></i> Kelola Galeri</a></li>
         <li class="breadcrumb-item active" aria-current="page"><i class="fas fa-edit"></i> Edit Foto</li>
     </ol>
 </nav>
 
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0" style="color: var(--admin-text-primary);">Edit Foto: <?= e($keterangan_display ?: ($current_gambar_filename_display ?: 'ID #' . $id_foto)) ?></h1>
+    <a href="<?= e(ADMIN_URL . 'galeri/kelola_galeri.php') ?>" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Kembali
+    </a>
+</div>
+
 <div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-edit me-2"></i>Edit Foto: <?= e($foto_galeri_data['keterangan'] ?: ($current_nama_file_db ?: 'Tanpa Judul')) ?></h5>
-        <a href="<?= e(ADMIN_URL . '/galeri/kelola_galeri.php') ?>" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i> Kembali
-        </a>
+    <div class="card-header py-3">
+        <h6 class="m-0 fw-bold text-primary"><i class="fas fa-edit me-2"></i>Formulir Edit Foto Galeri</h6>
     </div>
     <div class="card-body">
-        <?php // display_flash_message() sudah dipanggil di header_admin.php 
-        ?>
-        <?php if (!empty($error_message) && !isset($_SESSION['flash_message'])): ?>
-            <div class="alert alert-danger" role="alert"><?= e($error_message) ?></div>
-        <?php endif; ?>
+        <form action="<?= e(ADMIN_URL . 'galeri/edit_foto.php?id=' . $id_foto) ?>" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            <?php if (function_exists('generate_csrf_token_input')) echo generate_csrf_token_input(); ?>
 
-        <?php if ($id_foto && $foto_galeri_data): ?>
-            <form action="<?= e(ADMIN_URL . '/galeri/edit_foto.php?id=' . $id_foto) ?>" method="post" enctype="multipart/form-data" novalidate>
-                <?php if (function_exists('generate_csrf_token_input')) echo generate_csrf_token_input(); ?>
+            <div class="mb-3">
+                <label for="keterangan" class="form-label">Keterangan Foto <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="keterangan" name="keterangan" rows="3" required><?= e($keterangan_display) ?></textarea>
+                <div class="invalid-feedback">Keterangan foto wajib diisi.</div>
+            </div>
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Foto Saat Ini:</label>
-                    <div>
-                        <?php if (!empty($current_nama_file_db) && file_exists(UPLOADS_GALERI_PATH . '/' . $current_nama_file_db)): ?>
-                            <img src="<?= e(BASE_URL . 'public/uploads/galeri/' . $current_nama_file_db) ?>"
-                                alt="Foto saat ini: <?= e($keterangan_form) ?>"
-                                class="img-thumbnail mb-2"
-                                style="max-width: 300px; max-height: 250px; object-fit: contain; border: 1px solid var(--admin-border-color);">
-                        <?php elseif (!empty($current_nama_file_db)): ?>
-                            <p class="text-danger small"><i class="fas fa-exclamation-triangle me-1"></i> File gambar "<?= e($current_nama_file_db) ?>" tidak ditemukan di server (<?= e(UPLOADS_GALERI_PATH) ?>).</p>
-                        <?php else: ?>
-                            <p class="text-muted fst-italic">Tidak ada gambar untuk item galeri ini.</p>
-                        <?php endif; ?>
+            <div class="mb-4 border p-3 rounded">
+                <p class="fw-bold mb-2">Gambar Foto</p> <?php // Label diubah 
+                                                        ?>
+                <?php if (!empty($current_gambar_filename_display)): ?>
+                    <div class="mb-2">
+                        <p class="mb-1 small text-muted">Gambar Saat Ini:</p>
+                        <img src="<?= e((defined('UPLOADS_GALERI_URL') ? UPLOADS_GALERI_URL : BASE_URL . 'public/uploads/galeri/') . $current_gambar_filename_display) ?>"
+                            alt="Foto saat ini: <?= e($keterangan_display) ?>"
+                            class="img-thumbnail mb-2"
+                            style="max-width: 300px; max-height: 250px; object-fit: contain; border: 1px solid var(--admin-border-color);">
                     </div>
-                </div>
+                <?php else: ?>
+                    <p class="text-muted mb-2 fst-italic">Belum ada gambar untuk item galeri ini.</p>
+                <?php endif; ?>
 
-                <div class="mb-3">
-                    <label for="keterangan" class="form-label">Keterangan Foto</label>
-                    <textarea class="form-control" id="keterangan" name="keterangan" rows="3"><?= e($keterangan_form) ?></textarea>
-                </div>
+                <label for="gambar_action" class="form-label">Tindakan untuk Gambar:</label>
+                <select name="gambar_action" id="gambar_action" class="form-select form-select-sm mb-2" onchange="toggleNewImageUpload(this.value)" style="max-width: 300px;">
+                    <option value="keep" selected>Pertahankan Gambar Saat Ini</option>
+                    <option value="change">Ganti dengan Gambar Baru</option>
+                    <?php if (!empty($current_gambar_filename_display)): ?>
+                        <option value="remove">Hapus Gambar Saat Ini</option>
+                    <?php endif; ?>
+                </select>
 
-                <div class="mb-4 border p-3 rounded">
-                    <label for="gambar_action" class="form-label fw-bold">Tindakan untuk Gambar:</label>
-                    <select name="gambar_action" id="gambar_action" class="form-select form-select-sm mb-2" onchange="toggleNewImageUpload(this.value)" style="max-width: 300px;">
-                        <option value="keep" selected>Pertahankan Gambar Saat Ini</option>
-                        <option value="change">Ganti dengan Gambar Baru</option>
-                        <?php if (!empty($current_nama_file_db)): ?>
-                            <option value="remove">Hapus Gambar Saat Ini</option>
-                        <?php endif; ?>
-                    </select>
-
-                    <div id="new-image-upload-section" style="display:none;" class="mt-3">
-                        <label for="gambar_baru" class="form-label">Pilih File Gambar Baru (Maks 5MB):</label>
-                        <input type="file" class="form-control form-control-sm" id="gambar_baru" name="gambar_baru" accept="image/png, image/jpeg, image/gif, image/webp">
-                        <small class="form-text text-muted">Format: JPG, PNG, JPEG, GIF, WEBP.</small>
-                    </div>
+                <div id="new-image-upload-section" style="display:none;" class="mt-2">
+                    <label for="gambar_baru" class="form-label">Pilih File Gambar Baru (Maks 5MB):</label>
+                    <input type="file" class="form-control form-control-sm" id="gambar_baru" name="gambar_baru" accept="image/png, image/jpeg, image/gif, image/webp">
+                    <small class="form-text text-muted">Format: JPG, PNG, JPEG, GIF, WEBP.</small>
+                    <div class="invalid-feedback">Silakan pilih gambar baru jika Anda memilih untuk mengganti.</div>
                 </div>
+            </div>
 
-                <hr>
-                <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Simpan Perubahan
-                    </button>
-                    <a href="<?= e(ADMIN_URL . '/galeri/kelola_galeri.php') ?>" class="btn btn-secondary">
-                        <i class="fas fa-times me-2"></i>Batal
-                    </a>
-                </div>
-            </form>
-        <?php else: ?>
-            <div class="alert alert-warning">Data foto tidak dapat dimuat atau ID tidak valid.</div>
-        <?php endif; ?>
+            <hr>
+            <div class="mt-3">
+                <button type="submit" name="submit_edit_foto" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Simpan Perubahan
+                </button>
+                <a href="<?= e(ADMIN_URL . 'galeri/kelola_galeri.php') ?>" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>Batal
+                </a>
+            </div>
+        </form>
     </div>
 </div>
 
-<script>
-    function toggleNewImageUpload(action) {
-        const newImageSection = document.getElementById('new-image-upload-section');
-        const gambarBaruInput = document.getElementById('gambar_baru');
-        if (action === 'change') {
-            newImageSection.style.display = 'block';
-            // gambarBaruInput.required = true; // Dihapus, validasi di PHP lebih baik jika 'change' dipilih tapi file kosong
-        } else {
-            newImageSection.style.display = 'none';
-            // gambarBaruInput.required = false;
-            gambarBaruInput.value = '';
-        }
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-        const gambarActionSelect = document.getElementById('gambar_action');
-        if (gambarActionSelect) {
-            toggleNewImageUpload(gambarActionSelect.value);
-        }
-    });
-</script>
-
 <?php
-$footer_admin_path = ROOT_PATH . '/template/footer_admin.php';
-if (!file_exists($footer_admin_path)) {
-    error_log("ERROR: Gagal memuat template/footer_admin.php dari admin/galeri/edit_foto.php.");
+$footer_admin_path_edit = defined('VIEWS_PATH') ? VIEWS_PATH . '/footer_admin.php' : (defined('ROOT_PATH') ? ROOT_PATH . '/template/footer_admin.php' : null);
+if (!$footer_admin_path_edit || !file_exists($footer_admin_path_edit)) {
+    error_log("FATAL ERROR di edit_foto.php: Path footer admin tidak valid.");
 } else {
-    require_once $footer_admin_path;
+    require_once $footer_admin_path_edit;
 }
 ?>

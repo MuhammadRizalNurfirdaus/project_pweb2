@@ -23,7 +23,6 @@ if (!class_exists('PemesananTiketController')) {
     } else {
         exit("Kesalahan sistem: Komponen detail pemesanan tidak dapat dimuat (ERR_PTC_NF_NOREDIR_DP).");
     }
-    exit; // Pastikan exit setelah redirect atau pesan error
 }
 
 require_login(); // Memastikan pengguna sudah login
@@ -34,7 +33,8 @@ $kode_pemesanan_url = input('kode', null, 'GET'); // Menggunakan helper input, d
 
 if (empty($kode_pemesanan_url)) {
     set_flash_message('warning', 'Kode pemesanan tidak disertakan atau tidak valid.');
-    redirect('user/dashboard.php');
+    // Jika admin, mungkin redirect ke halaman kelola pemesanan, jika user ke dashboard
+    redirect(is_admin() ? ADMIN_URL . 'pemesanan_tiket/kelola_pemesanan.php' : USER_URL . 'riwayat_pemesanan.php');
     exit;
 }
 
@@ -51,7 +51,7 @@ if (
 ) {
     error_log("Detail pemesanan tidak ditemukan atau data header tidak valid untuk kode: " . e($kode_pemesanan_url) . ". Hasil dari PemesananTiketController::getPemesananLengkapByKode(): " . print_r($pemesanan, true));
     set_flash_message('danger', 'Detail pemesanan dengan kode ' . e($kode_pemesanan_url) . ' tidak ditemukan atau data tidak lengkap.');
-    redirect('user/dashboard.php');
+    redirect(is_admin() ? ADMIN_URL . 'pemesanan_tiket/kelola_pemesanan.php' : USER_URL . 'riwayat_pemesanan.php');
     exit;
 }
 
@@ -61,7 +61,7 @@ $header = $pemesanan['header'];
 // Verifikasi kepemilikan (kecuali jika admin)
 if (!is_admin() && (int)($header['user_id'] ?? 0) !== (int)$current_user_id) {
     set_flash_message('danger', 'Anda tidak memiliki akses untuk melihat detail pemesanan ini.');
-    redirect('user/dashboard.php');
+    redirect('user/dashboard.php'); // User hanya boleh lihat miliknya
     exit;
 }
 
@@ -73,11 +73,11 @@ $pembayaran = $pemesanan['pembayaran'] ?? null; // Bisa null jika belum ada pemb
 $page_title = "Detail Pemesanan: " . e($header['kode_pemesanan'] ?? 'Tidak Diketahui');
 
 // Gunakan VIEWS_PATH yang didefinisikan di config.php
-$header_template_path = (defined('VIEWS_PATH') ? VIEWS_PATH : __DIR__ . '/../template') . '/header_user.php';
+$header_template_path = (defined('VIEWS_PATH') ? VIEWS_PATH : __DIR__ . '/../template') . (is_admin() ? '/header_admin.php' : '/header_user.php');
 if (file_exists($header_template_path)) {
     include_once $header_template_path;
 } else {
-    error_log("FATAL detail_pemesanan.php: File header_user.php tidak ditemukan di '{$header_template_path}'.");
+    error_log("FATAL detail_pemesanan.php: File header (" . basename($header_template_path) . ") tidak ditemukan di '{$header_template_path}'.");
     exit("Kesalahan tampilan: Komponen header tidak ditemukan.");
 }
 ?>
@@ -91,8 +91,8 @@ if (file_exists($header_template_path)) {
                     <p class="text-muted">Kode Pemesanan: <strong><?= e($header['kode_pemesanan'] ?? 'N/A') ?></strong></p>
                 </div>
                 <div class="col-sm-4 text-sm-end mt-2 mt-sm-0">
-                    <a href="<?= e(USER_URL . 'dashboard.php') ?>" class="btn btn-outline-secondary">
-                        <i class="fas fa-tachometer-alt me-1"></i> Kembali ke Dashboard
+                    <a href="<?= e(is_admin() ? ADMIN_URL . 'pemesanan_tiket/kelola_pemesanan.php' : USER_URL . 'riwayat_pemesanan.php') ?>" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Kembali
                     </a>
                 </div>
             </div>
@@ -175,7 +175,7 @@ if (file_exists($header_template_path)) {
                             <?= getStatusBadgeClassHTML($header['status'] ?? 'tidak diketahui', 'Status Tidak Diketahui') ?>
                         </p>
 
-                        <?php if ($pembayaran && is_array($pembayaran)): // Pastikan $pembayaran adalah array dan tidak null 
+                        <?php if ($pembayaran && is_array($pembayaran)):
                         ?>
                             <p><strong>Status Pembayaran:</strong>
                                 <?= getStatusBadgeClassHTML($pembayaran['status_pembayaran'] ?? 'tidak diketahui', 'Status Pembayaran Tidak Diketahui') ?>
@@ -217,39 +217,41 @@ if (file_exists($header_template_path)) {
                         <hr>
 
                         <?php
-                        // Logika status untuk menampilkan tombol/pesan yang sesuai
                         $status_header_lower = strtolower($header['status'] ?? 'pending');
                         $status_pembayaran_lower = ($pembayaran && isset($pembayaran['status_pembayaran'])) ? strtolower($pembayaran['status_pembayaran']) : 'pending';
 
-                        // Ambil daftar status sukses dari konstanta model jika ada, jika tidak fallback
                         $successful_payment_statuses = (class_exists('Pembayaran') && defined('Pembayaran::SUCCESSFUL_PAYMENT_STATUSES'))
                             ? Pembayaran::SUCCESSFUL_PAYMENT_STATUSES
                             : ['paid', 'success', 'confirmed'];
 
-                        $allow_konfirmasi = false;
+                        $allow_konfirmasi_user = false;
                         if (
                             in_array($status_header_lower, ['pending', 'waiting_payment']) &&
-                            in_array($status_pembayaran_lower, ['pending', 'waiting_payment'])
+                            in_array($status_pembayaran_lower, ['pending', 'waiting_payment']) &&
+                            !is_admin()
                         ) {
-                            $allow_konfirmasi = true;
+                            $allow_konfirmasi_user = true;
                         }
 
-                        $sudah_lunas_atau_dikonfirmasi = in_array($status_header_lower, ['paid', 'confirmed']) ||
-                            in_array($status_pembayaran_lower, $successful_payment_statuses);
+                        $sudah_lunas_atau_dikonfirmasi_oleh_admin = in_array($status_header_lower, ['paid', 'confirmed', 'completed']) ||
+                            (isset($pembayaran['status_pembayaran']) && in_array(strtolower($pembayaran['status_pembayaran']), $successful_payment_statuses));
 
-                        $sedang_dicek = $status_header_lower === 'awaiting_confirmation' ||
-                            $status_pembayaran_lower === 'awaiting_confirmation';
+                        $menunggu_konfirmasi_admin = $status_header_lower === 'awaiting_confirmation' ||
+                            (isset($pembayaran['status_pembayaran']) && strtolower($pembayaran['status_pembayaran']) === 'awaiting_confirmation');
 
                         $gagal_atau_batal = in_array($status_header_lower, ['cancelled', 'expired', 'failed']) ||
-                            in_array($status_pembayaran_lower, ['failed', 'cancelled', 'expired']);
+                            (isset($pembayaran['status_pembayaran']) && in_array(strtolower($pembayaran['status_pembayaran']), ['failed', 'cancelled', 'expired']));
                         ?>
 
-                        <?php if ($allow_konfirmasi && !is_admin()): ?>
+                        <?php if ($allow_konfirmasi_user): ?>
                             <h6 class="mt-3">Instruksi Pembayaran (Transfer Manual)</h6>
-                            <p>Silakan lakukan pembayaran sejumlah <strong><?= e(formatRupiah($header['total_harga_akhir'] ?? 0)) ?></strong> ke rekening berikut:</p>
+                            <p>Silakan lakukan pembayaran sejumlah <strong><?= e(formatRupiah($header['total_harga_akhir'] ?? 0)) ?></strong> ke salah satu rekening berikut:</p>
                             <ul class="list-unstyled">
-                                <li><strong>Bank XYZ:</strong> 123-456-7890 (a.n. Lembah Cilengkrang)</li>
-                                <li><strong>Bank ABC:</strong> 098-765-4321 (a.n. Yayasan Wisata Cilengkrang)</li>
+                                <li><strong>Bank BRI:</strong> 1122334455 (a.n. Lembah Cilengkrang Wisata)</li>
+                                <li><strong>Bank BNI46:</strong> 6677889900 (a.n. Pengelola Cilengkrang)</li>
+                                <!-- Anda bisa menambahkan Bank XYZ dan ABC jika masih relevan -->
+                                <!-- <li><strong>Bank XYZ:</strong> 123-456-7890 (a.n. Lembah Cilengkrang)</li> -->
+                                <!-- <li><strong>Bank ABC:</strong> 098-765-4321 (a.n. Yayasan Wisata Cilengkrang)</li> -->
                             </ul>
                             <p>Setelah melakukan pembayaran, mohon unggah bukti transfer Anda di bawah ini.</p>
 
@@ -260,14 +262,16 @@ if (file_exists($header_template_path)) {
                                 <input type="hidden" name="pemesanan_tiket_id" value="<?= e($header['id'] ?? '') ?>">
 
                                 <div class="mb-3">
-                                    <label for="metode_pembayaran" class="form-label">Metode Pembayaran Anda <span class="text-danger">*</span></label>
+                                    <label for="metode_pembayaran" class="form-label">Bank Tujuan Transfer Anda <span class="text-danger">*</span></label>
                                     <select name="metode_pembayaran" id="metode_pembayaran" class="form-select" required>
-                                        <option value="">-- Pilih Bank Tujuan Transfer --</option>
-                                        <option value="Transfer Bank XYZ">Transfer Bank XYZ</option>
-                                        <option value="Transfer Bank ABC">Transfer Bank ABC</option>
-                                        <option value="Lainnya">Lainnya (Sebutkan di Catatan)</option>
+                                        <option value="">-- Pilih Bank Tujuan --</option>
+                                        <option value="Transfer Bank BRI">Transfer Bank BRI</option>
+                                        <option value="Transfer Bank BNI">Transfer Bank BNI46</option>
+                                        <!-- <option value="Transfer Bank XYZ">Transfer Bank XYZ</option> -->
+                                        <!-- <option value="Transfer Bank ABC">Transfer Bank ABC</option> -->
+                                        <option value="Lainnya">Bank Lainnya (Sebutkan di Catatan)</option>
                                     </select>
-                                    <div class="invalid-feedback">Silakan pilih metode pembayaran.</div>
+                                    <div class="invalid-feedback">Silakan pilih bank tujuan transfer Anda.</div>
                                 </div>
 
                                 <div class="mb-3">
@@ -278,42 +282,50 @@ if (file_exists($header_template_path)) {
                                 </div>
                                 <div class="mb-3">
                                     <label for="catatan_user" class="form-label">Catatan Tambahan <span class="text-muted">(Opsional)</span></label>
-                                    <textarea name="catatan_user" id="catatan_user" class="form-control" rows="2" placeholder="Misal: transfer dari rekening a.n. Budi"></textarea>
+                                    <textarea name="catatan_user" id="catatan_user" class="form-control" rows="2" placeholder="Misal: transfer dari rekening a.n. Budi ke Bank BRI"></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-success w-100">
-                                    <i class="fas fa-check-circle me-1"></i> Konfirmasi Pembayaran
+                                    <i class="fas fa-paper-plane me-1"></i> Kirim Konfirmasi Pembayaran
                                 </button>
                             </form>
-                        <?php elseif ($sudah_lunas_atau_dikonfirmasi): ?>
+                        <?php elseif ($menunggu_konfirmasi_admin): ?>
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-hourglass-half fa-2x mb-2"></i><br>
+                                Terima kasih! Konfirmasi pembayaran Anda telah kami terima dan sedang menunggu verifikasi oleh Administrator.
+                                Anda akan dihubungi atau status pesanan akan diperbarui setelah diverifikasi. Silakan cek <a href="<?= e(USER_URL . 'riwayat_pemesanan.php') ?>" class="alert-link">Riwayat Pemesanan</a> Anda secara berkala.
+                            </div>
+                        <?php elseif ($sudah_lunas_atau_dikonfirmasi_oleh_admin): ?>
                             <div class="alert alert-success text-center">
                                 <i class="fas fa-check-circle fa-2x mb-2"></i><br>
                                 Pembayaran untuk pesanan ini telah berhasil dan dikonfirmasi.
                             </div>
-                            <?php if (in_array($status_header_lower, ['paid', 'confirmed']) && !empty($header['kode_pemesanan'])): ?>
+                            <?php if (in_array($status_header_lower, ['paid', 'confirmed', 'completed']) && !empty($header['kode_pemesanan']) && !is_admin()): ?>
                                 <div class="text-center mt-3">
                                     <a href="<?= e(USER_URL . 'cetak_tiket.php?kode=' . urlencode($header['kode_pemesanan'])) ?>" class="btn btn-info" target="_blank">
                                         <i class="fas fa-ticket-alt me-1"></i> Lihat/Cetak Tiket
                                     </a>
                                 </div>
                             <?php endif; ?>
-                        <?php elseif ($sedang_dicek): ?>
-                            <div class="alert alert-info text-center">
-                                <i class="fas fa-hourglass-half fa-2x mb-2"></i><br>
-                                Konfirmasi pembayaran Anda sedang kami proses. Mohon tunggu.
-                            </div>
                         <?php elseif ($gagal_atau_batal): ?>
                             <div class="alert alert-danger text-center">
                                 <i class="fas fa-times-circle fa-2x mb-2"></i><br>
-                                Pemesanan ini <?= e(ucfirst(str_replace('_', ' ', $status_header_lower))) ?>.
+                                Pemesanan ini <?= e(ucfirst(str_replace(['_'], ' ', $status_header_lower))) ?>.
                                 <?php if ($pembayaran && isset($pembayaran['status_pembayaran']) && $pembayaran['status_pembayaran'] !== $status_header_lower): ?>
-                                    Status Pembayaran: <?= e(ucfirst(str_replace('_', ' ', $status_pembayaran_lower))) ?>.
+                                    Status Pembayaran: <?= e(ucfirst(str_replace(['_'], ' ', $status_pembayaran_lower))) ?>.
                                 <?php endif; ?>
                                 <?php if (in_array($status_header_lower, ['expired', 'failed', 'cancelled'])): ?>
                                     Silakan buat pemesanan baru jika ingin melanjutkan.
                                 <?php endif; ?>
                             </div>
-                        <?php else: ?>
-                            <p class="text-info">Tidak ada aksi pembayaran yang diperlukan untuk status pesanan saat ini.</p>
+                        <?php else: // Kondisi default atau admin melihat halaman ini
+                        ?>
+                            <p class="text-info">
+                                <?php if (is_admin()): ?>
+                                    Admin dapat mengelola pembayaran ini melalui <a href="<?= e(ADMIN_URL . 'pembayaran/kelola_pembayaran.php?kode_pemesanan=' . urlencode($header['kode_pemesanan'] ?? '')) ?>">Kelola Pembayaran</a>.
+                                <?php else: ?>
+                                    Tidak ada aksi pembayaran yang diperlukan untuk status pesanan saat ini.
+                                <?php endif; ?>
+                            </p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -323,23 +335,26 @@ if (file_exists($header_template_path)) {
 </div>
 
 <?php
-$footer_template_path = (defined('VIEWS_PATH') ? VIEWS_PATH : __DIR__ . '/../template') . '/footer_user.php';
+$footer_template_path = (defined('VIEWS_PATH') ? VIEWS_PATH : __DIR__ . '/../template') . (is_admin() ? '/footer_admin.php' : '/footer_user.php');
 if (file_exists($footer_template_path)) {
     include_once $footer_template_path;
 } else {
     $fallback_footer_path = (defined('VIEWS_PATH') ? VIEWS_PATH : __DIR__ . '/../template') . '/footer.php';
     if (file_exists($fallback_footer_path)) {
-        error_log("PERINGATAN detail_pemesanan.php: File footer_user.php tidak ditemukan, menggunakan footer.php sebagai fallback.");
+        error_log("PERINGATAN detail_pemesanan.php: File footer (" . basename($footer_template_path) . ") tidak ditemukan, menggunakan footer.php sebagai fallback.");
         include_once $fallback_footer_path;
     } else {
-        error_log("FATAL detail_pemesanan.php: File footer_user.php dan footer.php tidak ditemukan.");
+        error_log("FATAL detail_pemesanan.php: File footer (" . basename($footer_template_path) . ") dan footer.php tidak ditemukan.");
     }
 }
 ?>
 <script>
     (function() {
         'use strict'
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
         var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
         Array.prototype.slice.call(forms)
             .forEach(function(form) {
                 form.addEventListener('submit', function(event) {
@@ -347,6 +362,7 @@ if (file_exists($footer_template_path)) {
                         event.preventDefault()
                         event.stopPropagation()
                     }
+
                     form.classList.add('was-validated')
                 }, false)
             })

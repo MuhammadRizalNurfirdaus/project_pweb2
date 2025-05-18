@@ -1,191 +1,194 @@
 <?php
 // File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\WisataController.php
 
-// Diasumsikan config.php sudah memuat Model Wisata.php
-// dan sudah memanggil Wisata::init($conn, UPLOADS_WISATA_PATH).
-// if (!class_exists('Wisata')) { require_once __DIR__ . '/../models/Wisata.php'; }
-
 class WisataController
 {
-    /**
-     * Menangani pembuatan data destinasi wisata baru.
-     * @param array $data Data dari form (kunci: 'nama_wisata', 'deskripsi', opsional 'lokasi').
-     * @param string|null $gambar_filename Nama file gambar yang sudah diunggah (jika ada).
-     * @return int|string|false ID record baru, string kode error, atau false.
-     */
-    public static function create(array $data, $gambar_filename = null)
+    private static function checkRequiredModelsAndMethods(array $models_with_methods)
     {
-        if (!class_exists('Wisata') || !method_exists('Wisata', 'create') || !method_exists('Wisata', 'getLastError')) {
-            error_log("WisataController::create() - Model/Metode Wisata tidak tersedia.");
+        foreach ($models_with_methods as $model_name => $methods) {
+            if (!class_exists($model_name)) {
+                $error_msg = get_called_class() . " Fatal Error: Model {$model_name} tidak ditemukan.";
+                error_log($error_msg);
+                throw new RuntimeException($error_msg);
+            }
+            if (is_array($methods)) {
+                foreach ($methods as $method_name) {
+                    if (!method_exists($model_name, $method_name)) {
+                        $error_msg = get_called_class() . " Fatal Error: Metode {$model_name}::{$method_name} tidak ditemukan.";
+                        error_log($error_msg);
+                        throw new RuntimeException($error_msg);
+                    }
+                }
+            }
+        }
+    }
+
+    public static function create(array $data_form, $gambar_filename_uploaded = null)
+    {
+        try {
+            self::checkRequiredModelsAndMethods(['Wisata' => ['create', 'getLastError']]);
+        } catch (RuntimeException $e) {
             return 'system_error_model_unavailable';
         }
 
-        $nama_wisata = trim($data['nama_wisata'] ?? '');
-        $deskripsi = trim($data['deskripsi'] ?? '');
+        // Di Model Wisata, kolomnya adalah 'nama', bukan 'nama_wisata'
+        $nama_untuk_db = trim($data_form['nama'] ?? ''); // Ambil 'nama' dari form
+        $deskripsi = trim($data_form['deskripsi'] ?? '');
+        $lokasi = trim($data_form['lokasi'] ?? null);
 
-        if (empty($nama_wisata)) return 'missing_nama';
+        if (empty($nama_untuk_db)) return 'missing_nama';
         if (empty($deskripsi)) return 'missing_deskripsi';
+        if (empty($gambar_filename_uploaded)) return 'missing_gambar'; // Gambar wajib saat create
 
         $data_to_model = [
-            'nama_wisata' => $nama_wisata, // Model akan memetakan ini ke kolom 'nama'
+            'nama' => $nama_untuk_db, // Kirim 'nama' ke Model
             'deskripsi' => $deskripsi,
-            'lokasi' => trim($data['lokasi'] ?? null),
-            'gambar' => $gambar_filename
+            'lokasi' => $lokasi,
+            'gambar' => $gambar_filename_uploaded
         ];
 
         $new_id = Wisata::create($data_to_model);
-
         if ($new_id) {
             return $new_id;
         } else {
-            error_log("WisataController::create() - Wisata::create gagal. Error: " . Wisata::getLastError());
+            error_log("WisataController::create() - Wisata::create gagal. Error Model: " . Wisata::getLastError());
             return 'db_create_failed';
         }
     }
 
-    /**
-     * Mengambil semua data destinasi wisata untuk admin.
-     * @return array|false Array data wisata, atau false jika error.
-     */
-    public static function getAllForAdmin() // Nama metode disesuaikan
+    public static function getAllForAdmin(string $orderBy = 'nama ASC')
     {
-        if (!class_exists('Wisata') || !method_exists('Wisata', 'getAll')) {
-            error_log("WisataController::getAllForAdmin() - Model/Metode Wisata::getAll tidak tersedia.");
+        try {
+            self::checkRequiredModelsAndMethods(['Wisata' => ['getAll']]);
+            return Wisata::getAll($orderBy); // Model sudah menggunakan 'nama' untuk default order
+        } catch (RuntimeException $e) {
             return false;
         }
-        return Wisata::getAll('nama ASC'); // Menggunakan nama kolom 'nama' untuk ORDER BY
     }
 
-    /**
-     * Mengambil satu data destinasi wisata berdasarkan ID.
-     * @param int $id ID destinasi wisata.
-     * @return array|null Data wisata atau null.
-     */
-    public static function getById($id)
+    public static function getById(int $id_wisata): ?array
     {
-        $id_val = filter_var($id, FILTER_VALIDATE_INT);
-        if ($id_val === false || $id_val <= 0) {
-            error_log("WisataController::getById() - ID tidak valid: " . $id);
+        if ($id_wisata <= 0) {
+            error_log(get_called_class() . "::getById() - ID wisata tidak valid: " . $id_wisata);
             return null;
         }
-        if (!class_exists('Wisata') || !method_exists('Wisata', 'getById')) {
-            error_log("WisataController::getById() - Model/Metode Wisata::getById tidak tersedia.");
+        try {
+            self::checkRequiredModelsAndMethods(['Wisata' => ['findById']]);
+            return Wisata::findById($id_wisata); // Model mengembalikan data dengan key 'nama'
+        } catch (RuntimeException $e) {
             return null;
         }
-        return Wisata::getById($id_val);
     }
 
     /**
      * Menangani pembaruan data destinasi wisata.
-     * @param array $data Data dari form (harus ada 'id', 'nama_wisata', 'deskripsi').
-     * @param string|null $new_uploaded_filename Nama file gambar BARU yang berhasil diunggah ke server.
-     * @param string $gambar_action Tindakan untuk gambar ('keep', 'remove', 'change').
-     * @param string|null $current_db_filename Nama file gambar yang saat ini tersimpan di DB.
+     * @param array $data_from_form Data dari form (kunci: 'id', 'nama', 'deskripsi', 'lokasi').
+     * @param string|null $new_uploaded_filename Nama file gambar BARU yang berhasil diunggah ke server, ATAU "REMOVE_IMAGE_FLAG".
+     * @param string|null $current_db_filename Nama file gambar yang saat ini tersimpan di DB (untuk perbandingan dan penghapusan).
      * @return bool|string True jika berhasil, string kode error jika gagal.
      */
-    public static function handleUpdateWisata(array $data, $new_uploaded_filename = null, $gambar_action = 'keep', $current_db_filename = null)
+    public static function handleUpdateWisata(array $data_from_form, $new_uploaded_filename = null, $current_db_filename = null)
     {
-        $id = isset($data['id']) ? filter_var($data['id'], FILTER_VALIDATE_INT) : 0;
+        $id = isset($data_from_form['id']) ? filter_var($data_from_form['id'], FILTER_VALIDATE_INT) : 0;
         if ($id <= 0) {
             error_log("WisataController::handleUpdateWisata() - ID tidak valid.");
             return 'invalid_id';
         }
 
-        $nama_wisata = trim($data['nama_wisata'] ?? '');
-        $deskripsi = trim($data['deskripsi'] ?? '');
+        // Nama input dari form adalah 'nama', sesuai dengan perbaikan di edit_wisata.php
+        $nama_form = trim($data_from_form['nama'] ?? '');
+        $deskripsi_form = trim($data_from_form['deskripsi'] ?? ''); // Jangan trim jika WYSIWYG butuh spasi
+        $lokasi_form = trim($data_from_form['lokasi'] ?? null);
 
-        if (empty($nama_wisata)) return 'missing_nama';
-        if (empty($deskripsi)) return 'missing_deskripsi';
+        if (empty($nama_form)) return 'missing_nama'; // Kode error yang bisa ditafsirkan view
+        if (empty($deskripsi_form)) return 'missing_deskripsi'; // Kode error
 
-        if (!class_exists('Wisata') || !method_exists('Wisata', 'update') || !method_exists('Wisata', 'getLastError')) {
-            error_log("WisataController::handleUpdateWisata() - Model/Metode Wisata tidak tersedia.");
+        try {
+            self::checkRequiredModelsAndMethods(['Wisata' => ['update', 'findById', 'getLastError']]);
+        } catch (RuntimeException $e) {
             return 'system_error_model_unavailable';
         }
 
-        $data_to_update_model = [
+        $data_to_model_update = [
             'id' => $id,
-            'nama_wisata' => $nama_wisata, // Model akan map ke kolom 'nama'
-            'deskripsi' => $deskripsi,
-            'lokasi' => trim($data['lokasi'] ?? null)
+            'nama' => $nama_form, // Model akan mengupdate kolom 'nama' di DB
+            'deskripsi' => $deskripsi_form,
+            'lokasi' => $lokasi_form
         ];
 
-        $file_to_delete_on_server = null;
-        $filename_for_db = $current_db_filename; // Defaultnya pertahankan gambar lama
+        $file_fisik_lama_untuk_dihapus_server = null;
 
-        if ($gambar_action === 'remove') {
+        if ($new_uploaded_filename === "REMOVE_IMAGE_FLAG") {
+            $data_to_model_update['gambar'] = null; // Set kolom gambar di DB menjadi NULL
             if (!empty($current_db_filename)) {
-                $file_to_delete_on_server = $current_db_filename;
+                $file_fisik_lama_untuk_dihapus_server = $current_db_filename;
             }
-            $filename_for_db = null; // Hapus dari DB
-            $data_to_update_model['gambar'] = null; // Kirim null ke Model untuk di-set NULL
-        } elseif ($gambar_action === 'change' && !empty($new_uploaded_filename)) {
+        } elseif ($new_uploaded_filename !== null) { // Ada file baru yang diupload
+            $data_to_model_update['gambar'] = $new_uploaded_filename; // Nama file baru untuk DB
             if (!empty($current_db_filename) && $current_db_filename !== $new_uploaded_filename) {
-                $file_to_delete_on_server = $current_db_filename; // Tandai file lama untuk dihapus
+                $file_fisik_lama_untuk_dihapus_server = $current_db_filename;
             }
-            $filename_for_db = $new_uploaded_filename;
-            $data_to_update_model['gambar'] = $filename_for_db; // Kirim nama file baru ke Model
         }
-        // Jika $gambar_action === 'keep', $data_to_update_model tidak akan memiliki key 'gambar',
-        // sehingga Model::update() tidak akan mengubah field gambar.
+        // Jika $new_uploaded_filename null dan bukan "REMOVE_IMAGE_FLAG", berarti 'keep',
+        // maka 'gambar' tidak dimasukkan ke $data_to_model_update agar Model tidak mengubahnya.
 
-        $update_db_success = Wisata::update($data_to_update_model);
+        $update_db_success = Wisata::update($data_to_model_update);
 
         if ($update_db_success) {
             // Jika update DB berhasil DAN ada file lama yang perlu dihapus dari server
-            if ($file_to_delete_on_server) {
-                if (defined('UPLOADS_WISATA_PATH')) {
-                    $old_file_path = rtrim(UPLOADS_WISATA_PATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . basename($file_to_delete_on_server);
-                    if (file_exists($old_file_path) && is_file($old_file_path)) {
-                        if (!@unlink($old_file_path)) {
-                            error_log("WisataController::handleUpdateWisata Peringatan: Gagal menghapus file gambar lama: " . $old_file_path);
+            if ($file_fisik_lama_untuk_dihapus_server) {
+                if (defined('UPLOADS_WISATA_PATH') && !empty($file_fisik_lama_untuk_dihapus_server)) {
+                    $old_file_path_server = rtrim(UPLOADS_WISATA_PATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . basename($file_fisik_lama_untuk_dihapus_server);
+                    if (file_exists($old_file_path_server) && is_file($old_file_path_server)) {
+                        if (!@unlink($old_file_path_server)) {
+                            error_log("WisataController::handleUpdateWisata Peringatan: Gagal menghapus file gambar lama: " . $old_file_path_server);
+                            // Ini hanya peringatan, update DB sudah berhasil.
+                            // Bisa set flash message 'warning' tambahan jika perlu.
                         } else {
-                            error_log("WisataController::handleUpdateWisata Info: File gambar lama berhasil dihapus: " . $old_file_path);
+                            error_log("WisataController::handleUpdateWisata Info: File gambar lama berhasil dihapus: " . $old_file_path_server);
                         }
                     }
                 } else {
-                    error_log("WisataController::handleUpdateWisata Peringatan: Konstanta UPLOADS_WISATA_PATH tidak terdefinisi.");
+                    error_log("WisataController::handleUpdateWisata Peringatan: Konstanta UPLOADS_WISATA_PATH tidak terdefinisi atau nama file lama kosong, tidak dapat menghapus file lama dari server.");
                 }
             }
             return true;
         } else {
-            error_log("WisataController::handleUpdateWisata() - Wisata::update gagal untuk ID {$id}. Error: " . Wisata::getLastError());
+            error_log("WisataController::handleUpdateWisata() - Wisata::update gagal untuk ID {$id}. Error Model: " . Wisata::getLastError());
             // Jika update DB gagal, dan ada file BARU yang sudah diupload, hapus file baru tersebut (rollback file upload)
-            if ($gambar_action === 'change' && !empty($new_uploaded_filename) && defined('UPLOADS_WISATA_PATH')) {
+            if ($new_uploaded_filename && $new_uploaded_filename !== "REMOVE_IMAGE_FLAG" && defined('UPLOADS_WISATA_PATH')) {
                 $new_file_path_on_server = rtrim(UPLOADS_WISATA_PATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . basename($new_uploaded_filename);
                 if (file_exists($new_file_path_on_server)) {
                     @unlink($new_file_path_on_server);
                     error_log("WisataController::handleUpdateWisata - Rollback Upload: File baru {$new_uploaded_filename} dihapus karena update DB gagal.");
                 }
             }
-            return 'db_update_failed';
+            return Wisata::getLastError() ?: 'db_update_failed'; // Kembalikan error dari Model atau kode generik
         }
     }
 
-
-    /**
-     * Menangani penghapusan data destinasi wisata.
-     * @param int $id ID destinasi wisata yang akan dihapus.
-     * @return bool|string True jika berhasil, string kode error jika gagal.
-     */
     public static function delete($id)
     {
         $id_val = filter_var($id, FILTER_VALIDATE_INT);
         if ($id_val === false || $id_val <= 0) {
-            error_log("WisataController::delete() - ID tidak valid: " . $id);
+            error_log("WisataController::delete() - ID tidak valid: " . htmlspecialchars((string)$id));
             return 'invalid_id';
         }
-
-        if (!class_exists('Wisata') || !method_exists('Wisata', 'delete') || !method_exists('Wisata', 'getLastError')) {
-            error_log("WisataController::delete() - Model/Metode Wisata tidak tersedia.");
+        try {
+            self::checkRequiredModelsAndMethods(['Wisata' => ['delete', 'getLastError']]);
+            if (Wisata::delete($id_val)) { // Model Wisata::delete() sudah handle hapus file
+                return true;
+            } else {
+                $error_model = Wisata::getLastError();
+                error_log("WisataController::delete() - Wisata::delete gagal untuk ID {$id_val}. Error: " . $error_model);
+                if (strpos(strtolower($error_model ?? ''), 'tidak ditemukan') !== false || strpos(strtolower($error_model ?? ''), 'no data') !== false) {
+                    return 'item_not_found_on_delete';
+                }
+                return $error_model ?: 'db_delete_failed';
+            }
+        } catch (RuntimeException $e) {
             return 'system_error_model_unavailable';
-        }
-
-        // Model Wisata::delete() sudah menangani penghapusan file fisik.
-        if (Wisata::delete($id_val)) {
-            return true;
-        } else {
-            error_log("WisataController::delete() - Wisata::delete gagal untuk ID {$id_val}. Error: " . Wisata::getLastError());
-            return 'db_delete_failed';
         }
     }
 }
+// End of file: C:\xampp\htdocs\Cilengkrang-Web-Wisata\controllers\WisataController.php

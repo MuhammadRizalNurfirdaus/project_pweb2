@@ -58,11 +58,11 @@ if (!@include_once __DIR__ . '/template/header.php') {
         Lembah Cilengkrang terletak di Pajambon, Kramatmulya, Kuningan, Jawa Barat, sekitar 30km dari pusat kota Kuningan.
         Destinasi ini menawarkan keindahan air terjun menawan, relaksasi di pemandian air panas alami, dan kesegaran udara pegunungan.
       </p>
-      <a href="<?= $base_url ?>wisata/deskripsi.php" class="btn btn-primary btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn">
+      <a href="<?= $base_url ?>/wisata/deskripsi.php" class="btn btn-primary btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn">
         <i class="fas fa-info-circle me-2"></i>Pelajari Lebih Lanjut
       </a>
       <!-- Mengganti user/booking.php menjadi user/pemesanan_tiket.php -->
-      <a href="<?= $base_url ?>user/pemesanan.php" class="btn btn-light btn-lg hero-btn">
+      <a href="<?= $base_url ?>../user/pemesanan_tiket.php" class="btn btn-light btn-lg hero-btn">
         <i class="fas fa-ticket-alt me-2"></i>Pesan Tiket Sekarang
       </a>
     </div>

@@ -122,7 +122,7 @@ if ($user_photo_url === null && defined('ASSETS_URL')) {
 
                         <li class="nav-item"><a class="nav-link <?= isNavLinkActive('/user/artikel.php', $request_uri_path) ? 'active' : '' ?>" href="<?= e($base_url) ?>user/artikel.php">Artikel</a></li>
                         <li class="nav-item"><a class="nav-link <?= isNavLinkActive('/user/pemesanan_tiket.php', $request_uri_path) ? 'active' : '' ?>" href="<?= e($base_url) ?>user/pemesanan_tiket.php">Pesan Tiket</a></li>
-                        <li class="nav-item"><a class="nav-link <?= (basename($request_uri_path) === 'kontak.php' && !isNavLinkActive('/admin/contact', $request_uri_path)) ? 'active' : '' ?>" href="<?= e($base_url) ?>kontak.php">Kontak</a></li>
+                        <li class="nav-item"><a class="nav-link <?= (basename($request_uri_path) === 'contact.php' && !isNavLinkActive('/admin/contact', $request_uri_path)) ? 'active' : '' ?>" href="<?= e($base_url) ?>contact.php">Kontak</a></li>
 
                         <?php if (function_exists('is_logged_in') && is_logged_in()): ?>
                             <li class="nav-item dropdown">

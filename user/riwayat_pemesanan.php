@@ -8,17 +8,17 @@ if (!function_exists('require_login') || !function_exists('get_current_user_id')
     error_log("FATAL riwayat_pemesanan.php: Fungsi autentikasi penting hilang.");
     exit("Kesalahan konfigurasi sistem: Fungsi autentikasi penting hilang. (ERR_AUTH_MISSING_RW)");
 }
-if (!class_exists('PemesananTiket')) { // Model PemesananTiket dibutuhkan untuk getByUserId
-    error_log("KRITIS riwayat_pemesanan.php: Model PemesananTiket tidak ditemukan.");
-    // Jika set_flash_message ada
+// Pengecekan Model PemesananTiket
+if (!class_exists('PemesananTiket') || !method_exists('PemesananTiket', 'getByUserId')) {
+    error_log("KRITIS riwayat_pemesanan.php: Model PemesananTiket atau metode getByUserId tidak ditemukan.");
     if (function_exists('set_flash_message') && function_exists('redirect')) {
-        set_flash_message('danger', 'Kesalahan sistem: Tidak dapat memuat riwayat pemesanan (MPT_NF).');
+        set_flash_message('danger', 'Kesalahan sistem: Tidak dapat memuat riwayat pemesanan (MPT_NF_RW).');
         redirect('user/dashboard.php');
     } else {
-        exit("Kesalahan sistem: Tidak dapat memuat riwayat pemesanan (MPT_NF_NOREDIR).");
+        exit("Kesalahan sistem: Tidak dapat memuat riwayat pemesanan (MPT_NF_NOREDIR_RW).");
     }
-    exit;
 }
+
 
 require_login();
 $current_user_id = get_current_user_id();
@@ -26,7 +26,7 @@ $current_user_id = get_current_user_id();
 $page_title = "Riwayat Pemesanan Saya";
 
 // Ambil semua pemesanan untuk user yang sedang login
-// Metode PemesananTiket::getByUserId($user_id, $limit = null) sudah ada di model Anda
+// Metode PemesananTiket::getByUserId($user_id, $limit = null) sekarang hanya mengambil yang belum di-soft-delete
 $riwayat_pemesanan = PemesananTiket::getByUserId($current_user_id);
 
 $header_template_path = (defined('VIEWS_PATH') ? VIEWS_PATH : __DIR__ . '/../template') . '/header_user.php';
@@ -54,7 +54,7 @@ if (file_exists($header_template_path)) {
             </div>
         </div>
 
-        <?= display_flash_message(); ?>
+        <?php if (function_exists('display_flash_message')) display_flash_message(); ?>
 
         <div class="card shadow-sm">
             <div class="card-header bg-light">
@@ -94,6 +94,16 @@ if (file_exists($header_template_path)) {
                                             <a href="<?= e(USER_URL . 'detail_pemesanan.php?kode=' . urlencode($pesanan['kode_pemesanan'] ?? '')) ?>" class="btn btn-info btn-sm" title="Lihat Detail">
                                                 <i class="fas fa-eye"></i> Detail
                                             </a>
+                                            <?php // Tombol Hapus dari Riwayat (Soft Delete) 
+                                            ?>
+                                            <button type="button" class="btn btn-warning btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#hapusRiwayatModal"
+                                                data-pemesanan-id="<?= e($pesanan['id'] ?? '') ?>"
+                                                data-kode-pesanan="<?= e($pesanan['kode_pemesanan'] ?? 'N/A') ?>"
+                                                title="Hapus dari Riwayat">
+                                                <i class="fas fa-eraser"></i> Hapus
+                                            </button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -111,6 +121,51 @@ if (file_exists($header_template_path)) {
         </div>
     </div>
 </div>
+
+<!-- Modal Konfirmasi Hapus Riwayat -->
+<div class="modal fade" id="hapusRiwayatModal" tabindex="-1" aria-labelledby="hapusRiwayatModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hapusRiwayatModalLabel"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Konfirmasi Hapus dari Riwayat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Apakah Anda yakin ingin menghapus pesanan dengan kode <strong id="kodePesananDiModalHapusRiwayat"></strong> dari riwayat Anda?</p>
+                <p class="text-muted"><small>Catatan: Ini hanya akan menyembunyikan pesanan dari daftar riwayat Anda. Data pesanan akan tetap ada di sistem admin.</small></p>
+            </div>
+            <div class="modal-footer">
+                <form id="formHapusRiwayat" action="<?= e(USER_URL . 'proses_hapus_riwayat.php') ?>" method="POST" style="display: inline;">
+                    <?php if (function_exists('generate_csrf_token_input')) echo generate_csrf_token_input(); ?>
+                    <input type="hidden" name="pemesanan_id_to_soft_delete" id="pemesananIdToSoftDelete">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Batal</button>
+                    <button type="submit" name="confirm_soft_delete" class="btn btn-warning"><i class="fas fa-eraser me-1"></i>Ya, Hapus dari Riwayat</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var hapusRiwayatModal = document.getElementById('hapusRiwayatModal');
+        if (hapusRiwayatModal) {
+            hapusRiwayatModal.addEventListener('show.bs.modal', function(event) {
+                var button = event.relatedTarget;
+                if (button) {
+                    var pemesananId = button.getAttribute('data-pemesanan-id');
+                    var kodePesanan = button.getAttribute('data-kode-pesanan');
+
+                    var modalKodePesanan = hapusRiwayatModal.querySelector('#kodePesananDiModalHapusRiwayat');
+                    var inputPemesananId = hapusRiwayatModal.querySelector('#pemesananIdToSoftDelete');
+
+                    if (modalKodePesanan) modalKodePesanan.textContent = kodePesanan || 'N/A';
+                    if (inputPemesananId) inputPemesananId.value = pemesananId || '';
+                }
+            });
+        }
+    });
+</script>
 
 <?php
 $base_template_path = defined('VIEWS_PATH') ? VIEWS_PATH : __DIR__ . '/../template';

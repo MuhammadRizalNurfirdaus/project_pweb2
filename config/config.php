@@ -8,11 +8,11 @@
 // --- LANGKAH DEBUGGING AWAL YANG SANGAT PENTING ---
 // Aktifkan ini HANYA saat debugging untuk melihat error PHP langsung di browser.
 // Komentari atau hapus ini untuk produksi.
-/*
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-*/
+
 // --- AKHIR LANGKAH DEBUGGING AWAL ---
 
 // 1. Mulai Session (HARUS menjadi baris pertama yang dieksekusi sebelum output apapun)
@@ -176,7 +176,7 @@ if (!$conn->set_charset("utf8mb4")) {
 
 
 // 7. Memuat SEMUA Model dan Menginisialisasi Koneksi Database serta Path Upload untuk Model
-// error_log("INFO config.php: Memulai proses pemuatan dan inisialisasi Model.");
+error_log("INFO config.php: Memulai proses pemuatan dan inisialisasi Model.");
 $model_files = glob(MODELS_PATH . '/*.php');
 
 if ($model_files === false || empty($model_files)) {
@@ -184,55 +184,94 @@ if ($model_files === false || empty($model_files)) {
 } else {
     foreach ($model_files as $model_file) {
         if (is_file($model_file)) {
-            // error_log("DEBUG config.php: Mencoba memuat model: " . $model_file); // Aktifkan untuk debugging file mana yang error
-            require_once $model_file; // Jika ada error di sini, skrip akan berhenti
-            // error_log("DEBUG config.php: BERHASIL memuat model: " . $model_file);
-
+            require_once $model_file;
             $class_name = basename($model_file, '.php');
 
             if (class_exists($class_name, false)) {
-                $model_initialized_successfully = false;
+                $initialized = false; // Menggunakan variabel $initialized seperti pada versi kode Anda
+                error_log("INFO config.php: Memproses model {$class_name}...");
+
+                // Prioritaskan init dengan 2 parameter jika modelnya adalah salah satu yang butuh path
                 if (method_exists($class_name, 'init')) {
-                    $upload_path_for_this_model = null; // Default
-                    if ($class_name === 'SewaAlat' && defined('UPLOADS_ALAT_SEWA_PATH')) $upload_path_for_this_model = UPLOADS_ALAT_SEWA_PATH;
-                    elseif ($class_name === 'User' && defined('UPLOADS_PROFIL_PATH')) $upload_path_for_this_model = UPLOADS_PROFIL_PATH;
-                    // Tambahkan model lain yang butuh path upload di sini
-                    // elseif ($class_name === 'Artikel' && defined('UPLOADS_ARTIKEL_PATH')) $upload_path_for_this_model = UPLOADS_ARTIKEL_PATH;
+                    $upload_path_needed = null;
+                    $params_for_init = 0; // Untuk melacak jumlah parameter yang diharapkan oleh init()
 
-                    try {
-                        $reflectionMethod = new ReflectionMethod($class_name, 'init');
-                        $num_params = $reflectionMethod->getNumberOfParameters();
-
-                        if ($num_params === 2 && $upload_path_for_this_model !== null) {
-                            $class_name::init($conn, $upload_path_for_this_model);
-                            $model_initialized_successfully = true;
-                        } elseif ($num_params === 1) {
-                            $class_name::init($conn);
-                            $model_initialized_successfully = true;
-                        } elseif ($num_params === 0) {
-                            $class_name::init();
-                            $model_initialized_successfully = true;
+                    if ($class_name === 'Artikel' && defined('UPLOADS_ARTIKEL_PATH')) {
+                        $upload_path_needed = UPLOADS_ARTIKEL_PATH;
+                        $params_for_init = 2;
+                    } elseif ($class_name === 'SewaAlat' && defined('UPLOADS_ALAT_SEWA_PATH')) {
+                        $upload_path_needed = UPLOADS_ALAT_SEWA_PATH;
+                        $params_for_init = 2;
+                    } elseif ($class_name === 'User' && defined('UPLOADS_PROFIL_PATH')) {
+                        // User bisa init(conn) atau init(conn, path)
+                        $reflectionUser = new ReflectionMethod('User', 'init');
+                        if ($reflectionUser->getNumberOfParameters() === 2) {
+                            $upload_path_needed = UPLOADS_PROFIL_PATH;
+                            $params_for_init = 2;
+                        } elseif ($reflectionUser->getNumberOfParameters() === 1) {
+                            $params_for_init = 1;
                         }
-                        // if ($model_initialized_successfully) error_log("INFO config.php: Model {$class_name} diinisialisasi dengan init().");
+                    } elseif ($class_name === 'Galeri' && defined('UPLOADS_GALERI_PATH')) {
+                        $upload_path_needed = UPLOADS_GALERI_PATH;
+                        $params_for_init = 2;
+                    }
+                    // === PERBAIKAN DI SINI: Tambahkan blok untuk Wisata ===
+                    elseif ($class_name === 'Wisata' && defined('UPLOADS_WISATA_PATH')) {
+                        $upload_path_needed = UPLOADS_WISATA_PATH;
+                        $params_for_init = 2; // Asumsi Wisata::init($conn, $path)
+                    }
+                    // === AKHIR PERBAIKAN UNTUK WISATA ===
 
-                    } catch (ReflectionException $e) { /* Log error jika perlu */
+                    // Logika pemanggilan init() berdasarkan jumlah parameter yang diharapkan
+                    if ($params_for_init > 0) {
+                        try {
+                            $reflectionMethod = new ReflectionMethod($class_name, 'init');
+                            $actual_params = $reflectionMethod->getNumberOfParameters();
+
+                            if ($params_for_init === 2 && $actual_params === 2 && $upload_path_needed !== null) {
+                                $class_name::init($conn, $upload_path_needed);
+                                $initialized = true;
+                                error_log("INFO config.php: Model {$class_name} diinisialisasi dengan init(conn, upload_path).");
+                            } elseif ($params_for_init === 1 && $actual_params === 1) { // Untuk kasus seperti User yang mungkin hanya init(conn)
+                                $class_name::init($conn);
+                                $initialized = true;
+                                error_log("INFO config.php: Model {$class_name} diinisialisasi dengan init(conn).");
+                            } elseif ($params_for_init === 0 && $actual_params === 0) { // init() tanpa parameter
+                                $class_name::init();
+                                $initialized = true;
+                                error_log("INFO config.php: Model {$class_name} diinisialisasi dengan init().");
+                            } else if ($actual_params === 1 && $upload_path_needed === null && $params_for_init !== 1) {
+                                // Fallback jika init() ada 1 param (conn) tapi tidak secara eksplisit ditandai $params_for_init=1
+                                $class_name::init($conn);
+                                $initialized = true;
+                                error_log("INFO config.php: Model {$class_name} diinisialisasi dengan fallback init(conn).");
+                            } else {
+                                error_log("PERINGATAN config.php: Model {$class_name} punya init() tapi jumlah parameter aktual ({$actual_params}) tidak cocok dengan yang diharapkan ({$params_for_init} dengan upload_path: " . ($upload_path_needed ? 'YA' : 'TIDAK') . ").");
+                            }
+                        } catch (ReflectionException $e) {
+                            error_log("ERROR config.php: ReflectionException saat init model {$class_name}: " . $e->getMessage());
+                        }
                     }
                 }
 
-                if (!$model_initialized_successfully && method_exists($class_name, 'setDbConnection')) {
+                // Jika belum terinisialisasi melalui init(), coba setDbConnection()
+                if (!$initialized && method_exists($class_name, 'setDbConnection')) {
                     try {
                         $reflectionSetDb = new ReflectionMethod($class_name, 'setDbConnection');
                         if ($reflectionSetDb->getNumberOfParameters() === 1) {
                             $class_name::setDbConnection($conn);
-                            $model_initialized_successfully = true;
-                            // error_log("INFO config.php: Model {$class_name} diinisialisasi dengan setDbConnection(conn).");
+                            $initialized = true;
+                            error_log("INFO config.php: Model {$class_name} diinisialisasi dengan setDbConnection(conn).");
+                        } else {
+                            error_log("PERINGATAN config.php: Model {$class_name} punya setDbConnection() tapi jumlah parameter bukan 1.");
                         }
-                    } catch (ReflectionException $e) { /* Log error jika perlu */
+                    } catch (ReflectionException $e) {
+                        error_log("ERROR config.php: ReflectionException saat init model {$class_name} dengan setDbConnection(): " . $e->getMessage());
                     }
                 }
 
-                if (!$model_initialized_successfully) {
-                    error_log("KRITIKAL config.php: Model {$class_name} TIDAK DAPAT diinisialisasi. Tidak ada metode init() atau setDbConnection() yang cocok.");
+                if (!$initialized) {
+                    error_log("KRITIKAL config.php: Model {$class_name} TIDAK DAPAT diinisialisasi. Metode init() atau setDbConnection() yang cocok tidak ditemukan atau error saat pemanggilan.");
                 }
             } else {
                 error_log("KRITIKAL config.php: Kelas {$class_name} tidak ditemukan setelah require file model '{$model_file}'. Periksa nama file vs nama kelas.");
@@ -240,11 +279,11 @@ if ($model_files === false || empty($model_files)) {
         }
     }
 }
-// error_log("INFO config.php: Selesai proses inisialisasi Model.");
+error_log("INFO config.php: Selesai proses inisialisasi Model.");
 
 
 // 7.b. Memuat SEMUA Controller (Opsional di config, bisa per halaman)
-// error_log("INFO config.php: Memulai proses pemuatan semua Controller.");
+error_log("INFO config.php: Memulai proses pemuatan semua Controller.");
 if (defined('CONTROLLERS_PATH') && is_dir(CONTROLLERS_PATH)) {
     $controller_files = glob(CONTROLLERS_PATH . '/*.php');
     if ($controller_files !== false && !empty($controller_files)) {
@@ -255,7 +294,7 @@ if (defined('CONTROLLERS_PATH') && is_dir(CONTROLLERS_PATH)) {
         }
     }
 }
-// error_log("INFO config.php: Selesai proses pemuatan semua Controller.");
+error_log("INFO config.php: Selesai proses pemuatan semua Controller.");
 
 
 // 8. Otomatis Membuat Direktori Uploads

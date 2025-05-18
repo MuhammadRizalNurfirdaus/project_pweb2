@@ -9,177 +9,170 @@ if (!require_once __DIR__ . '/../../config/config.php') {
 }
 
 // 2. Panggil fungsi otentikasi admin
-require_admin();
-
-// 3. Sertakan Model Artikel
-// Diasumsikan config.php sudah memuat Artikel.php dan memanggil Artikel::init()
-if (!class_exists('Artikel')) {
-    $artikelModelPath = MODELS_PATH . '/Artikel.php';
-    if (file_exists($artikelModelPath)) {
-        require_once $artikelModelPath;
-        // Jika Artikel::init() belum dipanggil di config.php, dan $conn tersedia (kurang ideal di sini):
-        // if (isset($conn) && $conn instanceof mysqli && method_exists('Artikel', 'init') && defined('UPLOADS_ARTIKEL_PATH')) {
-        //     Artikel::init($conn, UPLOADS_ARTIKEL_PATH);
-        // }
-    } else {
-        error_log("FATAL ERROR di tambah_artikel.php: Model Artikel.php tidak ditemukan di " . $artikelModelPath);
-        set_flash_message('danger', 'Kesalahan sistem: Komponen data artikel tidak dapat dimuat.');
-        redirect(ADMIN_URL . '/dashboard.php'); // Redirect jika model inti gagal dimuat
-        exit;
+if (!function_exists('require_admin')) {
+    error_log("FATAL ERROR di tambah_artikel.php: Fungsi require_admin() tidak ditemukan.");
+    // Fallback sederhana jika fungsi tidak ada (seharusnya tidak terjadi)
+    if (session_status() == PHP_SESSION_NONE) session_start();
+    if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+        if (function_exists('set_flash_message')) set_flash_message('danger', 'Akses ditolak.');
+        if (defined('AUTH_URL') && function_exists('redirect')) redirect(AUTH_URL . 'login.php');
+        else exit('Akses ditolak.');
     }
+} else {
+    require_admin();
 }
 
 
-// LANGKAH BARU: Proses POST Request SEBELUM output HTML apapun (SEBELUM HEADER)
-$judul_input_val = ''; // Untuk repopulasi
-$isi_input_val = '';   // Untuk repopulasi
-$session_form_data_key = 'flash_form_data_artikel';
+// 3. Pastikan Model Artikel ada
+if (!class_exists('Artikel')) {
+    error_log("FATAL ERROR di tambah_artikel.php: Kelas Model Artikel tidak ditemukan.");
+    if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan sistem: Komponen data artikel tidak dapat dimuat.');
+    if (function_exists('redirect') && defined('ADMIN_URL')) redirect(ADMIN_URL . 'dashboard.php');
+    exit;
+}
 
-if (is_post()) { // Menggunakan fungsi helper is_post()
+
+$judul_input_val = '';
+$isi_input_val = '';
+$session_form_data_key = 'flash_form_data_artikel_' . (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'guest'); // Tambahkan user ID ke key session
+
+// Proses POST Request SEBELUM output HTML apapun
+if (is_post()) {
+    // DEBUG CSRF
+    $sesi_token_saat_post = $_SESSION['csrf_token'] ?? 'TIDAK ADA DI SESI SAAT POST';
+    $post_token_saat_post = $_POST['csrf_token'] ?? 'TIDAK ADA DI POST';
+    error_log("Tambah Artikel - Proses POST. Sesi CSRF: {$sesi_token_saat_post}, POST CSRF: {$post_token_saat_post}");
+
     // Validasi CSRF Token
-    if (!function_exists('verify_csrf_token') || !verify_csrf_token(null, true)) { // Unset token setelah verifikasi
-        set_flash_message('danger', 'Permintaan tidak valid atau token CSRF salah/kadaluarsa.');
-        redirect(ADMIN_URL . '/artikel/tambah_artikel.php'); // Redirect kembali ke form tambah
+    // Parameter kedua true akan meng-unset token setelah verifikasi berhasil
+    if (!function_exists('verify_csrf_token') || !verify_csrf_token('csrf_token', true)) {
+        if (function_exists('set_flash_message')) set_flash_message('danger', 'Permintaan tidak valid atau token CSRF salah/kadaluarsa.');
+        error_log("Kegagalan Verifikasi CSRF. Sesi: {$sesi_token_saat_post}, POST: {$post_token_saat_post}");
+        if (function_exists('redirect') && defined('ADMIN_URL')) redirect(ADMIN_URL . 'artikel/tambah_artikel.php');
         exit;
     }
+    error_log("Tambah Artikel - CSRF Token berhasil diverifikasi.");
 
-    $judul_from_post = input('judul', '', 'post');
-    $isi_from_post = input('isi', '', 'post'); // Untuk WYSIWYG, jangan strip tags di sini
+
+    $judul_from_post = input('judul', '', 'POST');
+    $isi_from_post = input('isi', '', 'POST');
     $gambar_filename = null;
+    $upload_error = false;
 
-    // Simpan input ke session untuk repopulasi JIKA ada error di bawah
-    $_SESSION[$session_form_data_key] = [
-        'judul' => $judul_from_post,
-        'isi' => $isi_from_post, // Simpan mentah jika WYSIWYG
-    ];
+    $_SESSION[$session_form_data_key] = ['judul' => $judul_from_post, 'isi' => $isi_from_post];
 
-    $upload_error = false; // Flag untuk error upload
-
-    // --- Handle File Upload ---
+    // Handle File Upload
     if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] == UPLOAD_ERR_OK && !empty($_FILES['gambar']['name'])) {
-        if (!defined('UPLOADS_ARTIKEL_PATH')) {
-            set_flash_message('danger', 'Konfigurasi direktori unggah artikel tidak ditemukan.');
+        if (!defined('UPLOADS_ARTIKEL_PATH') || !is_writable(UPLOADS_ARTIKEL_PATH)) {
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Konfigurasi direktori unggah artikel bermasalah atau tidak dapat ditulis.');
+            error_log("Error Upload: UPLOADS_ARTIKEL_PATH tidak terdefinisi atau tidak writable. Path: " . (defined('UPLOADS_ARTIKEL_PATH') ? UPLOADS_ARTIKEL_PATH : "Belum terdefinisi"));
             $upload_error = true;
         } else {
-            $target_dir_upload = UPLOADS_ARTIKEL_PATH . DIRECTORY_SEPARATOR;
+            $target_dir_upload = rtrim(UPLOADS_ARTIKEL_PATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+            // Tidak perlu @mkdir di sini jika config.php sudah membuatnya. Cukup cek is_dir & is_writable.
 
-            if (!is_dir($target_dir_upload)) {
-                if (!@mkdir($target_dir_upload, 0775, true) && !is_dir($target_dir_upload)) {
-                    set_flash_message('danger', 'Gagal membuat direktori unggah. Periksa izin folder.');
-                    $upload_error = true;
-                }
+            $imageFileType = strtolower(pathinfo($_FILES["gambar"]["name"], PATHINFO_EXTENSION));
+            $gambar_filename = "artikel_" . uniqid() . '_' . time() . '.' . $imageFileType;
+            $target_file_upload = $target_dir_upload . $gambar_filename;
+            $uploadOk = 1;
+
+            $check = @getimagesize($_FILES["gambar"]["tmp_name"]);
+            if ($check === false) {
+                if (function_exists('set_flash_message')) set_flash_message('danger', 'File bukan format gambar yang valid.');
+                $uploadOk = 0;
+            }
+            if ($_FILES["gambar"]["size"] > 3 * 1024 * 1024) { // 3MB
+                if (function_exists('set_flash_message')) set_flash_message('danger', 'Ukuran file gambar maksimal 3MB.');
+                $uploadOk = 0;
+            }
+            $allowed_formats = ["jpg", "png", "jpeg", "gif", "webp"];
+            if (!in_array($imageFileType, $allowed_formats)) {
+                if (function_exists('set_flash_message')) set_flash_message('danger', 'Hanya format JPG, JPEG, PNG, GIF, WEBP yang diizinkan.');
+                $uploadOk = 0;
             }
 
-            if (!$upload_error && is_writable($target_dir_upload)) {
-                $imageFileType = strtolower(pathinfo($_FILES["gambar"]["name"], PATHINFO_EXTENSION));
-                $gambar_filename = "artikel_" . uniqid() . '_' . time() . '.' . $imageFileType;
-                $target_file_upload = $target_dir_upload . $gambar_filename;
-                $uploadOk = 1;
-
-                $check = @getimagesize($_FILES["gambar"]["tmp_name"]);
-                if ($check === false) {
-                    set_flash_message('danger', 'File bukan format gambar yang valid.');
-                    $uploadOk = 0;
-                }
-                if ($_FILES["gambar"]["size"] > 3097152) {
-                    set_flash_message('danger', 'Ukuran file gambar maksimal 3MB.');
-                    $uploadOk = 0;
-                } // 3MB
-                $allowed_formats = ["jpg", "png", "jpeg", "gif", "webp"];
-                if (!in_array($imageFileType, $allowed_formats)) {
-                    set_flash_message('danger', 'Hanya format JPG, JPEG, PNG, GIF, WEBP yang diizinkan.');
-                    $uploadOk = 0;
-                }
-
-                if ($uploadOk == 1) {
-                    if (!move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file_upload)) {
-                        set_flash_message('danger', 'Gagal mengunggah file gambar. Pastikan folder writable.');
-                        error_log("Gagal move_uploaded_file ke: " . $target_file_upload);
-                        $gambar_filename = null; // Reset jika gagal upload
-                        $upload_error = true;
-                    }
-                } else {
-                    $gambar_filename = null; // Reset jika validasi file gagal
+            if ($uploadOk == 1) {
+                if (!move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file_upload)) {
+                    if (function_exists('set_flash_message')) set_flash_message('danger', 'Gagal mengunggah file gambar. Periksa izin folder.');
+                    error_log("Gagal move_uploaded_file ke: " . $target_file_upload);
+                    $gambar_filename = null;
                     $upload_error = true;
                 }
-            } elseif (!$upload_error) {
-                set_flash_message('danger', 'Direktori unggah artikel tidak dapat ditulis.');
-                error_log("Direktori unggah artikel tidak writable: " . $target_dir_upload);
+            } else {
+                $gambar_filename = null;
                 $upload_error = true;
             }
         }
     } elseif (isset($_FILES['gambar']) && $_FILES['gambar']['error'] != UPLOAD_ERR_NO_FILE && $_FILES['gambar']['error'] != UPLOAD_ERR_OK) {
-        set_flash_message('danger', 'Terjadi kesalahan saat mengunggah gambar. Kode Error: ' . $_FILES['gambar']['error']);
+        if (function_exists('set_flash_message')) set_flash_message('danger', 'Terjadi kesalahan saat mengunggah gambar. Kode Error: ' . $_FILES['gambar']['error']);
         $upload_error = true;
     }
-    // --- End File Upload Handling ---
 
-    // Hanya lanjutkan ke penyimpanan DB jika tidak ada error upload dan validasi dasar terpenuhi
     if (!$upload_error) {
-        if (empty($judul_from_post) || empty($isi_from_post)) { // Validasi judul dan isi
-            set_flash_message('danger', 'Judul dan Isi artikel wajib diisi.');
+        if (empty($judul_from_post) || empty($isi_from_post)) {
+            if (function_exists('set_flash_message')) set_flash_message('danger', 'Judul dan Isi artikel wajib diisi.');
         } else {
             if (method_exists('Artikel', 'create')) {
                 $data_to_save = [
                     'judul' => $judul_from_post,
-                    'isi' => $isi_from_post, // Isi bisa mengandung HTML jika pakai WYSIWYG
-                    'gambar' => $gambar_filename // Bisa null jika tidak ada gambar atau gagal upload
+                    'isi' => $isi_from_post,
+                    'gambar' => $gambar_filename
                 ];
-
                 $new_artikel_id = Artikel::create($data_to_save);
-
                 if ($new_artikel_id) {
-                    unset($_SESSION[$session_form_data_key]); // Hapus data form dari session jika sukses
-                    set_flash_message('success', 'Artikel baru berhasil ditambahkan!');
-                    redirect(ADMIN_URL . '/artikel/kelola_artikel.php'); // Ini akan exit
+                    unset($_SESSION[$session_form_data_key]);
+                    if (function_exists('set_flash_message')) set_flash_message('success', 'Artikel baru berhasil ditambahkan!');
+                    if (function_exists('redirect') && defined('ADMIN_URL')) redirect(ADMIN_URL . 'artikel/kelola_artikel.php');
+                    exit;
                 } else {
                     $db_error = method_exists('Artikel', 'getLastError') ? Artikel::getLastError() : 'Tidak diketahui';
-                    set_flash_message('danger', 'Gagal menambahkan artikel ke database. ' . $db_error);
-                    // Hapus file gambar yang mungkin sudah terunggah jika penyimpanan DB gagal
+                    if (function_exists('set_flash_message')) set_flash_message('danger', 'Gagal menambahkan artikel. ' . ($db_error ?: ''));
                     if ($gambar_filename && isset($target_file_upload) && file_exists($target_file_upload)) {
                         @unlink($target_file_upload);
-                        error_log("Rollback Tambah Artikel: Menghapus file gambar {$target_file_upload} karena gagal simpan DB.");
+                        error_log("Rollback Tambah Artikel: Menghapus file {$target_file_upload} karena gagal simpan DB.");
                     }
                 }
             } else {
-                set_flash_message('danger', 'Kesalahan sistem: Fungsi pembuatan artikel tidak tersedia.');
-                error_log("FATAL ERROR: Metode Artikel::create() tidak ditemukan saat tambah artikel.");
+                if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan sistem: Fungsi pembuatan artikel tidak tersedia.');
+                error_log("FATAL ERROR: Metode Artikel::create() tidak ditemukan.");
             }
         }
     }
-    // Jika ada pesan error (baik dari upload atau validasi), redirect kembali ke form tambah
-    if (isset($_SESSION['flash_message']) && $_SESSION['flash_message']['type'] === 'danger') {
-        redirect(ADMIN_URL . '/artikel/tambah_artikel.php'); // Ini akan exit
+    // Jika ada flash message (error), redirect kembali untuk menampilkan pesan dan repopulasi
+    if (isset($_SESSION['flash_message'])) {
+        if (function_exists('redirect') && defined('ADMIN_URL')) redirect(ADMIN_URL . 'artikel/tambah_artikel.php');
+        exit;
     }
-} // End of is_post()
+}
 
-
-// Set judul halaman (bisa di-override sebelum header jika $pageTitle didefinisikan di atas)
+// Set judul halaman
 $pageTitle = "Tambah Artikel Baru";
 
 // Sertakan header admin (SEKARANG SETELAH BLOK POST)
-require_once ROOT_PATH . '/template/header_admin.php';
+$header_path_tambah = defined('VIEWS_PATH') ? VIEWS_PATH . '/header_admin.php' : (defined('ROOT_PATH') ? ROOT_PATH . '/template/header_admin.php' : null);
+if (!$header_path_tambah || !file_exists($header_path_tambah)) {
+    error_log("FATAL ERROR di tambah_artikel.php: Path header admin tidak valid. Path: " . ($header_path_tambah ?? 'Tidak terdefinisi'));
+    exit("Error kritis: Komponen tampilan header tidak dapat dimuat.");
+}
+require_once $header_path_tambah;
 
-// Ambil data dari session untuk repopulasi (jika ada redirect dari blok POST di atas karena error)
+
+// Ambil data dari session untuk repopulasi
 if (isset($_SESSION[$session_form_data_key])) {
-    $input_nama = ''; // Tidak ada field 'nama' di form artikel
-    $input_nama_lengkap = ''; // Tidak ada field 'nama_lengkap' di form artikel
     $input_judul = $_SESSION[$session_form_data_key]['judul'] ?? '';
     $input_isi = $_SESSION[$session_form_data_key]['isi'] ?? '';
-    // Tidak perlu repopulasi file input
-    unset($_SESSION[$session_form_data_key]);
+    unset($_SESSION[$session_form_data_key]); // Hapus setelah digunakan
 } else {
-    $input_judul = '';
-    $input_isi = '';
+    // Jika tidak ada data di session (misal, load halaman pertama kali)
+    $input_judul = $judul_input_val; // Mungkin sudah diisi dari $_POST jika ada error sebelum redirect
+    $input_isi = $isi_input_val;
 }
-
 ?>
 
-<!-- Breadcrumb -->
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="<?= e(ADMIN_URL . '/dashboard.php') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="<?= e(ADMIN_URL . '/artikel/kelola_artikel.php') ?>"><i class="fas fa-newspaper"></i> Kelola Artikel</a></li>
+        <li class="breadcrumb-item"><a href="<?= e(ADMIN_URL . 'dashboard.php') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="<?= e(ADMIN_URL . 'artikel/kelola_artikel.php') ?>"><i class="fas fa-newspaper"></i> Kelola Artikel</a></li>
         <li class="breadcrumb-item active" aria-current="page"><i class="fas fa-plus-circle"></i> Tambah Artikel</li>
     </ol>
 </nav>
@@ -191,9 +184,13 @@ if (isset($_SESSION[$session_form_data_key])) {
     <div class="card-body">
         <?php // display_flash_message() sudah dipanggil di header_admin.php 
         ?>
-        <form action="<?= e(ADMIN_URL . '/artikel/tambah_artikel.php') ?>" method="post" enctype="multipart/form-data" novalidate>
+        <form action="<?= e(ADMIN_URL . 'artikel/tambah_artikel.php') ?>" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
             <?php if (function_exists('generate_csrf_token_input')) echo generate_csrf_token_input(); ?>
-            <input type="hidden" name="action" value="tambah"> <!-- Meskipun tidak digunakan di proses_user.php, bisa berguna jika ada banyak aksi -->
+            <!-- DEBUG: Tampilkan token sesi saat form dibuat -->
+            <?php if (defined('IS_DEVELOPMENT') && IS_DEVELOPMENT && isset($_SESSION['csrf_token'])): ?>
+                <!-- Sesi CSRF saat form dibuat: <?= htmlspecialchars($_SESSION['csrf_token']) ?> -->
+            <?php endif; ?>
+
 
             <div class="mb-3">
                 <label for="judul" class="form-label">Judul Artikel <span class="text-danger">*</span></label>
@@ -202,22 +199,20 @@ if (isset($_SESSION[$session_form_data_key])) {
             </div>
             <div class="mb-3">
                 <label for="isi" class="form-label">Isi Artikel <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="isi" name="isi" rows="10" required><?= e($input_isi) // Escape di sini aman jika isi adalah plain text. Jika WYSIWYG, pertimbangkan. 
-                                                                                        ?></textarea>
+                <textarea class="form-control" id="isi" name="isi" rows="10" required><?= e($input_isi) ?></textarea>
                 <div class="invalid-feedback">Isi artikel wajib diisi.</div>
-                <small class="form-text text-muted">Anda dapat menggunakan format HTML jika diperlukan.</small>
             </div>
             <div class="mb-3">
-                <label for="gambar" class="form-label">Gambar Artikel <span class="text-muted">(Opsional, Maks 2MB)</span></label>
+                <label for="gambar" class="form-label">Gambar Artikel <span class="text-muted">(Opsional, Maks 3MB)</span></label>
                 <input type="file" class="form-control" id="gambar" name="gambar" accept="image/png, image/jpeg, image/gif, image/webp">
                 <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF, WEBP.</small>
             </div>
             <hr>
             <div class="mt-3">
-                <button type="submit" class="btn btn-success">
+                <button type="submit" name="submit_tambah_artikel" class="btn btn-success">
                     <i class="fas fa-save me-2"></i>Simpan Artikel
                 </button>
-                <a href="<?= e(ADMIN_URL . '/artikel/kelola_artikel.php') ?>" class="btn btn-secondary">
+                <a href="<?= e(ADMIN_URL . 'artikel/kelola_artikel.php') ?>" class="btn btn-secondary">
                     <i class="fas fa-times me-2"></i>Batal
                 </a>
             </div>
@@ -227,5 +222,27 @@ if (isset($_SESSION[$session_form_data_key])) {
 
 <?php
 // Sertakan Admin Footer
-require_once ROOT_PATH . '/template/footer_admin.php';
+$footer_path_tambah = defined('VIEWS_PATH') ? VIEWS_PATH . '/footer_admin.php' : (defined('ROOT_PATH') ? ROOT_PATH . '/template/footer_admin.php' : null);
+if (!$footer_path_tambah || !file_exists($footer_path_tambah)) {
+    error_log("FATAL ERROR di tambah_artikel.php: Path footer admin tidak valid. Path: " . ($footer_path_tambah ?? 'Tidak terdefinisi'));
+} else {
+    require_once $footer_path_tambah;
+}
 ?>
+<script>
+    // Script untuk validasi form Bootstrap (jika Anda menggunakannya)
+    (function() {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>

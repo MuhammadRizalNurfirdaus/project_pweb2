@@ -42,6 +42,7 @@ class Pembayaran
     {
         if (self::$last_internal_error) {
             $temp_error = self::$last_internal_error;
+            // self::$last_internal_error = null; // Reset error setelah diambil, jika diinginkan
             return $temp_error;
         }
         if (self::$db instanceof mysqli && !empty(self::$db->error)) {
@@ -82,16 +83,17 @@ class Pembayaran
                 if ($pemesananHeader && isset($pemesananHeader['kode_pemesanan'])) {
                     $kode_pemesanan_to_bind = $pemesananHeader['kode_pemesanan'];
                 } else {
-                    error_log(get_called_class() . "::create() - Peringatan: Gagal mengambil kode_pemesanan dari PemesananTiket ID {$pemesanan_tiket_id}. Kolom kode_pemesanan akan diisi NULL jika diizinkan tabel.");
+                    error_log(get_called_class() . "::create() - Peringatan: Gagal mengambil kode_pemesanan dari PemesananTiket ID {$pemesanan_tiket_id}.");
                 }
             }
         }
-        // Jika kolom 'kode_pemesanan' di tabel 'pembayaran' adalah NOT NULL, tambahkan validasi:
-        // if (empty($kode_pemesanan_to_bind)) {
-        //    self::$last_internal_error = "Kode Pemesanan wajib diisi untuk pembayaran.";
-        //    error_log(get_called_class() . "::create() - Error: " . self::$last_internal_error);
-        //    return false;
-        // }
+        // Jika kolom 'kode_pemesanan' di tabel 'pembayaran' adalah NOT NULL dan wajib, uncomment ini:
+        if (empty($kode_pemesanan_to_bind)) {
+            self::$last_internal_error = "Kode Pemesanan wajib diisi untuk pembayaran.";
+            error_log(get_called_class() . "::create() - Error: " . self::$last_internal_error);
+            return false;
+        }
+
 
         if ($jumlah_dibayar < 0) {
             self::$last_internal_error = "Jumlah dibayar tidak boleh negatif.";
@@ -296,16 +298,29 @@ class Pembayaran
         return [];
     }
 
+    /**
+     * Mengupdate status dan detail pembayaran.
+     * @param int $id ID pembayaran.
+     * @param string $status Status baru pembayaran.
+     * @param array $details Detail lain yang mungkin diupdate (misal: metode_pembayaran, bukti_pembayaran, dll).
+     * @return bool True jika berhasil, false jika gagal.
+     */
     public static function updateStatusAndDetails($id, $status, $details = [])
     {
         self::$last_internal_error = null;
         if (!self::checkDbConnection()) return false;
+
         $id_val = filter_var($id, FILTER_VALIDATE_INT);
-        if ($id_val === false || $id_val <= 0) { /* ... */
+        if ($id_val === false || $id_val <= 0) {
+            self::$last_internal_error = "ID Pembayaran tidak valid untuk update. Diterima: '" . htmlspecialchars((string)$id) . "'";
+            error_log(get_called_class() . "::updateStatusAndDetails() - " . self::$last_internal_error);
             return false;
         }
+
         $clean_status = strtolower(trim($status));
-        if (empty($clean_status) || !in_array($clean_status, self::ALLOWED_STATUSES)) { /* ... */
+        if (empty($clean_status) || !in_array($clean_status, self::ALLOWED_STATUSES)) {
+            self::$last_internal_error = "Status Pembayaran tidak valid untuk update. Diterima: '" . htmlspecialchars($status) . "'";
+            error_log(get_called_class() . "::updateStatusAndDetails() - " . self::$last_internal_error);
             return false;
         }
 
@@ -321,17 +336,34 @@ class Pembayaran
             'catatan_admin' => 's',
             'waktu_pembayaran' => 's',
             'jumlah_dibayar' => 'd',
-            'kode_pemesanan' => 's' // Ditambahkan jika ingin bisa diupdate
+            'kode_pemesanan' => 's'
         ];
         foreach ($possible_fields as $field_name => $type_char) {
             if (array_key_exists($field_name, $details)) {
                 $value = $details[$field_name];
+                // Khusus untuk waktu_pembayaran, jika dikirim kosong string, set jadi NULL
+                if ($field_name === 'waktu_pembayaran' && $value === '') {
+                    $value = null;
+                }
+                // Untuk field lain, jika kosong dan boleh NULL, set ke NULL, jika tidak biarkan (atau handle sesuai kebutuhan)
+                // Di sini, asumsikan field string lain jika kosong adalah string kosong, bukan NULL, kecuali secara eksplisit diset NULL di $details
+
                 $fields_to_update_sql[] = "`{$field_name}` = ?";
                 $params_to_bind[] = ($type_char === 'd') ? (float)$value : ($value === null ? null : (string)$value);
                 $types_for_bind .= $type_char;
             }
         }
-        if (in_array($clean_status, self::SUCCESSFUL_PAYMENT_STATUSES) && !array_key_exists('waktu_pembayaran', $details)) {
+
+        // Otomatis set waktu_pembayaran jika status menjadi sukses dan belum diset di $details
+        $waktu_pembayaran_diset_di_details = false;
+        foreach ($details as $key_detail => $val_detail) {
+            if ($key_detail === 'waktu_pembayaran' && !empty($val_detail)) {
+                $waktu_pembayaran_diset_di_details = true;
+                break;
+            }
+        }
+
+        if (in_array($clean_status, self::SUCCESSFUL_PAYMENT_STATUSES) && !$waktu_pembayaran_diset_di_details) {
             $waktu_update_exists_in_query = false;
             foreach ($fields_to_update_sql as $fld_sql) {
                 if (strpos($fld_sql, '`waktu_pembayaran` =') !== false) {
@@ -339,36 +371,92 @@ class Pembayaran
                     break;
                 }
             }
-            if (!$waktu_update_exists_in_query) $fields_to_update_sql[] = "`waktu_pembayaran` = NOW()";
+            if (!$waktu_update_exists_in_query) {
+                // Periksa apakah waktu_pembayaran sudah ada di DB dan tidak kosong
+                $currentPembayaran = self::findById($id_val); // Ambil data saat ini
+                if ($currentPembayaran && empty($currentPembayaran['waktu_pembayaran'])) {
+                    $fields_to_update_sql[] = "`waktu_pembayaran` = NOW()";
+                }
+            }
         }
+
         $fields_to_update_sql[] = "`updated_at` = NOW()";
 
-        if (count($fields_to_update_sql) <= 1 && !in_array("`status_pembayaran` = ?", $fields_to_update_sql)) { // Hanya updated_at atau tidak ada field valid
+        // Cek jika hanya status_pembayaran & updated_at yang diupdate, atau field lain juga
+        if (count($params_to_bind) === 0 && strpos(implode(',', $fields_to_update_sql), 'status_pembayaran') === false) {
             error_log(get_called_class() . "::updateStatusAndDetails() - Tidak ada field valid untuk diupdate selain updated_at. ID: " . $id_val);
-            return true; // Dianggap berhasil jika tidak ada yang diubah
+            // Jika hanya updated_at, query akan tetap jalan. Jika tidak ada field sama sekali (selain updated_at), mungkin error.
+            // Ini akan selalu ada status_pembayaran di $params_to_bind, jadi kondisi ini mungkin tidak relevan.
         }
+
 
         $sql_update = "UPDATE `" . self::$table_name . "` SET " . implode(', ', $fields_to_update_sql) . " WHERE `id` = ?";
         $params_to_bind[] = $id_val;
         $types_for_bind .= "i";
 
         $stmt = mysqli_prepare(self::$db, $sql_update);
-        if (!$stmt) { /* ... error handling ... */
+        if (!$stmt) {
+            self::$last_internal_error = "MySQLi Prepare Error: " . mysqli_error(self::$db) . " SQL: " . $sql_update;
+            error_log(get_called_class() . "::updateStatusAndDetails() - " . self::$last_internal_error);
             return false;
         }
+
         mysqli_stmt_bind_param($stmt, $types_for_bind, ...$params_to_bind);
-        if (mysqli_stmt_execute($stmt)) { /* ... */
-        } else { /* ... error handling ... */
+
+        if (mysqli_stmt_execute($stmt)) {
+            $affected_rows = mysqli_stmt_affected_rows($stmt);
+            mysqli_stmt_close($stmt);
+            return $affected_rows >= 0; // Berhasil jika 0 atau lebih baris terpengaruh (0 jika data sama)
+        } else {
+            self::$last_internal_error = "MySQLi Execute Error: " . mysqli_stmt_error($stmt);
+            error_log(get_called_class() . "::updateStatusAndDetails() - " . self::$last_internal_error);
+            mysqli_stmt_close($stmt);
+            return false;
         }
-        mysqli_stmt_close($stmt);
-        return false; // Placeholder
     }
 
 
     public static function getTotalRevenue($status_array = null)
     {
-        // ... (implementasi lengkap seperti kode Anda sebelumnya dengan prepare, bind, execute, error log) ...
-        return 0.0; // Placeholder
+        self::$last_internal_error = null;
+        if (!self::checkDbConnection()) return 0.0;
+
+        $statuses_to_sum = $status_array ?? self::SUCCESSFUL_PAYMENT_STATUSES;
+        if (empty($statuses_to_sum) || !is_array($statuses_to_sum)) {
+            self::$last_internal_error = "Array status tidak valid untuk getTotalRevenue.";
+            error_log(get_called_class() . "::getTotalRevenue() - " . self::$last_internal_error);
+            return 0.0;
+        }
+
+        $valid_statuses = array_filter($statuses_to_sum, fn($s) => in_array(strtolower(trim($s)), self::ALLOWED_STATUSES));
+        if (empty($valid_statuses)) {
+            self::$last_internal_error = "Tidak ada status valid yang diberikan untuk getTotalRevenue.";
+            error_log(get_called_class() . "::getTotalRevenue() - " . self::$last_internal_error);
+            return 0.0;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($valid_statuses), '?'));
+        $types = str_repeat('s', count($valid_statuses));
+        $sql = "SELECT SUM(`jumlah_dibayar`) as total_revenue FROM `" . self::$table_name . "` WHERE `status_pembayaran` IN (" . $placeholders . ")";
+
+        $stmt = mysqli_prepare(self::$db, $sql);
+        if (!$stmt) {
+            self::$last_internal_error = "MySQLi Prepare Error (getTotalRevenue): " . mysqli_error(self::$db);
+            error_log(get_called_class() . "::getTotalRevenue() - " . self::$last_internal_error . " | SQL: " . $sql);
+            return 0.0;
+        }
+        mysqli_stmt_bind_param($stmt, $types, ...$valid_statuses);
+        if (mysqli_stmt_execute($stmt)) {
+            $result = mysqli_stmt_get_result($stmt);
+            $row = mysqli_fetch_assoc($result);
+            mysqli_stmt_close($stmt);
+            return (float)($row['total_revenue'] ?? 0.0);
+        } else {
+            self::$last_internal_error = "MySQLi Execute Error (getTotalRevenue): " . mysqli_stmt_error($stmt);
+            error_log(get_called_class() . "::getTotalRevenue() - " . self::$last_internal_error);
+        }
+        mysqli_stmt_close($stmt);
+        return 0.0;
     }
 
     public static function countByStatus($status)
@@ -484,7 +572,6 @@ class Pembayaran
 
         mysqli_stmt_bind_param($stmt, "i", $id_val);
         if (mysqli_stmt_execute($stmt)) {
-            // Tidak masalah jika affected_rows adalah 0, mungkin memang tidak ada pembayaran terkait
             mysqli_stmt_close($stmt);
             return true;
         } else {

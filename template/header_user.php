@@ -8,7 +8,6 @@ if (!function_exists('require_login')) {
     // Darurat, mungkin redirect ke halaman error umum jika BASE_URL ada
     if (defined('BASE_URL') && function_exists('redirect')) redirect(BASE_URL . '?error=auth_missing');
     else exit('Fungsi autentikasi hilang.');
-    exit;
 }
 require_login(); // Pastikan hanya user yang login bisa akses
 
