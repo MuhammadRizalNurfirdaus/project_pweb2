@@ -84,20 +84,21 @@ class WisataController
     public static function getAllForAdmin(string $orderBy = 'nama ASC', ?int $limit = null): array|false
     {
         try {
-            self::checkRequiredModelsAndMethods(['Wisata' => ['getAll']]);
+            // Pastikan Model Wisata dan metode getAll ada
+            if (!class_exists('Wisata') || !method_exists('Wisata', 'getAll')) {
+                error_log(get_called_class() . "::getAllForAdmin() - Model Wisata atau metode getAll tidak ditemukan.");
+                throw new RuntimeException("Komponen data wisata tidak tersedia.");
+            }
             // Teruskan parameter $orderBy dan $limit ke Model Wisata::getAll()
             return Wisata::getAll($orderBy, $limit);
         } catch (RuntimeException $e) {
-            error_log(get_called_class() . "::getAllForAdmin() - Exception: " . $e->getMessage());
+            error_log(get_called_class() . "::getAllForAdmin() - RuntimeException: " . $e->getMessage());
+            return false; // Kembalikan false pada exception
+        } catch (Throwable $th) { // Menangkap semua jenis error/exception lain
+            error_log(get_called_class() . "::getAllForAdmin() - Throwable: " . $th->getMessage());
             return false;
         }
     }
-
-    /**
-     * Mengambil satu data destinasi wisata berdasarkan ID.
-     * @param int $id_wisata ID destinasi wisata.
-     * @return array|null Data destinasi atau null jika tidak ditemukan atau error.
-     */
     public static function getById(int $id_wisata): ?array
     {
         if ($id_wisata <= 0) {

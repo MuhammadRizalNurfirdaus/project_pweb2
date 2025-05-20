@@ -12,16 +12,15 @@ if (isset($_GET['debug_errors_on'])) {
     error_reporting(E_ALL);
     echo "<p style='color:red; font-weight:bold;'>PERINGATAN: Display errors diaktifkan via URL!</p>";
 } else {
-    // Atur default environment di sini jika tidak melalui URL
-    // Contoh untuk development:
-    // ini_set('display_errors', 1);
+    // Untuk development, Anda bisa aktifkan ini secara default
+    // ini_set('display_errors', 1); 
     // ini_set('display_startup_errors', 1);
     // error_reporting(E_ALL);
 }
 
 // 1. MULAI SESSION
 if (session_status() == PHP_SESSION_NONE) {
-    if (!headers_sent($php_file_sess, $php_line_sess)) { // Gunakan nama variabel unik
+    if (!headers_sent($php_file_sess, $php_line_sess)) {
         session_start();
     } else {
         $error_message_session = "FATAL ERROR di config.php: Tidak dapat memulai session karena headers sudah terkirim.";
@@ -37,17 +36,16 @@ if (session_status() == PHP_SESSION_NONE) {
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $document_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
-$config_dir_path = str_replace('\\', '/', __DIR__); // Path ke folder 'config'
+$config_dir_path = str_replace('\\', '/', __DIR__);
 
 $base_path_relative = '';
 if (!empty($document_root) && strpos($config_dir_path, $document_root) === 0) {
     $base_path_relative = substr($config_dir_path, strlen($document_root));
-    $base_path_relative = dirname($base_path_relative); // Naik satu level dari /config ke /proyek
+    $base_path_relative = dirname($base_path_relative);
 } else {
-    // Fallback jika document_root tidak terdeteksi dengan benar
     $script_name_for_fallback = $_SERVER['SCRIPT_NAME'] ?? '';
     $script_path_parts = explode('/', dirname(str_replace('\\', '/', $script_name_for_fallback)));
-    $project_folder_name = basename(dirname(__DIR__)); // Nama folder proyek utama
+    $project_folder_name = basename(dirname(__DIR__));
     $path_segments = [];
     foreach ($script_path_parts as $segment) {
         if (empty($segment) && empty($path_segments)) continue;
@@ -73,7 +71,7 @@ if (!defined('IS_DEVELOPMENT')) {
 }
 
 if (IS_DEVELOPMENT) {
-    if (ini_get('display_errors') != '1') ini_set('display_errors', 1); // != bukan !== karena bisa 0 atau Off
+    if (ini_get('display_errors') != '1') ini_set('display_errors', 1);
     if (error_reporting() !== E_ALL) error_reporting(E_ALL);
 } else {
     if (ini_get('display_errors') != '0') ini_set('display_errors', 0);
@@ -115,7 +113,6 @@ if (!defined('UPLOADS_BUKTI_PEMBAYARAN_PATH')) define('UPLOADS_BUKTI_PEMBAYARAN_
 if (!defined('UPLOADS_GALERI_PATH')) define('UPLOADS_GALERI_PATH', UPLOADS_PATH . DIRECTORY_SEPARATOR . 'galeri');
 if (!defined('UPLOADS_PROFIL_PATH')) define('UPLOADS_PROFIL_PATH', UPLOADS_PATH . DIRECTORY_SEPARATOR . 'profil');
 if (!defined('UPLOADS_SITUS_PATH')) define('UPLOADS_SITUS_PATH', UPLOADS_PATH . DIRECTORY_SEPARATOR . 'situs');
-
 
 // 5. MEMUAT FILE HELPER
 $helper_files_to_load = [
@@ -198,14 +195,14 @@ if ($model_files === false || empty($model_files)) {
                                 $params_to_pass[] = $upload_path_for_this_model;
                             } elseif (!$reflectionMethod->getParameters()[1]->isOptional()) {
                                 error_log("KRITIKAL config.php: Model {$class_name}::init() wajib 2 parameter tapi upload path tidak ada atau tidak terdefinisi. Inisialisasi dilewati.");
-                                continue; // Skip init for this model
+                                continue;
                             }
                         }
                         if (count($params_to_pass) === $numParams || ($numParams === 1 && count($params_to_pass) === 1)) {
                             $class_name::init(...$params_to_pass);
                             $initialized = true;
                         } else if ($numParams === 2 && count($params_to_pass) === 1 && $reflectionMethod->getParameters()[1]->isOptional()) {
-                            $class_name::init($params_to_pass[0]); // Panggil hanya dengan $conn
+                            $class_name::init($params_to_pass[0]);
                             $initialized = true;
                         } else {
                             error_log("PERINGATAN config.php: Model {$class_name}::init() tidak dipanggil karena jumlah parameter tidak cocok (Diharapkan {$numParams}, Disediakan " . count($params_to_pass) . ").");
@@ -259,8 +256,8 @@ $upload_paths_to_create = [
     UPLOADS_PROFIL_PATH,
     UPLOADS_SITUS_PATH
 ];
-foreach (array_filter($upload_paths_to_create) as $path) { // array_filter untuk skip null jika ada konstanta tidak terdefinisi
-    if ($path && !is_dir($path)) { // Pastikan $path tidak null/kosong sebelum is_dir
+foreach (array_filter($upload_paths_to_create) as $path) {
+    if ($path && !is_dir($path)) {
         if (!@mkdir($path, 0775, true) && !is_dir($path)) {
             error_log("PERINGATAN config.php: Gagal membuat direktori upload '{$path}'. Periksa izin.");
         } else {
@@ -284,7 +281,6 @@ if (!defined('UPLOADS_GALERI_URL')) define('UPLOADS_GALERI_URL', UPLOADS_URL . '
 if (!defined('UPLOADS_PROFIL_URL')) define('UPLOADS_PROFIL_URL', UPLOADS_URL . 'profil/');
 if (!defined('UPLOADS_SITUS_URL')) define('UPLOADS_SITUS_URL', UPLOADS_URL . 'situs/');
 
-// Tambahkan definisi untuk ERROR_PAGE_URL jika Anda ingin menggunakannya
 if (!defined('ERROR_PAGE_URL')) {
     define('ERROR_PAGE_URL', BASE_URL . 'error.php'); // Buat file error.php di root proyek Anda
 }
@@ -292,7 +288,10 @@ if (!defined('ERROR_PAGE_URL')) {
 
 // 10. PENGATURAN GLOBAL SITUS LAINNYA
 if (!defined('NAMA_SITUS')) define('NAMA_SITUS', 'Lembah Cilengkrang');
+if (!defined('PENGANTAR_SINGKAT_SITUS')) define('PENGANTAR_SINGKAT_SITUS', "Lembah Cilengkrang terletak di Pajambon, Kramatmulya, Kuningan, Jawa Barat, sekitar 30km dari pusat kota Kuningan. Destinasi ini menawarkan keindahan air terjun menawan, relaksasi di pemandian air panas alami, dan kesegaran udara pegunungan.");
 if (!defined('EMAIL_ADMIN')) define('EMAIL_ADMIN', 'admin@example.com');
 if (!defined('DEFAULT_ITEMS_PER_PAGE')) define('DEFAULT_ITEMS_PER_PAGE', 10);
+if (!defined('THEME_COLOR_PRIMARY')) define('THEME_COLOR_PRIMARY', '#28a745'); // Warna tema hijau
+
 
 // error_log("INFO config.php: Konfigurasi selesai dimuat. IS_DEVELOPMENT: " . (IS_DEVELOPMENT ? 'true' : 'false'));

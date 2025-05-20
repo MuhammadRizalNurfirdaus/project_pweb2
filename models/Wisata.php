@@ -157,17 +157,16 @@ class Wisata
         $column = $order_parts[0] ?? 'nama';
         $direction = (isset($order_parts[1]) && strtoupper($order_parts[1]) === 'DESC') ? 'DESC' : 'ASC';
         if (!in_array(strtolower($column), $allowed_order_columns, true)) {
-            $column = 'nama'; // Default jika kolom tidak valid
+            $column = 'nama';
             $direction = 'ASC';
         }
-        // Escape nama kolom untuk keamanan jika $orderBy berasal dari input pengguna (meskipun di sini defaultnya aman)
         $orderBySafe = "`" . mysqli_real_escape_string(self::$db, $column) . "` " . $direction;
 
         $sql = "SELECT id, nama, deskripsi, gambar, lokasi, created_at, updated_at 
                 FROM " . self::$table_name . " 
                 ORDER BY " . $orderBySafe;
         if ($limit !== null && $limit > 0) {
-            $sql .= " LIMIT " . (int)$limit;
+            $sql .= " LIMIT " . (int)$limit; // Ini penting untuk menerapkan limit
         }
 
         $result = mysqli_query(self::$db, $sql);
@@ -181,6 +180,7 @@ class Wisata
             return [];
         }
     }
+
 
     public static function update(array $data): bool
     {

@@ -231,7 +231,6 @@ require_once ROOT_PATH . '/template/header_admin.php';
                                 <option value="keep" selected>Pertahankan Gambar</option>
                                 <option value="change">Ganti dengan Gambar Baru</option>
                                 <?php if (!empty($current_gambar_filename_display)): ?>
-                                    <option value="remove">Hapus Gambar Saat Ini</option>
                                 <?php endif; ?>
                             </select>
                             <div id="new-image-upload-section-wisata" style="display:none;" class="mt-2">

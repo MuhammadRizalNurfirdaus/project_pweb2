@@ -2,29 +2,25 @@
 // File: C:\xampp\htdocs\Cilengkrang-Web-Wisata\index.php
 
 // 1. Selalu sertakan config.php pertama kali
-// config.php akan memuat semua helper, memulai session, koneksi DB, model, dan controller.
 if (!@require_once __DIR__ . '/config/config.php') {
   http_response_code(503);
   error_log("FATAL ERROR di index.php: Gagal memuat config.php. Path yang dicoba: " . realpath(__DIR__ . '/config/config.php'));
-  $error_message_display = "Terjadi kesalahan pada server. Mohon coba lagi nanti atau hubungi administrator. (Kode: IDX_CFG_LOAD_FAIL)";
-  if (defined('IS_DEVELOPMENT') && IS_DEVELOPMENT) { // Hanya tampilkan detail path jika development
-    $error_message_display = "Kesalahan Kritis: Gagal memuat file konfigurasi utama (config.php). Aplikasi tidak dapat berjalan. Path yang dicoba: " . realpath(__DIR__ . '/config/config.php');
-  }
+  $error_message_display = (defined('IS_DEVELOPMENT') && IS_DEVELOPMENT)
+    ? "Kesalahan Kritis: Gagal memuat file konfigurasi utama (config.php). Aplikasi tidak dapat berjalan. Path yang dicoba: " . realpath(__DIR__ . '/config/config.php')
+    : "Terjadi kesalahan pada server. Mohon coba lagi nanti atau hubungi administrator. (Kode: IDX_CFG_LOAD_FAIL)";
   exit("<div style='font-family:Arial,sans-serif;border:1px solid red;padding:15px;margin:20px;background-color:#ffebee;color:#c62828;'><strong>Kesalahan Server Kritis</strong><br>" . htmlspecialchars($error_message_display, ENT_QUOTES, 'UTF-8') . "</div>");
 }
 
-// 2. Ambil data artikel terbaru
+// 2. Ambil data artikel terbaru (Logika sama seperti sebelumnya, diasumsikan sudah benar)
 $artikel_terbaru = [];
 $error_artikel = null;
-
 if (class_exists('Artikel') && method_exists('Artikel', 'getLatest')) {
-  // $conn seharusnya sudah tersedia dan valid dari config.php
-  if (isset($conn) && $conn instanceof mysqli && @$conn->ping()) { // @ untuk menekan warning jika ping gagal tapi koneksi ada
+  if (isset($conn) && $conn instanceof mysqli && @$conn->ping()) {
     try {
       $artikel_terbaru = Artikel::getLatest(3);
       if ($artikel_terbaru === false || $artikel_terbaru === null) {
         $artikel_terbaru = [];
-        $artikel_model_error = method_exists('Artikel', 'getLastError') ? Artikel::getLastError() : null;
+        $artikel_model_error = Artikel::getLastError();
         if ($artikel_model_error) {
           $error_artikel = "Gagal mengambil artikel terbaru: " . e($artikel_model_error);
           error_log("INDEX_PAGE_ERROR - Artikel::getLatest(): " . $artikel_model_error);
@@ -44,24 +40,23 @@ if (class_exists('Artikel') && method_exists('Artikel', 'getLatest')) {
   error_log("INDEX_PAGE_CRITICAL - Kelas Artikel atau metode getLatest tidak ditemukan.");
 }
 
-// Ambil data destinasi populer
+// Ambil data destinasi populer dari Model Wisata
 $destinasi_populer = [];
 $error_destinasi_populer = null;
-
 if (class_exists('WisataController') && method_exists('WisataController', 'getAllForAdmin')) {
   if (isset($conn) && $conn instanceof mysqli && @$conn->ping()) {
     try {
-      // PERBAIKAN: Pastikan pemanggilan sesuai dengan definisi di WisataController
-      // Jika WisataController::getAllForAdmin($orderBy, $limit)
-      $destinasi_populer_raw = WisataController::getAllForAdmin('created_at DESC', 3); // Ambil 3 terbaru
+      $destinasi_populer_raw = WisataController::getAllForAdmin('created_at DESC', 3);
 
       if ($destinasi_populer_raw && is_array($destinasi_populer_raw)) {
         $destinasi_populer = $destinasi_populer_raw;
-      } elseif ($destinasi_populer_raw === false) { // Jika controller mengembalikan false
+      } elseif ($destinasi_populer_raw === false) {
         $destinasi_populer = [];
         $controller_or_model_error = (class_exists('Wisata') && method_exists('Wisata', 'getLastError')) ? Wisata::getLastError() : 'Error tidak spesifik dari WisataController.';
         $error_destinasi_populer = "Gagal mengambil data destinasi populer." . ($controller_or_model_error ? " Detail: " . e($controller_or_model_error) : "");
         error_log("INDEX_PAGE_ERROR - WisataController::getAllForAdmin() untuk destinasi populer: " . $error_destinasi_populer);
+      } else {
+        $destinasi_populer = [];
       }
     } catch (Throwable $e) {
       $destinasi_populer = [];
@@ -80,6 +75,26 @@ if (class_exists('WisataController') && method_exists('WisataController', 'getAl
 
 $page_title = "Beranda - " . (defined('NAMA_SITUS') ? e(NAMA_SITUS) : "Lembah Cilengkrang");
 $is_homepage = true;
+$theme_color_primary_hex = defined('THEME_COLOR_PRIMARY') ? THEME_COLOR_PRIMARY : "#28a745";
+
+// Definisikan path dasar untuk gambar Wisata DENGAN BENAR (konsisten)
+$base_uploads_wisata_path_server_idx = defined('UPLOADS_WISATA_PATH')
+  ? rtrim(UPLOADS_WISATA_PATH, '/\\')
+  : rtrim(ROOT_PATH, '/\\') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'wisata';
+
+$base_uploads_wisata_url_web_idx = defined('UPLOADS_WISATA_URL')
+  ? rtrim(UPLOADS_WISATA_URL, '/')
+  : (defined('BASE_URL') ? rtrim(BASE_URL, '/') . '/public/uploads/wisata' : './public/uploads/wisata');
+
+// Definisikan path dasar untuk gambar Artikel
+$base_uploads_artikel_path_server_idx = defined('UPLOADS_ARTIKEL_PATH')
+  ? rtrim(UPLOADS_ARTIKEL_PATH, '/\\')
+  : rtrim(ROOT_PATH, '/\\') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'artikel';
+
+$base_uploads_artikel_url_web_idx = defined('UPLOADS_ARTIKEL_URL')
+  ? rtrim(UPLOADS_ARTIKEL_URL, '/')
+  : (defined('BASE_URL') ? rtrim(BASE_URL, '/') . '/public/uploads/artikel' : './public/uploads/artikel');
+
 
 // 3. Sertakan header publik
 if (!@include_once ROOT_PATH . '/template/header.php') {
@@ -115,34 +130,34 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
   <section class="section-padding">
     <div class="container">
       <div class="text-center mb-5">
-        <span class="text-uppercase text-primary fw-bold small">Keunggulan Kami</span>
-        <h2 class="section-title mt-2">Mengapa Memilih Cilengkrang?</h2>
+        <span class="text-uppercase fw-bold small" style="color: <?= $theme_color_primary_hex ?>;">Keunggulan Kami</span>
+        <h2 class="section-title mt-2" style="color: <?= $theme_color_primary_hex ?>;">Mengapa Memilih Cilengkrang?</h2>
         <p class="section-subtitle lead text-muted col-md-8 mx-auto">Destinasi sempurna untuk petualangan, relaksasi, dan momen tak terlupakan bersama orang terkasih.</p>
       </div>
       <div class="row g-4 justify-content-center">
         <div class="col-md-6 col-lg-4">
           <div class="card feature-card text-center p-lg-4 p-3 h-100 animate-on-scroll shadow-hover">
-            <div class="icon text-success display-1 mb-3"><i class="fas fa-water"></i></div>
+            <div class="icon display-1 mb-3" style="color: <?= $theme_color_primary_hex ?>;"><i class="fas fa-water"></i></div>
             <div class="card-body p-0">
-              <h5 class="card-title h4">Air Terjun Memukau</h5>
+              <h5 class="card-title h4" style="color: <?= $theme_color_primary_hex ?>;">Air Terjun Memukau</h5>
               <p class="card-text">Saksikan keagungan Curug Cilengkrang dengan airnya yang jernih dan panorama alam yang menyegarkan mata serta jiwa.</p>
             </div>
           </div>
         </div>
         <div class="col-md-6 col-lg-4">
           <div class="card feature-card text-center p-lg-4 p-3 h-100 animate-on-scroll shadow-hover" data-animation-delay="100ms">
-            <div class="icon text-info display-1 mb-3"><i class="fas fa-hot-tub"></i></div>
+            <div class="icon display-1 mb-3" style="color: <?= $theme_color_primary_hex ?>;"><i class="fas fa-hot-tub"></i></div>
             <div class="card-body p-0">
-              <h5 class="card-title h4">Pemandian Air Panas</h5>
+              <h5 class="card-title h4" style="color: <?= $theme_color_primary_hex ?>;">Pemandian Air Panas</h5>
               <p class="card-text">Relaksasikan tubuh dan pikiran Anda di sumber air panas alami yang kaya akan mineral dan berkhasiat untuk kesehatan.</p>
             </div>
           </div>
         </div>
         <div class="col-md-6 col-lg-4">
           <div class="card feature-card text-center p-lg-4 p-3 h-100 animate-on-scroll shadow-hover" data-animation-delay="200ms">
-            <div class="icon text-warning display-1 mb-3"><i class="fas fa-tree"></i></div>
+            <div class="icon display-1 mb-3" style="color: <?= $theme_color_primary_hex ?>;"><i class="fas fa-tree"></i></div>
             <div class="card-body p-0">
-              <h5 class="card-title h4">Keindahan Hutan Pinus</h5>
+              <h5 class="card-title h4" style="color: <?= $theme_color_primary_hex ?>;">Keindahan Hutan Pinus</h5>
               <p class="card-text">Nikmati trekking santai atau piknik di tengah keteduhan hutan pinus yang asri, hirup udara segar khas pegunungan.</p>
             </div>
           </div>
@@ -155,7 +170,7 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
     <section class="section-padding bg-light-custom">
       <div class="container">
         <div class="text-center mb-5">
-          <span class="text-uppercase text-primary fw-bold small">Jelajahi Lebih</span>
+          <span class="text-uppercase fw-bold small" style="color: <?= $theme_color_primary_hex ?>;">Jelajahi Lebih</span>
           <h2 class="section-title mt-2">Destinasi Populer Kami</h2>
         </div>
         <div class="row g-4 text-center">
@@ -166,13 +181,24 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
             $desk_singkat_dest = e(excerpt($dest['deskripsi'] ?? '', 100));
             $detail_url_dest = BASE_URL . 'wisata/detail_destinasi.php?id=' . ($dest['id'] ?? 0);
 
-            $gambar_dest_url_final = (defined('ASSETS_URL') ? ASSETS_URL : BASE_URL . 'public/') . 'img/placeholder_wisata.png'; // Fallback
-            if (!empty($dest['gambar'])) {
-              $path_cek_gambar_dest = (defined('UPLOADS_WISATA_PATH') ? UPLOADS_WISATA_PATH : ROOT_PATH . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'wisata' . DIRECTORY_SEPARATOR) . basename($dest['gambar']);
-              if (file_exists($path_cek_gambar_dest) && is_file($path_cek_gambar_dest)) {
-                $gambar_dest_url_final = (defined('UPLOADS_WISATA_URL') ? UPLOADS_WISATA_URL : BASE_URL . 'public/uploads/wisata/') . rawurlencode(basename($dest['gambar']));
+            // --- PERBAIKAN LOGIKA GAMBAR DESTINASI ---
+            $gambar_file_dest_db = $dest['gambar'] ?? null;
+            $gambar_dest_url_final = (defined('ASSETS_URL') ? ASSETS_URL : BASE_URL . 'public/') . 'img/placeholder_wisata.png'; // Default placeholder
+            $path_gambar_server_dest_aktual = null;
+
+            if (!empty($gambar_file_dest_db)) {
+              $nama_file_bersih_dest = basename($gambar_file_dest_db);
+              // Gunakan variabel path dasar yang sudah didefinisikan di atas
+              $path_gambar_server_dest_aktual = $base_uploads_wisata_path_server_idx . DIRECTORY_SEPARATOR . $nama_file_bersih_dest;
+
+              if (file_exists($path_gambar_server_dest_aktual) && is_file($path_gambar_server_dest_aktual)) {
+                // Gunakan variabel URL dasar yang sudah didefinisikan di atas
+                $gambar_dest_url_final = $base_uploads_wisata_url_web_idx . '/' . rawurlencode($nama_file_bersih_dest);
+              } else {
+                // error_log("INDEX_DESTINASI_DEBUG: Gambar '{$nama_file_bersih_dest}' (ID: {$dest['id']}) tidak ditemukan di server. Path dicek: {$path_gambar_server_dest_aktual}");
               }
             }
+            // --- AKHIR PERBAIKAN LOGIKA GAMBAR DESTINASI ---
           ?>
             <div class="col-lg-4 col-md-6 animate-on-scroll" data-animation-delay="<?= $delay_animasi ?>ms">
               <div class="card destination-card shadow-sm h-100 hover-shadow-lg transition-fast">
@@ -192,7 +218,6 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
           endforeach; ?>
         </div>
         <?php
-        // Cek apakah total destinasi lebih banyak dari yang ditampilkan
         $total_destinasi_keseluruhan = (class_exists('Wisata') && method_exists('Wisata', 'countAll')) ? Wisata::countAll() : count($destinasi_populer);
         if ($total_destinasi_keseluruhan > count($destinasi_populer)):
         ?>
@@ -215,7 +240,7 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
     <section class="section-padding">
       <div class="container">
         <div class="text-center mb-5">
-          <span class="text-uppercase text-primary fw-bold small">Info & Berita</span>
+          <span class="text-uppercase fw-bold small" style="color: <?= $theme_color_primary_hex ?>;">Info & Berita</span>
           <h2 class="section-title mt-2">Artikel & Tips Terbaru</h2>
         </div>
         <div class="row g-4">
@@ -224,13 +249,25 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
           foreach ($artikel_terbaru as $artikel):
             $judul_artikel = e($artikel['judul'] ?? 'Judul Artikel');
             $link_artikel = BASE_URL . 'user/artikel_detail.php?id=' . ($artikel['id'] ?? 0);
-            $gambar_artikel_final = (defined('ASSETS_URL') ? ASSETS_URL : BASE_URL . 'public/') . 'img/placeholder_artikel.png';
-            if (!empty($artikel['gambar'])) {
-              $path_cek_artikel = (defined('UPLOADS_ARTIKEL_PATH') ? UPLOADS_ARTIKEL_PATH : ROOT_PATH . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'artikel' . DIRECTORY_SEPARATOR) . basename($artikel['gambar']);
-              if (file_exists($path_cek_artikel) && is_file($path_cek_artikel)) {
-                $gambar_artikel_final = (defined('UPLOADS_ARTIKEL_URL') ? UPLOADS_ARTIKEL_URL : BASE_URL . 'public/uploads/artikel/') . rawurlencode(basename($artikel['gambar']));
+
+            // --- PERBAIKAN LOGIKA GAMBAR ARTIKEL ---
+            $gambar_file_artikel_db = $artikel['gambar'] ?? null;
+            $gambar_artikel_final = (defined('ASSETS_URL') ? ASSETS_URL : BASE_URL . 'public/') . 'img/placeholder_artikel.png'; // Default placeholder
+            $path_gambar_server_artikel_aktual = null;
+
+            if (!empty($gambar_file_artikel_db)) {
+              $nama_file_bersih_artikel = basename($gambar_file_artikel_db);
+              // Gunakan variabel path dasar yang sudah didefinisikan di atas
+              $path_gambar_server_artikel_aktual = $base_uploads_artikel_path_server_idx . DIRECTORY_SEPARATOR . $nama_file_bersih_artikel;
+
+              if (file_exists($path_gambar_server_artikel_aktual) && is_file($path_gambar_server_artikel_aktual)) {
+                // Gunakan variabel URL dasar yang sudah didefinisikan di atas
+                $gambar_artikel_final = $base_uploads_artikel_url_web_idx . '/' . rawurlencode($nama_file_bersih_artikel);
+              } else {
+                // error_log("INDEX_ARTIKEL_DEBUG: Gambar '{$nama_file_bersih_artikel}' (ID: {$artikel['id']}) tidak ditemukan di server. Path dicek: {$path_gambar_server_artikel_aktual}");
               }
             }
+            // --- AKHIR PERBAIKAN LOGIKA GAMBAR ARTIKEL ---
           ?>
             <div class="col-md-6 col-lg-4 animate-on-scroll" data-animation-delay="<?= $delay_animasi_artikel ?>ms">
               <div class="card article-card-home h-100 shadow-sm hover-shadow-lg transition-fast">
@@ -279,7 +316,7 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
   <section class="section-padding bg-light-custom testimonial-section">
     <div class="container">
       <div class="text-center mb-5">
-        <span class="text-uppercase text-primary fw-bold small">Ulasan Pengunjung</span>
+        <span class="text-uppercase fw-bold small" style="color: <?= $theme_color_primary_hex ?>;">Ulasan Pengunjung</span>
         <h2 class="section-title mt-2">Apa Kata Mereka?</h2>
       </div>
       <div class="row justify-content-center">
@@ -292,49 +329,46 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
             </div>
             <div class="carousel-inner rounded shadow-lg">
               <?php
-              // Data testimoni ini idealnya dari database (Model Feedback)
-              $testimonies = []; // Akan diisi dari DB jika ada
+              // ... (logika testimoni sama seperti sebelumnya, pastikan path avatar benar) ...
+              $testimonies = [];
               if (class_exists('Feedback') && method_exists('Feedback', 'getAll')) {
-                // Ambil beberapa testimoni acak atau terbaru dengan rating bagus
-                // $allFeedbacks = Feedback::getAll(); // Ini mengambil semua, mungkin terlalu banyak
-                // Anda mungkin perlu metode baru di Feedback Model, misal: Feedback::getFeatured(3)
-                // Untuk contoh, kita tetap pakai data statis jika pengambilan dari DB gagal/belum ada
-                $allFeedbacks = []; // Kosongkan dulu
-                if (empty($allFeedbacks)) { // Fallback ke data statis jika DB kosong atau error
+                $allFeedbacks = [];
+                if (empty($allFeedbacks)) {
                   $testimonies = [
-                    ['user_nama' => 'Rina Amelia - Bandung', 'komentar' => 'Pengalaman luar biasa! Air panasnya benar-benar menyegarkan dan pemandangannya indah sekali. Sangat cocok untuk liburan keluarga.', 'foto_profil' => 'avatar1.jpg'], // Asumsi ada user_nama dan foto_profil di feedback
+                    ['user_nama' => 'Rina Amelia - Bandung', 'komentar' => 'Pengalaman luar biasa! Air panasnya benar-benar menyegarkan dan pemandangannya indah sekali. Sangat cocok untuk liburan keluarga.', 'foto_profil' => 'avatar1.jpg'],
                     ['user_nama' => 'Budi Santoso - Jakarta', 'komentar' => 'Stafnya ramah dan fasilitasnya cukup bersih. Anak-anak senang bermain di area curug yang sejuk. Pasti akan kembali lagi suatu saat!', 'foto_profil' => 'avatar2.jpg'],
                     ['user_nama' => 'Siti Nurhaliza - Cimahi', 'komentar' => 'Tempat yang tepat untuk healing dari hiruk pikuk kota. Suasana hutannya menenangkan, dan air panasnya bikin rileks. Recommended!', 'foto_profil' => 'avatar3.jpg'],
                   ];
-                } else {
-                  // Olah $allFeedbacks menjadi format $testimonies
-                  // Misalnya, ambil 3 teratas atau acak
-                  // $testimonies = array_slice($allFeedbacks, 0, 3);
                 }
               } else {
-                $testimonies = [ /* Data statis fallback */];
+                $testimonies = [
+                  ['user_nama' => 'Rina Amelia - Bandung', 'komentar' => 'Pengalaman luar biasa! Air panasnya benar-benar menyegarkan dan pemandangannya indah sekali. Sangat cocok untuk liburan keluarga.', 'foto_profil' => 'avatar1.jpg'],
+                  ['user_nama' => 'Budi Santoso - Jakarta', 'komentar' => 'Stafnya ramah dan fasilitasnya cukup bersih. Anak-anak senang bermain di area curug yang sejuk. Pasti akan kembali lagi suatu saat!', 'foto_profil' => 'avatar2.jpg'],
+                  ['user_nama' => 'Siti Nurhaliza - Cimahi', 'komentar' => 'Tempat yang tepat untuk healing dari hiruk pikuk kota. Suasana hutannya menenangkan, dan air panasnya bikin rileks. Recommended!', 'foto_profil' => 'avatar3.jpg'],
+                ];
               }
-
 
               foreach ($testimonies as $index => $testi) :
                 $avatar_fallback_url = (defined('ASSETS_URL') ? ASSETS_URL : BASE_URL . 'public/') . 'img/avatar_placeholder.png';
                 $avatar_display_url = $avatar_fallback_url;
-                if (!empty($testi['foto_profil'])) { // Jika feedback dari user terdaftar dan ada foto profil
-                  $path_cek_avatar = (defined('UPLOADS_PROFIL_PATH') ? UPLOADS_PROFIL_PATH : ROOT_PATH . '/public/uploads/profil/') . basename($testi['foto_profil']);
-                  if (file_exists($path_cek_avatar) && is_file($path_cek_avatar)) {
-                    $avatar_display_url = (defined('UPLOADS_PROFIL_URL') ? UPLOADS_PROFIL_URL : BASE_URL . 'public/uploads/profil/') . rawurlencode(basename($testi['foto_profil']));
-                  } elseif (file_exists(ROOT_PATH . '/public/img/' . $testi['foto_profil'])) { // Fallback ke img statis jika nama file cocok
-                    $avatar_display_url = (defined('ASSETS_URL') ? ASSETS_URL . 'img/' : BASE_URL . 'public/img/') . e($testi['foto_profil']);
+                // Sesuaikan path untuk foto_profil jika itu dari uploads/profil/
+                $nama_file_avatar = $testi['foto_profil'] ?? ($testi['avatar'] ?? null);
+                if (!empty($nama_file_avatar)) {
+                  $path_cek_avatar_upload = (defined('UPLOADS_PROFIL_PATH') ? UPLOADS_PROFIL_PATH : ROOT_PATH . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'profil' . DIRECTORY_SEPARATOR) . basename($nama_file_avatar);
+                  $path_cek_avatar_img = ROOT_PATH . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . basename($nama_file_avatar);
+
+                  if (file_exists($path_cek_avatar_upload) && is_file($path_cek_avatar_upload)) {
+                    $avatar_display_url = (defined('UPLOADS_PROFIL_URL') ? UPLOADS_PROFIL_URL : BASE_URL . 'public/uploads/profil/') . rawurlencode(basename($nama_file_avatar));
+                  } elseif (file_exists($path_cek_avatar_img) && is_file($path_cek_avatar_img)) {
+                    $avatar_display_url = (defined('ASSETS_URL') ? ASSETS_URL . 'img/' : BASE_URL . 'public/img/') . rawurlencode(basename($nama_file_avatar));
                   }
-                } elseif (isset($testi['avatar']) && file_exists(ROOT_PATH . '/public/img/' . $testi['avatar'])) { // Untuk data statis lama
-                  $avatar_display_url = (defined('ASSETS_URL') ? ASSETS_URL . 'img/' : BASE_URL . 'public/img/') . e($testi['avatar']);
                 }
               ?>
                 <div class="carousel-item <?= $index == 0 ? 'active' : '' ?>">
                   <div class="testimonial-card-item p-4 p-md-5">
                     <img src="<?= e($avatar_display_url) ?>?t=<?= time() ?>" loading="lazy" class="testimonial-avatar rounded-circle mb-3 shadow-sm" alt="Foto <?= e($testi['nama'] ?? ($testi['user_nama'] ?? 'Pengunjung')) ?>" style="width: 80px; height: 80px; object-fit: cover;">
                     <blockquote class="fs-5 fst-italic text-dark mb-3">"<?= e($testi['testimoni'] ?? ($testi['komentar'] ?? 'Tidak ada komentar.')) ?>"</blockquote>
-                    <cite class="testimonial-author fw-bold d-block text-primary"><?= e($testi['nama'] ?? ($testi['user_nama'] ?? 'Seorang Pengunjung')) ?></cite>
+                    <cite class="testimonial-author fw-bold d-block" style="color: <?= $theme_color_primary_hex ?>;"><?= e($testi['nama'] ?? ($testi['user_nama'] ?? 'Seorang Pengunjung')) ?></cite>
                   </div>
                 </div>
               <?php endforeach; ?>
@@ -359,7 +393,7 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
       <div class="animate-on-scroll text-white">
         <h2 class="section-title display-5">Siap untuk Petualangan Berikutnya?</h2>
         <p class="lead mb-4 mx-auto" style="max-width: 700px;">
-          <?= e(NAMA_SITUS) ?> menanti kedatangan Anda dengan sejuta pesona alam, keramahan, dan pengalaman tak terlupakan yang akan memperkaya jiwa.
+          <?= e(defined('NAMA_SITUS') ? NAMA_SITUS : 'Cilengkrang') ?> menanti kedatangan Anda dengan sejuta pesona alam, keramahan, dan pengalaman tak terlupakan yang akan memperkaya jiwa.
         </p>
         <a href="<?= e(BASE_URL . 'user/pemesanan_tiket.php') ?>" class="btn btn-light btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn shadow">
           <i class="fas fa-calendar-check me-2"></i> Rencanakan Kunjungan Anda
@@ -371,7 +405,7 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
     </div>
   </section>
 
-</div> <!-- Penutup .main-page-content -->
+</div>
 
 <?php
 if (!@include_once ROOT_PATH . '/template/footer.php') {
