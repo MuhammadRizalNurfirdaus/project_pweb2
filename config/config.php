@@ -5,180 +5,158 @@
  * File Konfigurasi Utama Aplikasi Cilengkrang Web Wisata
  */
 
-// --- LANGKAH DEBUGGING AWAL YANG SANGAT PENTING ---
-// Aktifkan ini HANYA saat debugging untuk melihat error PHP langsung di browser.
-// Komentari atau hapus ini untuk produksi.
+// --- PENGATURAN ERROR REPORTING & DEBUGGING ---
+if (isset($_GET['debug_errors_on'])) {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+    echo "<p style='color:red; font-weight:bold;'>PERINGATAN: Display errors diaktifkan via URL!</p>";
+} else {
+    // Atur default environment di sini jika tidak melalui URL
+    // Contoh untuk development:
+    // ini_set('display_errors', 1);
+    // ini_set('display_startup_errors', 1);
+    // error_reporting(E_ALL);
+}
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// --- AKHIR LANGKAH DEBUGGING AWAL ---
-
-// 1. Mulai Session (HARUS menjadi baris pertama yang dieksekusi sebelum output apapun)
+// 1. MULAI SESSION
 if (session_status() == PHP_SESSION_NONE) {
-    if (!headers_sent($php_file, $php_line)) { // Variabel $file dan $line diganti agar tidak konflik
+    if (!headers_sent($php_file_sess, $php_line_sess)) { // Gunakan nama variabel unik
         session_start();
     } else {
         $error_message_session = "FATAL ERROR di config.php: Tidak dapat memulai session karena headers sudah terkirim.";
-        if (isset($php_file) && isset($php_line)) {
-            $error_message_session .= " Output dimulai dari file: {$php_file} pada baris: {$php_line}.";
+        if (isset($php_file_sess) && isset($php_line_sess)) {
+            $error_message_session .= " Output dimulai dari file: {$php_file_sess} pada baris: {$php_line_sess}.";
         }
         error_log($error_message_session);
-        // Di tahap ini, menampilkan pesan HTML mungkin tidak efektif jika errornya sangat awal.
-        // Mengandalkan log server adalah yang terbaik.
         exit("Kesalahan kritis pada aplikasi. Silakan hubungi administrator. (Error Code: SESS_INIT_FAIL)");
     }
 }
 
-// 2. Pengaturan Base URL Dinamis
+// 2. PENGATURAN BASE URL DINAMIS
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost'; // Fallback untuk CLI atau jika HTTP_HOST tidak ada
-
-// Logika penentuan base_path_relative yang lebih sederhana dan umum
-$script_name = $_SERVER['SCRIPT_NAME'] ?? ''; // e.g., /Cilengkrang-Web-Wisata/config/config.php or /index.php
-$script_path_parts = explode('/', dirname(str_replace('\\', '/', $script_name)));
-
-// Asumsi: Nama folder proyek adalah 'Cilengkrang-Web-Wisata' (sesuaikan jika berbeda)
-// atau folder di mana file config.php ini berada adalah 'config' di dalam root proyek.
-$project_folder_name = basename(dirname(__DIR__)); // e.g., Cilengkrang-Web-Wisata
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$document_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
+$config_dir_path = str_replace('\\', '/', __DIR__); // Path ke folder 'config'
 
 $base_path_relative = '';
-$path_segments = [];
-foreach ($script_path_parts as $segment) {
-    if (empty($segment)) continue;
-    $path_segments[] = $segment;
-    if ($segment === $project_folder_name) {
-        break; // Berhenti jika sudah menemukan nama folder proyek
+if (!empty($document_root) && strpos($config_dir_path, $document_root) === 0) {
+    $base_path_relative = substr($config_dir_path, strlen($document_root));
+    $base_path_relative = dirname($base_path_relative); // Naik satu level dari /config ke /proyek
+} else {
+    // Fallback jika document_root tidak terdeteksi dengan benar
+    $script_name_for_fallback = $_SERVER['SCRIPT_NAME'] ?? '';
+    $script_path_parts = explode('/', dirname(str_replace('\\', '/', $script_name_for_fallback)));
+    $project_folder_name = basename(dirname(__DIR__)); // Nama folder proyek utama
+    $path_segments = [];
+    foreach ($script_path_parts as $segment) {
+        if (empty($segment) && empty($path_segments)) continue;
+        $path_segments[] = $segment;
+        if ($segment === $project_folder_name) break;
+    }
+    $base_path_relative = '/' . implode('/', $path_segments);
+    if (count($path_segments) === 1 && $path_segments[0] === $project_folder_name && $host === $project_folder_name) {
+        $base_path_relative = '';
     }
 }
-if (!empty($path_segments)) {
-    $base_path_relative = '/' . implode('/', $path_segments);
-}
-// Jika script ada di root dan nama folder proyek adalah nama domain/subdomain, base path adalah ''
-if (count($path_segments) === 1 && $path_segments[0] === $project_folder_name && $_SERVER['HTTP_HOST'] === $project_folder_name) {
-    $base_path_relative = '';
-}
-
-
 $base_path_relative = rtrim(str_replace('//', '/', $base_path_relative), '/');
-
 $base_url = rtrim($protocol . $host . $base_path_relative, '/') . "/";
 
-if (!defined('BASE_URL')) {
-    define('BASE_URL', $base_url);
-}
+if (!defined('BASE_URL')) define('BASE_URL', $base_url);
 // error_log("INFO config.php: BASE_URL di-set ke: " . BASE_URL);
 
-
-// 3. Pengaturan Lingkungan, Zona Waktu, dan Error Reporting
+// 3. PENGATURAN LINGKUNGAN, ZONA WAKTU, DAN ERROR REPORTING (LANJUTAN)
 date_default_timezone_set("Asia/Jakarta");
 
 if (!defined('IS_DEVELOPMENT')) {
-    define('IS_DEVELOPMENT', (in_array($host, ['localhost', '127.0.0.1']) || strpos($host, '.test') !== false || strpos($host, '.local') !== false));
+    define('IS_DEVELOPMENT', (in_array($host, ['localhost', '127.0.0.1']) || strpos($host, '.test') !== false || strpos($host, '.local') !== false || (isset($_GET['debug_errors_on']))));
 }
 
-// Pengaturan error reporting dipindahkan ke atas agar error saat parsing file ini juga bisa terlihat jika display_errors diaktifkan di awal.
-// Namun, untuk masalah loading, error log server adalah yang utama.
 if (IS_DEVELOPMENT) {
-    if (ini_get('display_errors') !== '1') ini_set('display_errors', 1); // Pastikan aktif jika IS_DEVELOPMENT
+    if (ini_get('display_errors') != '1') ini_set('display_errors', 1); // != bukan !== karena bisa 0 atau Off
     if (error_reporting() !== E_ALL) error_reporting(E_ALL);
 } else {
-    if (ini_get('display_errors') !== '0') ini_set('display_errors', 0);
-    if (error_reporting() !== (E_ALL & ~E_DEPRECATED & ~E_STRICT & ~E_NOTICE & ~E_WARNING)) {
-        error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT & ~E_NOTICE & ~E_WARNING);
-    }
+    if (ini_get('display_errors') != '0') ini_set('display_errors', 0);
+    error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT & ~E_NOTICE & ~E_WARNING);
 }
 
 ini_set('log_errors', 1);
-$logs_dir_path = dirname(__DIR__) . '/logs';
+$logs_dir_path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'logs';
 if (!is_dir($logs_dir_path)) {
     if (!@mkdir($logs_dir_path, 0775, true) && !is_dir($logs_dir_path)) {
-        error_log("KRITIKAL config.php: Gagal membuat direktori logs di {$logs_dir_path}. Periksa izin pada folder induk: " . dirname($logs_dir_path));
+        error_log("KRITIKAL config.php: Gagal membuat direktori logs di {$logs_dir_path}.");
     } else {
         @chmod($logs_dir_path, 0775);
-        // error_log("INFO config.php: Direktori logs berhasil dibuat di {$logs_dir_path}.");
     }
 }
 $error_log_filename = IS_DEVELOPMENT ? 'php_error_dev.log' : 'php_error_prod.log';
-$error_log_path = $logs_dir_path . '/' . $error_log_filename;
+$error_log_path = $logs_dir_path . DIRECTORY_SEPARATOR . $error_log_filename;
 
-// Coba set error_log path, jika gagal, PHP akan menggunakan default server.
 if (is_writable($logs_dir_path) || (file_exists($error_log_path) && is_writable($error_log_path)) || (!file_exists($error_log_path) && is_writable(dirname($error_log_path)))) {
     ini_set('error_log', $error_log_path);
-    // error_log("INFO config.php: Error logging di-set ke: " . $error_log_path . " (Saat startup config)");
 } else {
-    error_log("KRITIKAL config.php: Direktori logs {$logs_dir_path} atau file log {$error_log_path} tidak dapat ditulis. Error PHP mungkin tidak tercatat ke file custom, akan menggunakan default server.");
+    error_log("KRITIKAL config.php: Direktori logs {$logs_dir_path} atau file log {$error_log_path} tidak dapat ditulis.");
 }
 
-
-// 4. Definisi Konstanta Path Aplikasi Fisik
+// 4. DEFINISI KONSTANTA PATH APLIKASI FISIK
 if (!defined('ROOT_PATH')) define('ROOT_PATH', dirname(__DIR__));
-if (!defined('CONFIG_PATH')) define('CONFIG_PATH', ROOT_PATH . '/config');
-if (!defined('CONTROLLERS_PATH')) define('CONTROLLERS_PATH', ROOT_PATH . '/controllers');
-if (!defined('MODELS_PATH')) define('MODELS_PATH', ROOT_PATH . '/models');
-if (!defined('VIEWS_PATH')) define('VIEWS_PATH', ROOT_PATH . '/template');
-if (!defined('INCLUDES_PATH')) define('INCLUDES_PATH', ROOT_PATH . '/includes');
-if (!defined('PUBLIC_PATH')) define('PUBLIC_PATH', ROOT_PATH . '/public');
-if (!defined('UPLOADS_PATH')) define('UPLOADS_PATH', PUBLIC_PATH . '/uploads');
+if (!defined('CONFIG_PATH')) define('CONFIG_PATH', ROOT_PATH . DIRECTORY_SEPARATOR . 'config');
+if (!defined('CONTROLLERS_PATH')) define('CONTROLLERS_PATH', ROOT_PATH . DIRECTORY_SEPARATOR . 'controllers');
+if (!defined('MODELS_PATH')) define('MODELS_PATH', ROOT_PATH . DIRECTORY_SEPARATOR . 'models');
+if (!defined('VIEWS_PATH')) define('VIEWS_PATH', ROOT_PATH . DIRECTORY_SEPARATOR . 'template');
+if (!defined('INCLUDES_PATH')) define('INCLUDES_PATH', ROOT_PATH . DIRECTORY_SEPARATOR . 'includes');
+if (!defined('PUBLIC_PATH')) define('PUBLIC_PATH', ROOT_PATH . DIRECTORY_SEPARATOR . 'public');
+if (!defined('UPLOADS_PATH')) define('UPLOADS_PATH', PUBLIC_PATH . DIRECTORY_SEPARATOR . 'uploads');
 
-if (!defined('UPLOADS_WISATA_PATH')) define('UPLOADS_WISATA_PATH', UPLOADS_PATH . '/wisata');
-if (!defined('UPLOADS_ARTIKEL_PATH')) define('UPLOADS_ARTIKEL_PATH', UPLOADS_PATH . '/artikel');
-if (!defined('UPLOADS_ALAT_SEWA_PATH')) define('UPLOADS_ALAT_SEWA_PATH', UPLOADS_PATH . '/alat_sewa');
-if (!defined('UPLOADS_BUKTI_PEMBAYARAN_PATH')) define('UPLOADS_BUKTI_PEMBAYARAN_PATH', UPLOADS_PATH . '/bukti_pembayaran');
-if (!defined('UPLOADS_GALERI_PATH')) define('UPLOADS_GALERI_PATH', UPLOADS_PATH . '/galeri');
-if (!defined('UPLOADS_PROFIL_PATH')) define('UPLOADS_PROFIL_PATH', UPLOADS_PATH . '/profil');
+if (!defined('UPLOADS_WISATA_PATH')) define('UPLOADS_WISATA_PATH', UPLOADS_PATH . DIRECTORY_SEPARATOR . 'wisata');
+if (!defined('UPLOADS_ARTIKEL_PATH')) define('UPLOADS_ARTIKEL_PATH', UPLOADS_PATH . DIRECTORY_SEPARATOR . 'artikel');
+if (!defined('UPLOADS_ALAT_SEWA_PATH')) define('UPLOADS_ALAT_SEWA_PATH', UPLOADS_PATH . DIRECTORY_SEPARATOR . 'alat_sewa');
+if (!defined('UPLOADS_BUKTI_PEMBAYARAN_PATH')) define('UPLOADS_BUKTI_PEMBAYARAN_PATH', UPLOADS_PATH . DIRECTORY_SEPARATOR . 'bukti_pembayaran');
+if (!defined('UPLOADS_GALERI_PATH')) define('UPLOADS_GALERI_PATH', UPLOADS_PATH . DIRECTORY_SEPARATOR . 'galeri');
+if (!defined('UPLOADS_PROFIL_PATH')) define('UPLOADS_PROFIL_PATH', UPLOADS_PATH . DIRECTORY_SEPARATOR . 'profil');
+if (!defined('UPLOADS_SITUS_PATH')) define('UPLOADS_SITUS_PATH', UPLOADS_PATH . DIRECTORY_SEPARATOR . 'situs');
 
 
-// 5. Memuat File Helper
+// 5. MEMUAT FILE HELPER
 $helper_files_to_load = [
-    INCLUDES_PATH . '/helpers.php',
-    INCLUDES_PATH . '/flash_message.php',
-    INCLUDES_PATH . '/auth_helpers.php'
+    INCLUDES_PATH . DIRECTORY_SEPARATOR . 'helpers.php',
+    INCLUDES_PATH . DIRECTORY_SEPARATOR . 'flash_message.php',
+    INCLUDES_PATH . DIRECTORY_SEPARATOR . 'auth_helpers.php'
 ];
 foreach ($helper_files_to_load as $helper_file) {
     if (file_exists($helper_file)) {
         require_once $helper_file;
     } else {
-        $err_msg_helper = "KRITIS config.php: File helper '{$helper_file}' tidak ditemukan.";
-        error_log($err_msg_helper);
-        // Pertimbangkan exit jika helper kritis tidak ada, tergantung seberapa penting helper tersebut
-        // exit("Kesalahan konfigurasi: Komponen penting aplikasi hilang (" . basename($helper_file) . ").");
+        error_log("KRITIS config.php: File helper '{$helper_file}' tidak ditemukan.");
     }
 }
 
-
-// 6. Koneksi Database
-if (!file_exists(CONFIG_PATH . "/Koneksi.php")) {
+// 6. KONEKSI DATABASE
+if (!file_exists(CONFIG_PATH . DIRECTORY_SEPARATOR . "Koneksi.php")) {
     error_log("FATAL config.php: File Koneksi.php tidak ditemukan.");
     exit("Kesalahan kritis: Komponen koneksi database tidak ditemukan.");
 }
-require_once CONFIG_PATH . "/Koneksi.php"; // File ini seharusnya mendefinisikan variabel $conn
+require_once CONFIG_PATH . DIRECTORY_SEPARATOR . "Koneksi.php";
 
 if (!isset($conn) || !($conn instanceof mysqli)) {
     $db_error_message = "Variabel koneksi (\$conn) tidak terdefinisi atau bukan instance mysqli setelah include Koneksi.php.";
     error_log("FATAL config.php: " . $db_error_message);
     http_response_code(503);
-    $display_error_detail = IS_DEVELOPMENT ? "<br><small style='color:gray;font-family:monospace;'>Detail Teknis: " . htmlspecialchars($db_error_message) . "</small>" : "";
-    exit("Maaf, situs sedang mengalami gangguan teknis pada layanan database (KNF)." . $display_error_detail);
+    exit("Maaf, situs sedang mengalami gangguan teknis pada layanan database (KNF_CFG).");
 }
 if ($conn->connect_error) {
     $db_error_message = "Koneksi ke database gagal. Error MySQLi: ({$conn->connect_errno}) {$conn->connect_error}";
     error_log("FATAL config.php: " . $db_error_message);
     http_response_code(503);
-    $display_error_detail = IS_DEVELOPMENT ? "<br><small style='color:gray;font-family:monospace;'>Detail Teknis: " . htmlspecialchars($db_error_message) . "</small>" : "";
-    exit("Maaf, situs sedang mengalami gangguan teknis pada layanan database (KCE)." . $display_error_detail);
+    exit("Maaf, situs sedang mengalami gangguan teknis pada layanan database (KCE_CFG).");
 }
 if (!$conn->set_charset("utf8mb4")) {
     error_log("PERINGATAN config.php: Gagal mengatur charset koneksi ke utf8mb4. Error: " . $conn->error);
 }
-// error_log("INFO config.php: Koneksi database berhasil dan charset di-set ke utf8mb4. Host: " . $conn->host_info);
 
-
-// 7. Memuat SEMUA Model dan Menginisialisasi Koneksi Database serta Path Upload untuk Model
-error_log("INFO config.php: Memulai proses pemuatan dan inisialisasi Model.");
-$model_files = glob(MODELS_PATH . '/*.php');
-
+// 7. MEMUAT SEMUA MODEL DAN MENGINISIALISASI
+// error_log("INFO config.php: Memulai pemuatan dan inisialisasi Model.");
+$model_files = glob(MODELS_PATH . DIRECTORY_SEPARATOR . '*.php');
 if ($model_files === false || empty($model_files)) {
     error_log("KRITIKAL config.php: Tidak ada file model ditemukan di '" . MODELS_PATH . "' atau path tidak dapat dibaca.");
 } else {
@@ -186,106 +164,80 @@ if ($model_files === false || empty($model_files)) {
         if (is_file($model_file)) {
             require_once $model_file;
             $class_name = basename($model_file, '.php');
-
             if (class_exists($class_name, false)) {
-                $initialized = false; // Menggunakan variabel $initialized seperti pada versi kode Anda
-                error_log("INFO config.php: Memproses model {$class_name}...");
-
-                // Prioritaskan init dengan 2 parameter jika modelnya adalah salah satu yang butuh path
+                $initialized = false;
                 if (method_exists($class_name, 'init')) {
-                    $upload_path_needed = null;
-                    $params_for_init = 0; // Untuk melacak jumlah parameter yang diharapkan oleh init()
-
-                    if ($class_name === 'Artikel' && defined('UPLOADS_ARTIKEL_PATH')) {
-                        $upload_path_needed = UPLOADS_ARTIKEL_PATH;
-                        $params_for_init = 2;
-                    } elseif ($class_name === 'SewaAlat' && defined('UPLOADS_ALAT_SEWA_PATH')) {
-                        $upload_path_needed = UPLOADS_ALAT_SEWA_PATH;
-                        $params_for_init = 2;
-                    } elseif ($class_name === 'User' && defined('UPLOADS_PROFIL_PATH')) {
-                        // User bisa init(conn) atau init(conn, path)
-                        $reflectionUser = new ReflectionMethod('User', 'init');
-                        if ($reflectionUser->getNumberOfParameters() === 2) {
-                            $upload_path_needed = UPLOADS_PROFIL_PATH;
-                            $params_for_init = 2;
-                        } elseif ($reflectionUser->getNumberOfParameters() === 1) {
-                            $params_for_init = 1;
-                        }
-                    } elseif ($class_name === 'Galeri' && defined('UPLOADS_GALERI_PATH')) {
-                        $upload_path_needed = UPLOADS_GALERI_PATH;
-                        $params_for_init = 2;
-                    }
-                    // === PERBAIKAN DI SINI: Tambahkan blok untuk Wisata ===
-                    elseif ($class_name === 'Wisata' && defined('UPLOADS_WISATA_PATH')) {
-                        $upload_path_needed = UPLOADS_WISATA_PATH;
-                        $params_for_init = 2; // Asumsi Wisata::init($conn, $path)
-                    }
-                    // === AKHIR PERBAIKAN UNTUK WISATA ===
-
-                    // Logika pemanggilan init() berdasarkan jumlah parameter yang diharapkan
-                    if ($params_for_init > 0) {
-                        try {
-                            $reflectionMethod = new ReflectionMethod($class_name, 'init');
-                            $actual_params = $reflectionMethod->getNumberOfParameters();
-
-                            if ($params_for_init === 2 && $actual_params === 2 && $upload_path_needed !== null) {
-                                $class_name::init($conn, $upload_path_needed);
-                                $initialized = true;
-                                error_log("INFO config.php: Model {$class_name} diinisialisasi dengan init(conn, upload_path).");
-                            } elseif ($params_for_init === 1 && $actual_params === 1) { // Untuk kasus seperti User yang mungkin hanya init(conn)
-                                $class_name::init($conn);
-                                $initialized = true;
-                                error_log("INFO config.php: Model {$class_name} diinisialisasi dengan init(conn).");
-                            } elseif ($params_for_init === 0 && $actual_params === 0) { // init() tanpa parameter
-                                $class_name::init();
-                                $initialized = true;
-                                error_log("INFO config.php: Model {$class_name} diinisialisasi dengan init().");
-                            } else if ($actual_params === 1 && $upload_path_needed === null && $params_for_init !== 1) {
-                                // Fallback jika init() ada 1 param (conn) tapi tidak secara eksplisit ditandai $params_for_init=1
-                                $class_name::init($conn);
-                                $initialized = true;
-                                error_log("INFO config.php: Model {$class_name} diinisialisasi dengan fallback init(conn).");
-                            } else {
-                                error_log("PERINGATAN config.php: Model {$class_name} punya init() tapi jumlah parameter aktual ({$actual_params}) tidak cocok dengan yang diharapkan ({$params_for_init} dengan upload_path: " . ($upload_path_needed ? 'YA' : 'TIDAK') . ").");
+                    try {
+                        $reflectionMethod = new ReflectionMethod($class_name, 'init');
+                        $numParams = $reflectionMethod->getNumberOfParameters();
+                        $params_to_pass = [];
+                        if ($numParams >= 1) $params_to_pass[] = $conn;
+                        if ($numParams === 2) {
+                            $upload_path_for_this_model = null;
+                            switch ($class_name) {
+                                case 'Artikel':
+                                    $upload_path_for_this_model = defined('UPLOADS_ARTIKEL_PATH') ? UPLOADS_ARTIKEL_PATH : null;
+                                    break;
+                                case 'SewaAlat':
+                                    $upload_path_for_this_model = defined('UPLOADS_ALAT_SEWA_PATH') ? UPLOADS_ALAT_SEWA_PATH : null;
+                                    break;
+                                case 'User':
+                                    $upload_path_for_this_model = defined('UPLOADS_PROFIL_PATH') ? UPLOADS_PROFIL_PATH : null;
+                                    break;
+                                case 'Galeri':
+                                    $upload_path_for_this_model = defined('UPLOADS_GALERI_PATH') ? UPLOADS_GALERI_PATH : null;
+                                    break;
+                                case 'Wisata':
+                                    $upload_path_for_this_model = defined('UPLOADS_WISATA_PATH') ? UPLOADS_WISATA_PATH : null;
+                                    break;
+                                case 'PengaturanSitus':
+                                    $upload_path_for_this_model = defined('UPLOADS_SITUS_PATH') ? UPLOADS_SITUS_PATH : (defined('UPLOADS_PATH') ? UPLOADS_PATH : null);
+                                    break;
                             }
-                        } catch (ReflectionException $e) {
-                            error_log("ERROR config.php: ReflectionException saat init model {$class_name}: " . $e->getMessage());
+                            if ($upload_path_for_this_model !== null) {
+                                $params_to_pass[] = $upload_path_for_this_model;
+                            } elseif (!$reflectionMethod->getParameters()[1]->isOptional()) {
+                                error_log("KRITIKAL config.php: Model {$class_name}::init() wajib 2 parameter tapi upload path tidak ada atau tidak terdefinisi. Inisialisasi dilewati.");
+                                continue; // Skip init for this model
+                            }
                         }
+                        if (count($params_to_pass) === $numParams || ($numParams === 1 && count($params_to_pass) === 1)) {
+                            $class_name::init(...$params_to_pass);
+                            $initialized = true;
+                        } else if ($numParams === 2 && count($params_to_pass) === 1 && $reflectionMethod->getParameters()[1]->isOptional()) {
+                            $class_name::init($params_to_pass[0]); // Panggil hanya dengan $conn
+                            $initialized = true;
+                        } else {
+                            error_log("PERINGATAN config.php: Model {$class_name}::init() tidak dipanggil karena jumlah parameter tidak cocok (Diharapkan {$numParams}, Disediakan " . count($params_to_pass) . ").");
+                        }
+                    } catch (ReflectionException $e) {
+                        error_log("ERROR config.php: ReflectionException saat init model {$class_name}: " . $e->getMessage());
                     }
                 }
-
-                // Jika belum terinisialisasi melalui init(), coba setDbConnection()
                 if (!$initialized && method_exists($class_name, 'setDbConnection')) {
                     try {
                         $reflectionSetDb = new ReflectionMethod($class_name, 'setDbConnection');
                         if ($reflectionSetDb->getNumberOfParameters() === 1) {
                             $class_name::setDbConnection($conn);
                             $initialized = true;
-                            error_log("INFO config.php: Model {$class_name} diinisialisasi dengan setDbConnection(conn).");
-                        } else {
-                            error_log("PERINGATAN config.php: Model {$class_name} punya setDbConnection() tapi jumlah parameter bukan 1.");
                         }
                     } catch (ReflectionException $e) {
-                        error_log("ERROR config.php: ReflectionException saat init model {$class_name} dengan setDbConnection(): " . $e->getMessage());
+                        error_log("ERROR config.php: ReflectionException saat setDbConnection model {$class_name}: " . $e->getMessage());
                     }
                 }
-
-                if (!$initialized) {
-                    error_log("KRITIKAL config.php: Model {$class_name} TIDAK DAPAT diinisialisasi. Metode init() atau setDbConnection() yang cocok tidak ditemukan atau error saat pemanggilan.");
-                }
+                if (!$initialized) error_log("KRITIKAL config.php: Model {$class_name} tidak dapat diinisialisasi (koneksi DB/path).");
             } else {
-                error_log("KRITIKAL config.php: Kelas {$class_name} tidak ditemukan setelah require file model '{$model_file}'. Periksa nama file vs nama kelas.");
+                error_log("KRITIKAL config.php: Kelas {$class_name} tidak ditemukan setelah require '{$model_file}'.");
             }
         }
     }
 }
-error_log("INFO config.php: Selesai proses inisialisasi Model.");
+// error_log("INFO config.php: Selesai proses inisialisasi Model.");
 
-
-// 7.b. Memuat SEMUA Controller (Opsional di config, bisa per halaman)
-error_log("INFO config.php: Memulai proses pemuatan semua Controller.");
+// 7.b. MEMUAT SEMUA CONTROLLER
+// error_log("INFO config.php: Memulai pemuatan semua Controller.");
 if (defined('CONTROLLERS_PATH') && is_dir(CONTROLLERS_PATH)) {
-    $controller_files = glob(CONTROLLERS_PATH . '/*.php');
+    $controller_files = glob(CONTROLLERS_PATH . DIRECTORY_SEPARATOR . '*.php');
     if ($controller_files !== false && !empty($controller_files)) {
         foreach ($controller_files as $controller_file) {
             if (is_file($controller_file)) {
@@ -294,30 +246,30 @@ if (defined('CONTROLLERS_PATH') && is_dir(CONTROLLERS_PATH)) {
         }
     }
 }
-error_log("INFO config.php: Selesai proses pemuatan semua Controller.");
+// error_log("INFO config.php: Selesai proses pemuatan semua Controller.");
 
-
-// 8. Otomatis Membuat Direktori Uploads
-$upload_paths_to_create_if_not_exist = [
+// 8. OTOMATIS MEMBUAT DIREKTORI UPLOADS
+$upload_paths_to_create = [
     UPLOADS_PATH,
     UPLOADS_WISATA_PATH,
     UPLOADS_ARTIKEL_PATH,
     UPLOADS_ALAT_SEWA_PATH,
     UPLOADS_BUKTI_PEMBAYARAN_PATH,
     UPLOADS_GALERI_PATH,
-    defined('UPLOADS_PROFIL_PATH') ? UPLOADS_PROFIL_PATH : null
+    UPLOADS_PROFIL_PATH,
+    UPLOADS_SITUS_PATH
 ];
-foreach (array_filter($upload_paths_to_create_if_not_exist) as $path) {
-    if (!is_dir($path)) {
+foreach (array_filter($upload_paths_to_create) as $path) { // array_filter untuk skip null jika ada konstanta tidak terdefinisi
+    if ($path && !is_dir($path)) { // Pastikan $path tidak null/kosong sebelum is_dir
         if (!@mkdir($path, 0775, true) && !is_dir($path)) {
-            error_log("PERINGATAN config.php: Gagal membuat direktori upload {$path}. Periksa izin.");
+            error_log("PERINGATAN config.php: Gagal membuat direktori upload '{$path}'. Periksa izin.");
         } else {
             @chmod($path, 0775);
         }
     }
 }
 
-// 9. Definisi Konstanta URL Lainnya
+// 9. DEFINISI KONSTANTA URL
 if (!defined('ADMIN_URL')) define('ADMIN_URL', BASE_URL . 'admin/');
 if (!defined('USER_URL')) define('USER_URL', BASE_URL . 'user/');
 if (!defined('AUTH_URL')) define('AUTH_URL', BASE_URL . 'auth/');
@@ -330,12 +282,17 @@ if (!defined('UPLOADS_ALAT_SEWA_URL')) define('UPLOADS_ALAT_SEWA_URL', UPLOADS_U
 if (!defined('UPLOADS_BUKTI_PEMBAYARAN_URL')) define('UPLOADS_BUKTI_PEMBAYARAN_URL', UPLOADS_URL . 'bukti_pembayaran/');
 if (!defined('UPLOADS_GALERI_URL')) define('UPLOADS_GALERI_URL', UPLOADS_URL . 'galeri/');
 if (!defined('UPLOADS_PROFIL_URL')) define('UPLOADS_PROFIL_URL', UPLOADS_URL . 'profil/');
+if (!defined('UPLOADS_SITUS_URL')) define('UPLOADS_SITUS_URL', UPLOADS_URL . 'situs/');
+
+// Tambahkan definisi untuk ERROR_PAGE_URL jika Anda ingin menggunakannya
+if (!defined('ERROR_PAGE_URL')) {
+    define('ERROR_PAGE_URL', BASE_URL . 'error.php'); // Buat file error.php di root proyek Anda
+}
 
 
-// 10. Pengaturan Global Situs Lainnya
+// 10. PENGATURAN GLOBAL SITUS LAINNYA
 if (!defined('NAMA_SITUS')) define('NAMA_SITUS', 'Lembah Cilengkrang');
-if (!defined('EMAIL_ADMIN')) define('EMAIL_ADMIN', 'admin@example.com'); // Ganti dengan email admin sebenarnya
+if (!defined('EMAIL_ADMIN')) define('EMAIL_ADMIN', 'admin@example.com');
 if (!defined('DEFAULT_ITEMS_PER_PAGE')) define('DEFAULT_ITEMS_PER_PAGE', 10);
 
-// error_log("INFO config.php: Konfigurasi selesai dimuat. BASE_URL: " . BASE_URL);
-// Tidak ada tag PHP penutup jika ini adalah akhir dari file dan hanya berisi kode PHP.
+// error_log("INFO config.php: Konfigurasi selesai dimuat. IS_DEVELOPMENT: " . (IS_DEVELOPMENT ? 'true' : 'false'));

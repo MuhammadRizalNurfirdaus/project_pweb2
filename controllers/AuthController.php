@@ -5,29 +5,44 @@
  * AuthController
  * Bertanggung jawab untuk logika otentikasi pengguna (login, logout, dll.).
  * Berinteraksi dengan Model User.
- * 
+ *
  * PENTING:
  * - Diasumsikan config.php (memuat $conn, helpers.php, flash_message.php, auth_helpers.php) sudah dimuat.
- * - Diasumsikan Model User.php sudah dimuat dan User::setDbConnection($conn) sudah dipanggil.
+ * - Diasumsikan Model User.php sudah dimuat dan User::init() atau User::setDbConnection() sudah dipanggil di config.php.
  */
 
-// Jika tidak menggunakan autoloader dan config.php tidak memuat semua model, baris ini diperlukan.
-// Namun, jika User.php dimuat oleh config.php atau autoloader, baris ini bisa dihapus.
-if (!class_exists('User')) { // Hanya muat jika belum ada
-    $userModelPath = __DIR__ . '/../models/User.php';
-    if (file_exists($userModelPath)) {
-        require_once $userModelPath;
-        // PENTING: Jika config.php tidak memanggil User::setDbConnection($conn),
-        // dan Anda memuat User.php di sini, Anda mungkin perlu memanggilnya di sini juga.
-        // Namun, ini bukan praktik terbaik. Idealnya, semua setup model ada di config.php.
-        // global $conn; // Hanya jika diperlukan dan $conn adalah global
-        // if (isset($conn) && $conn instanceof mysqli && method_exists('User', 'setDbConnection')) {
-        //     User::setDbConnection($conn);
-        // }
-    } else {
-        error_log("FATAL ERROR di AuthController: Model User.php tidak ditemukan.");
-        // Ini akan menyebabkan error di metode lain jika User tidak bisa dimuat.
+// Pengecekan class User (config.php seharusnya sudah memuat ini)
+if (!class_exists('User')) {
+    error_log("FATAL ERROR di AuthController: Model User tidak ditemukan atau belum dimuat oleh config.php.");
+    if (function_exists('set_flash_message')) {
+        set_flash_message('danger', 'Kesalahan sistem: Komponen otentikasi inti tidak tersedia (MUSR_NF_AUTHCTRL).');
     }
+
+    // Menentukan URL redirect jika terjadi error fatal
+    $redirect_target_on_fatal_error = './index.php'; // Fallback paling dasar jika BASE_URL juga tidak ada
+    if (defined('BASE_URL')) {
+        $redirect_target_on_fatal_error = BASE_URL; // Default ke Beranda jika BASE_URL ada
+    }
+    // Jika Anda memiliki halaman error khusus dan konstanta ERROR_PAGE_URL terdefinisi di config.php
+    if (defined('ERROR_PAGE_URL')) {
+        // Pastikan ERROR_PAGE_URL adalah URL yang valid atau path relatif dari BASE_URL
+        $error_page_url_val = ERROR_PAGE_URL;
+        // Jika ERROR_PAGE_URL adalah path relatif, gabungkan dengan BASE_URL
+        // Ini adalah contoh, sesuaikan dengan bagaimana Anda mendefinisikan ERROR_PAGE_URL
+        if (strpos($error_page_url_val, 'http') !== 0 && defined('BASE_URL')) {
+            $error_page_url_val = rtrim(BASE_URL, '/') . '/' . ltrim($error_page_url_val, '/');
+        }
+        $redirect_target_on_fatal_error = $error_page_url_val . (strpos($error_page_url_val, '?') === false ? '?' : '&') . 'code=MUSR_NF_AUTHCTRL';
+    }
+
+    if (function_exists('redirect')) {
+        redirect($redirect_target_on_fatal_error);
+    } else {
+        // Fallback header redirect jika fungsi redirect tidak ada
+        header('Location: ' . $redirect_target_on_fatal_error);
+    }
+    // Hentikan eksekusi jika komponen inti hilang
+    exit("Kesalahan Kritis: Model User tidak dapat dimuat. Aplikasi tidak dapat melanjutkan.");
 }
 
 
@@ -37,8 +52,8 @@ class AuthController
      * Memproses upaya login pengguna.
      * @param string $email Email yang dimasukkan pengguna.
      * @param string $password Password mentah yang dimasukkan pengguna.
-     * @return bool True jika login berhasil dan session diatur, false jika gagal.
-     *              Flash message akan diatur oleh metode ini jika terjadi kegagalan spesifik.
+     * @return bool|string True jika login berhasil, false jika gagal umum, atau string kode error dari Model.
+     *                     Flash message akan diatur oleh metode ini atau Model User jika terjadi kegagalan.
      */
     public static function processLogin($email, $password)
     {
@@ -59,114 +74,124 @@ class AuthController
             return false;
         }
 
-        // Pastikan Model User dan metode login tersedia
-        if (!class_exists('User') || !method_exists('User', 'login')) {
-            error_log("AuthController::processLogin() - Model User atau metode login tidak ditemukan.");
+        // Pastikan metode login di Model User tersedia
+        if (!method_exists('User', 'login')) {
+            error_log("AuthController::processLogin() - Metode User::login() tidak ditemukan.");
             if (function_exists('set_flash_message')) {
-                set_flash_message('danger', 'Kesalahan sistem: Komponen otentikasi tidak siap (M01).');
+                set_flash_message('danger', 'Kesalahan sistem: Fungsi otentikasi tidak tersedia (M01_ULOGIN_NF).');
             }
             return false;
         }
 
         // Panggil metode login dari Model User
-        $user_data_or_error = User::login($email, $password);
+        $login_attempt_result = User::login($email, $password);
 
-        if (is_array($user_data_or_error)) {
-            // User::login() mengembalikan data pengguna, berarti email dan password cocok.
-            // Sekarang periksa status akun.
-            if (isset($user_data_or_error['status_akun']) && strtolower($user_data_or_error['status_akun']) !== 'aktif') {
-                $status_display = htmlspecialchars(ucfirst(str_replace('_', ' ', $user_data_or_error['status_akun'])));
+        if (is_array($login_attempt_result)) {
+            // User::login() mengembalikan array data pengguna, berarti kredensial cocok.
+            // Periksa status akun.
+            if (isset($login_attempt_result['status_akun']) && strtolower($login_attempt_result['status_akun']) !== 'aktif') {
+                $status_display = htmlspecialchars(ucfirst(str_replace('_', ' ', $login_attempt_result['status_akun'])));
                 $message = "Login gagal. Akun Anda saat ini berstatus '{$status_display}'. Silakan hubungi administrator.";
                 if (function_exists('set_flash_message')) {
                     set_flash_message('warning', $message);
                 }
-                error_log("AuthController::processLogin() - Login Gagal: Akun tidak aktif ('{$user_data_or_error['status_akun']}') untuk email - " . $email);
+                error_log("AuthController::processLogin() - Login Gagal: Akun status '{$login_attempt_result['status_akun']}' untuk email: " . $email);
                 return false;
             }
 
             // Login berhasil dan akun aktif, atur variabel-variabel session
             if (session_status() == PHP_SESSION_NONE) {
-                // Ini seharusnya tidak terjadi jika config.php sudah benar
                 error_log("Peringatan di AuthController::processLogin(): Session belum dimulai, memulai darurat.");
-                session_start();
+                if (!headers_sent($file_login, $line_login)) {
+                    session_start();
+                } else {
+                    error_log("KRITIS AuthController::processLogin(): Tidak bisa memulai session karena header sudah terkirim dari {$file_login}:{$line_login}.");
+                    if (function_exists('set_flash_message')) set_flash_message('danger', 'Kesalahan sesi server. Tidak dapat login.');
+                    return false;
+                }
             }
-            session_regenerate_id(true); // Regenerasi ID session untuk keamanan
+            session_regenerate_id(true);
 
-            $_SESSION['user_id'] = (int)$user_data_or_error['id'];
-            // Gunakan nama kolom yang konsisten (misal 'nama_lengkap' dari User Model)
-            $_SESSION['user_nama_lengkap'] = $user_data_or_error['nama_lengkap'] ?? ($user_data_or_error['nama'] ?? 'Pengguna');
-            $_SESSION['user_email'] = $user_data_or_error['email'];
-            $_SESSION['user_role'] = strtolower($user_data_or_error['role']);
-            // Tambahkan data lain yang mungkin berguna di session
-            $_SESSION['user_no_hp'] = $user_data_or_error['no_hp'] ?? null;
-            $_SESSION['is_loggedin'] = true; // Set setelah semua data user diset
+            $_SESSION['user_id'] = (int)$login_attempt_result['id'];
+            $_SESSION['user_nama'] = $login_attempt_result['nama'] ?? 'Pengguna';
+            $_SESSION['user_nama_lengkap'] = $login_attempt_result['nama_lengkap'] ?? $_SESSION['user_nama'];
+            $_SESSION['user_email'] = $login_attempt_result['email'];
+            $_SESSION['user_role'] = strtolower($login_attempt_result['role'] ?? 'user');
+            $_SESSION['user_foto_profil'] = $login_attempt_result['foto_profil'] ?? null;
+            $_SESSION['is_loggedin'] = true;
 
-            // Hapus data form dari session login jika ada (untuk repopulasi)
             unset($_SESSION['flash_form_data_login']);
 
-            error_log("INFO: User ID " . $_SESSION['user_id'] . " (" . $_SESSION['user_email'] . ") berhasil login dengan role " . $_SESSION['user_role'] . ".");
+            error_log("INFO: Login BERHASIL - User ID " . $_SESSION['user_id'] . " (" . $_SESSION['user_email'] . ") role: " . $_SESSION['user_role']);
             return true;
-        } elseif (is_string($user_data_or_error)) {
-            // User::login() mengembalikan string kode error
-            $error_message_display = 'Kombinasi email atau password salah.'; // Pesan default
-            switch ($user_data_or_error) {
-                case 'not_found':
-                    $error_message_display = 'Email yang Anda masukkan tidak terdaftar.';
+        } elseif (is_string($login_attempt_result)) {
+            $error_message_display = 'Kombinasi email atau password salah.';
+            switch ($login_attempt_result) {
+                case 'login_invalid_email':
+                case 'login_empty_password':
+                    $model_err = User::getLastError();
+                    $error_message_display = $model_err ?: $error_message_display;
                     break;
-                case 'wrong_password':
-                    $error_message_display = 'Password yang Anda masukkan salah.';
+                case 'login_failed_credentials':
+                    // Pesan default sudah cukup
                     break;
-                case 'inactive_account': // Ini seharusnya sudah ditangani di blok array, tapi sebagai fallback
+                case 'account_not_active':
                     $error_message_display = 'Akun Anda tidak aktif. Silakan hubungi administrator.';
                     break;
+                case 'account_blocked':
+                    $error_message_display = 'Akun Anda telah diblokir. Silakan hubungi administrator.';
+                    break;
+                case 'account_status_unknown':
+                    $error_message_display = 'Status akun Anda tidak diketahui. Silakan hubungi administrator.';
+                    break;
+                default:
+                    $error_message_display = "Terjadi kesalahan otentikasi (" . e($login_attempt_result) . ").";
             }
             if (function_exists('set_flash_message')) {
                 set_flash_message('danger', $error_message_display);
             }
-            error_log("AuthController::processLogin() - Login Gagal dengan kode: {$user_data_or_error} untuk email: " . $email);
+            error_log("AuthController::processLogin() - Login Gagal (Model return string): '{$login_attempt_result}' untuk email: " . $email);
             return false;
         } else {
-            // User::login() mengembalikan false (kemungkinan error DB di Model atau kasus lain)
-            if (function_exists('set_flash_message') && !isset($_SESSION['flash_message'])) { // Hanya set jika Model belum set
-                set_flash_message('danger', 'Login gagal. Terjadi kesalahan pada sistem. Silakan coba lagi nanti.');
+            if (function_exists('set_flash_message') && !isset($_SESSION['flash_message'])) {
+                $model_error = User::getLastError();
+                $display_error = $model_error ? e($model_error) : 'Terjadi kesalahan pada sistem.';
+                set_flash_message('danger', 'Login gagal. ' . $display_error . ' Silakan coba lagi nanti.');
             }
-            error_log("AuthController::processLogin() - Login Gagal (User::login mengembalikan false) untuk email: " . $email);
+            error_log("AuthController::processLogin() - Login Gagal (User::login mengembalikan false/tipe tidak dikenal) untuk email: " . $email . ". Model Error: " . (User::getLastError() ?? 'Tidak ada info'));
             return false;
         }
     }
 
-    /**
-     * Memproses logout pengguna.
-     * Session akan dihancurkan dan pengguna diarahkan.
-     */
     public static function processLogout()
     {
         if (session_status() == PHP_SESSION_NONE) {
-            // Jika session belum ada, tidak ada yang perlu di-logout, tapi ini aneh.
-            // Untuk keamanan, coba mulai jika bisa, agar bisa dihancurkan.
-            if (!headers_sent()) session_start();
-            else {
-                error_log("Peringatan di AuthController::processLogout(): Session tidak aktif dan header sudah terkirim. Logout mungkin tidak sempurna.");
-                // Langsung redirect saja jika tidak bisa memulai session untuk dihancurkan
-                if (function_exists('redirect') && defined('BASE_URL')) {
-                    redirect('auth/login.php?status=logout_err_session');
+            if (!headers_sent($file_logout, $line_logout)) {
+                session_start();
+            } else {
+                error_log("Peringatan di AuthController::processLogout(): Session tidak aktif dan header sudah terkirim. Output dimulai di {$file_logout}:{$line_logout}. Logout mungkin tidak sempurna.");
+                $logout_fallback_url = (defined('AUTH_URL') ? rtrim(AUTH_URL, '/') : (defined('BASE_URL') ? rtrim(BASE_URL, '/') . '/auth' : '/auth')) . '/login.php?status=logout_err_session';
+
+                if (function_exists('redirect')) {
+                    redirect($logout_fallback_url);
                 } else {
-                    header('Location: /Cilengkrang-Web-Wisata/auth/login.php?status=logout_err_session'); // Ganti dengan path absolut fallback Anda
+                    header('Location: ' . $logout_fallback_url);
                     exit;
                 }
             }
         }
 
-        // Hapus semua variabel session
+        $user_id_logging = $_SESSION['user_id'] ?? 'Tidak diketahui';
+        $user_email_logging = $_SESSION['user_email'] ?? 'Tidak diketahui';
+
         $_SESSION = array();
 
-        // Hapus cookie session jika digunakan
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
             setcookie(
                 session_name(),
                 '',
-                time() - 42000, // Waktu di masa lalu untuk menghapus cookie
+                time() - 42000,
                 $params["path"],
                 $params["domain"],
                 $params["secure"],
@@ -174,23 +199,18 @@ class AuthController
             );
         }
 
-        // Hancurkan session
-        session_destroy();
+        if (session_status() == PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
 
-        // Redirect ke halaman login atau halaman utama
-        // Flash message setelah session_destroy() tidak akan persisten.
-        // Biasanya, pesan logout ditampilkan di halaman login melalui parameter URL.
-        if (function_exists('redirect') && defined('BASE_URL')) {
-            redirect('auth/login.php?status=logout_success'); // Menggunakan redirect dari helpers
+        error_log("INFO: Logout BERHASIL - User ID {$user_id_logging} ({$user_email_logging}) telah logout.");
+
+        $logout_redirect_url = (defined('AUTH_URL') ? rtrim(AUTH_URL, '/') : (defined('BASE_URL') ? rtrim(BASE_URL, '/') . '/auth' : '/auth')) . '/login.php?status=logout_success';
+        if (function_exists('redirect')) {
+            redirect($logout_redirect_url);
         } else {
-            // Fallback jika fungsi redirect tidak ada (seharusnya tidak terjadi jika config dimuat)
-            // Sesuaikan path absolut ini jika BASE_URL tidak tersedia
-            $fallback_logout_url = (defined('BASE_URL') ? BASE_URL : '/Cilengkrang-Web-Wisata/') . 'auth/login.php?status=logout_success';
-            header('Location: ' . $fallback_logout_url);
+            header('Location: ' . $logout_redirect_url);
             exit;
         }
     }
-
-    // Anda bisa menambahkan metode lain di sini, seperti processRegistration, forgotPassword, resetPassword, dll.
-
-} // End of class AuthController
+}

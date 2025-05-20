@@ -19,7 +19,6 @@ if (!class_exists('User')) {
     } else {
         exit("Kesalahan sistem registrasi (UMNF_REG).");
     }
-    exit;
 }
 
 // 3. Logika Halaman

@@ -4,54 +4,55 @@
 class SewaAlat
 {
     private static $table_name = "sewa_alat";
-    private static $db; // Properti untuk menyimpan koneksi database
-    private static $upload_dir_alat; // Akan diinisialisasi
+    private static $db;
+    private static $upload_dir_alat; // Path fisik server untuk upload
+    private static $last_error = null;
 
-    // Daftar satuan durasi yang diizinkan
-    private const ALLOWED_DURATION_UNITS = ['Jam', 'Hari', 'Peminjaman'];
-    // Daftar kondisi alat yang diizinkan
-    private const ALLOWED_CONDITIONS = ['Baik', 'Rusak Ringan', 'Rusak Berat', 'Perlu Perbaikan'];
+    public const ALLOWED_DURATION_UNITS = ['Jam', 'Hari', 'Peminjaman'];
+    public const ALLOWED_CONDITIONS = ['Baik', 'Rusak Ringan', 'Rusak Berat', 'Perlu Perbaikan'];
 
-
-    /**
-     * Mengatur koneksi database dan path upload untuk digunakan oleh kelas ini.
-     * Metode ini HARUS dipanggil sekali (misalnya dari config.php) sebelum metode lain digunakan.
-     * @param mysqli $connection Instance koneksi mysqli.
-     * @param string $upload_path Path absolut ke direktori upload alat sewa.
-     */
     public static function init(mysqli $connection, $upload_path)
     {
         self::$db = $connection;
-        self::$upload_dir_alat = rtrim($upload_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-        // error_log(get_called_class() . "::init() dipanggil. Upload dir: " . self::$upload_dir_alat); // Untuk debugging
+        // Pastikan path upload diakhiri dengan DIRECTORY_SEPARATOR
+        self::$upload_dir_alat = rtrim($upload_path, '/\\') . DIRECTORY_SEPARATOR;
     }
 
-    /**
-     * Memeriksa apakah koneksi database dan path upload sudah diinisialisasi.
-     * @return bool True jika valid, false jika tidak.
-     */
     private static function checkDependencies()
     {
+        self::$last_error = null; // Reset error di awal
         if (!self::$db || (self::$db instanceof mysqli && self::$db->connect_error)) {
-            error_log(get_called_class() . " - Koneksi database tidak tersedia atau gagal: " .
-                (self::$db instanceof mysqli ? self::$db->connect_error : (self::$db === null ? 'Koneksi DB (self::$db) belum diset via init().' : 'Koneksi DB bukan objek mysqli.')));
+            self::$last_error = "Koneksi database Model SewaAlat gagal atau belum diinisialisasi.";
+            error_log(get_called_class() . " - " . self::$last_error . " Detail: " . (self::$db instanceof mysqli ? self::$db->connect_error : 'Objek DB null atau bukan mysqli.'));
             return false;
         }
-        if (empty(self::$upload_dir_alat)) {
-            error_log(get_called_class() . " - Path upload direktori alat (self::\$upload_dir_alat) belum diinisialisasi via init().");
+        if (empty(self::$upload_dir_alat) || !is_dir(self::$upload_dir_alat)) { // Cukup cek is_dir, writable dicek saat operasi file
+            self::$last_error = "Path upload direktori alat (self::\$upload_dir_alat) belum diinisialisasi atau bukan direktori valid.";
+            error_log(get_called_class() . " - " . self::$last_error . " Path: '" . (self::$upload_dir_alat ?? 'Kosong') . "'");
             return false;
         }
         return true;
     }
 
-    /**
-     * Membuat record alat sewa baru.
-     * @param array $data Data alat sewa.
-     * @return int|false ID alat baru atau false jika gagal.
-     */
+    public static function getLastError(): ?string
+    {
+        if (self::$last_error) {
+            return self::$last_error;
+        }
+        if (self::$db instanceof mysqli && !empty(self::$db->error)) {
+            return "MySQLi Error: " . self::$db->error;
+        }
+        // Jangan tampilkan "Tidak ada error..." jika memang null.
+        return null;
+    }
+
     public static function create($data)
     {
-        if (!self::checkDependencies()) return false;
+        if (!self::checkDependencies()) {
+            // self::$last_error sudah di-set oleh checkDependencies
+            return false;
+        }
+        self::$last_error = null;
 
         $nama_item = trim($data['nama_item'] ?? '');
         $kategori_alat = isset($data['kategori_alat']) ? trim($data['kategori_alat']) : null;
@@ -60,35 +61,37 @@ class SewaAlat
         $durasi_harga_sewa = isset($data['durasi_harga_sewa']) ? (int)$data['durasi_harga_sewa'] : 1;
         $satuan_durasi_harga = trim($data['satuan_durasi_harga'] ?? 'Hari');
         $stok_tersedia = isset($data['stok_tersedia']) ? (int)$data['stok_tersedia'] : 0;
-        $gambar_alat = isset($data['gambar_alat']) && !empty($data['gambar_alat']) ? trim($data['gambar_alat']) : null;
+        // Controller akan mengirim nama file yang sudah diproses (unik) atau null
+        $gambar_alat_db = isset($data['gambar_alat']) ? trim($data['gambar_alat']) : null;
+        if (empty($gambar_alat_db)) $gambar_alat_db = null; // Pastikan null jika string kosong
+
         $kondisi_alat = trim($data['kondisi_alat'] ?? 'Baik');
 
-        // Validasi
+        // Validasi di Model (lapisan terakhir)
         if (empty($nama_item)) {
-            error_log(get_called_class() . "::create() - Nama item kosong.");
+            self::$last_error = "Nama item wajib diisi.";
             return false;
         }
-        if ($harga_sewa < 0) {
-            error_log(get_called_class() . "::create() - Harga sewa tidak boleh negatif.");
+        if ($harga_sewa < 1) {
+            self::$last_error = "Harga sewa minimal Rp 1.";
             return false;
         }
-        if ($durasi_harga_sewa <= 0 && $satuan_durasi_harga !== 'Peminjaman') {
-            error_log(get_called_class() . "::create() - Durasi harga sewa harus positif kecuali satuan 'Peminjaman'.");
+        if ($satuan_durasi_harga !== 'Peminjaman' && $durasi_harga_sewa < 1) {
+            self::$last_error = "Durasi harga sewa minimal 1 (kecuali Peminjaman).";
+            return false;
+        }
+        if ($stok_tersedia < 1) {
+            self::$last_error = "Stok tersedia minimal 1 unit.";
             return false;
         }
         if (!in_array($satuan_durasi_harga, self::ALLOWED_DURATION_UNITS)) {
-            error_log(get_called_class() . "::create() - Satuan durasi harga tidak valid: " . $satuan_durasi_harga);
-            return false;
-        }
-        if ($stok_tersedia < 0) {
-            error_log(get_called_class() . "::create() - Stok tersedia tidak boleh negatif.");
+            self::$last_error = "Satuan durasi harga tidak valid: " . $satuan_durasi_harga;
             return false;
         }
         if (!in_array($kondisi_alat, self::ALLOWED_CONDITIONS)) {
-            error_log(get_called_class() . "::create() - Kondisi alat tidak valid: " . $kondisi_alat);
+            self::$last_error = "Kondisi alat tidak valid: " . $kondisi_alat;
             return false;
         }
-
 
         $sql = "INSERT INTO " . self::$table_name .
             " (nama_item, kategori_alat, deskripsi, harga_sewa, durasi_harga_sewa, satuan_durasi_harga, stok_tersedia, gambar_alat, kondisi_alat, created_at, updated_at) 
@@ -96,7 +99,8 @@ class SewaAlat
         $stmt = mysqli_prepare(self::$db, $sql);
 
         if (!$stmt) {
-            error_log(get_called_class() . "::create() - MySQLi Prepare Error: " . mysqli_error(self::$db));
+            self::$last_error = "MySQLi Prepare Error (create): " . mysqli_error(self::$db);
+            error_log(get_called_class() . "::create() - " . self::$last_error . " | SQL: " . $sql);
             return false;
         }
 
@@ -110,7 +114,7 @@ class SewaAlat
             $durasi_harga_sewa,
             $satuan_durasi_harga,
             $stok_tersedia,
-            $gambar_alat,
+            $gambar_alat_db,
             $kondisi_alat
         );
 
@@ -119,50 +123,43 @@ class SewaAlat
             mysqli_stmt_close($stmt);
             return $new_id;
         } else {
-            error_log(get_called_class() . "::create() - MySQLi Execute Error: " . mysqli_stmt_error($stmt));
+            self::$last_error = "MySQLi Execute Error (create): " . mysqli_stmt_error($stmt);
+            error_log(get_called_class() . "::create() - " . self::$last_error);
             mysqli_stmt_close($stmt);
             return false;
         }
     }
 
-    /**
-     * Mengambil semua item alat sewa.
-     * @return array Daftar alat sewa.
-     */
     public static function getAll()
     {
         if (!self::checkDependencies()) return [];
-
+        self::$last_error = null;
         $sql = "SELECT * FROM " . self::$table_name . " ORDER BY nama_item ASC, id ASC";
         $result = mysqli_query(self::$db, $sql);
         if ($result) {
-            $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
-            mysqli_free_result($result);
-            return $data;
+            return mysqli_fetch_all($result, MYSQLI_ASSOC);
         } else {
-            error_log(get_called_class() . "::getAll() - MySQLi Query Error: " . mysqli_error(self::$db));
+            self::$last_error = "MySQLi Query Error (getAll): " . mysqli_error(self::$db);
+            error_log(get_called_class() . "::getAll() - " . self::$last_error);
             return [];
         }
     }
 
-    /**
-     * Mencari alat sewa berdasarkan ID.
-     * @param int $id ID alat.
-     * @return array|null Data alat atau null.
-     */
     public static function getById($id)
     {
         if (!self::checkDependencies()) return null;
+        self::$last_error = null;
         $id_val = filter_var($id, FILTER_VALIDATE_INT);
         if ($id_val === false || $id_val <= 0) {
-            error_log(get_called_class() . "::getById() - ID tidak valid: " . $id);
+            self::$last_error = "ID tidak valid untuk getById: " . $id;
+            error_log(get_called_class() . "::getById() - " . self::$last_error);
             return null;
         }
-
         $sql = "SELECT * FROM " . self::$table_name . " WHERE id = ?";
         $stmt = mysqli_prepare(self::$db, $sql);
         if (!$stmt) {
-            error_log(get_called_class() . "::getById() - MySQLi Prepare Error: " . mysqli_error(self::$db));
+            self::$last_error = "MySQLi Prepare Error (getById): " . mysqli_error(self::$db);
+            error_log(get_called_class() . "::getById() - " . self::$last_error);
             return null;
         }
         mysqli_stmt_bind_param($stmt, "i", $id_val);
@@ -172,129 +169,115 @@ class SewaAlat
             mysqli_stmt_close($stmt);
             return $item ?: null;
         } else {
-            error_log(get_called_class() . "::getById() - MySQLi Execute Error: " . mysqli_stmt_error($stmt));
+            self::$last_error = "MySQLi Execute Error (getById): " . mysqli_stmt_error($stmt);
+            error_log(get_called_class() . "::getById() - " . self::$last_error);
+            mysqli_stmt_close($stmt);
+            return null;
         }
-        mysqli_stmt_close($stmt);
-        return null;
     }
 
     /**
      * Mengupdate data alat sewa.
-     * @param array $data Data yang akan diupdate, harus berisi 'id'.
-     * @param string|null $new_image_filename Nama file gambar baru (jika ada), atau "REMOVE_IMAGE" untuk menghapus.
-     * @param string|null $old_image_filename Nama file gambar lama (untuk dihapus jika gambar diganti).
-     * @return bool True jika berhasil.
+     * Menerima array $data yang berisi semua field yang mungkin diupdate.
+     * Jika 'gambar_alat' ada di $data, kolom gambar akan diupdate.
+     * Jika 'gambar_alat' tidak ada di $data, kolom gambar TIDAK akan diubah.
+     * Penghapusan file fisik lama harus dihandle oleh Controller.
      */
-    public static function update($data, $new_image_filename = null, $old_image_filename = null)
+    public static function update(array $data): bool // Hanya satu parameter array
     {
         if (!self::checkDependencies() || !isset($data['id'])) {
-            error_log(get_called_class() . "::update() - Koneksi DB/upload_dir gagal atau ID tidak disediakan.");
+            self::$last_error = "Koneksi DB/upload_dir gagal atau ID tidak disediakan.";
+            error_log(get_called_class() . "::update() - " . self::$last_error);
             return false;
         }
-
         $id = (int)$data['id'];
         if ($id <= 0) {
-            error_log(get_called_class() . "::update() - ID tidak valid: " . $data['id']);
+            self::$last_error = "ID tidak valid untuk update: " . ($data['id'] ?? 'Tidak ada');
+            error_log(get_called_class() . "::update() - " . self::$last_error);
             return false;
         }
 
-        $nama_item = trim($data['nama_item'] ?? '');
-        $kategori_alat = isset($data['kategori_alat']) ? trim($data['kategori_alat']) : null;
-        $deskripsi = trim($data['deskripsi'] ?? '');
-        $harga_sewa = isset($data['harga_sewa']) ? (float)$data['harga_sewa'] : 0.0;
-        $durasi_harga_sewa = isset($data['durasi_harga_sewa']) ? (int)$data['durasi_harga_sewa'] : 1;
-        $satuan_durasi_harga = trim($data['satuan_durasi_harga'] ?? 'Hari');
-        $stok_tersedia = isset($data['stok_tersedia']) ? (int)$data['stok_tersedia'] : 0;
-        $kondisi_alat = trim($data['kondisi_alat'] ?? 'Baik');
-
-        // Validasi
-        if (empty($nama_item)) {
-            error_log(get_called_class() . "::update() - Nama item kosong untuk ID: {$id}.");
+        // Validasi input dasar yang ada di $data
+        if (isset($data['nama_item']) && empty(trim($data['nama_item']))) {
+            self::$last_error = "Nama item tidak boleh kosong.";
             return false;
         }
-        if ($harga_sewa < 0) {
-            error_log(get_called_class() . "::update() - Harga sewa negatif untuk ID: {$id}.");
+        if (isset($data['harga_sewa']) && ((float)$data['harga_sewa'] < 1)) {
+            self::$last_error = "Harga sewa minimal Rp 1.";
             return false;
         }
-        if ($durasi_harga_sewa <= 0 && $satuan_durasi_harga !== 'Peminjaman') {
-            error_log(get_called_class() . "::update() - Durasi harga sewa tidak valid untuk ID: {$id}.");
+        if (isset($data['durasi_harga_sewa']) && ($data['satuan_durasi_harga'] ?? '') !== 'Peminjaman' && (int)$data['durasi_harga_sewa'] < 1) {
+            self::$last_error = "Durasi harga minimal 1.";
             return false;
         }
-        if (!in_array($satuan_durasi_harga, self::ALLOWED_DURATION_UNITS)) {
-            error_log(get_called_class() . "::update() - Satuan durasi tidak valid untuk ID: {$id}.");
+        if (isset($data['stok_tersedia']) && (int)$data['stok_tersedia'] < 1) {
+            self::$last_error = "Stok minimal 1 unit.";
             return false;
         }
-        if ($stok_tersedia < 0) {
-            error_log(get_called_class() . "::update() - Stok tidak valid untuk ID: {$id}.");
+        if (isset($data['satuan_durasi_harga']) && !in_array($data['satuan_durasi_harga'], self::ALLOWED_DURATION_UNITS)) {
+            self::$last_error = "Satuan durasi tidak valid.";
             return false;
         }
-        if (!in_array($kondisi_alat, self::ALLOWED_CONDITIONS)) {
-            error_log(get_called_class() . "::update() - Kondisi alat tidak valid untuk ID: {$id}.");
+        if (isset($data['kondisi_alat']) && !in_array($data['kondisi_alat'], self::ALLOWED_CONDITIONS)) {
+            self::$last_error = "Kondisi alat tidak valid.";
             return false;
         }
 
-        $gambar_to_set_in_db = $old_image_filename;
+        $fields_to_set_sql = [];
+        $params_for_bind = [];
+        $types_for_bind = "";
 
-        if ($new_image_filename === "REMOVE_IMAGE") {
-            if (!empty($old_image_filename) && file_exists(self::$upload_dir_alat . $old_image_filename)) {
-                if (!@unlink(self::$upload_dir_alat . $old_image_filename)) {
-                    error_log(get_called_class() . "::update() - Gagal hapus file gambar lama (REMOVE_IMAGE): " . self::$upload_dir_alat . $old_image_filename);
-                }
+        $allowed_fields_to_update = [
+            'nama_item' => 's',
+            'kategori_alat' => 's',
+            'deskripsi' => 's',
+            'harga_sewa' => 'd',
+            'durasi_harga_sewa' => 'i',
+            'satuan_durasi_harga' => 's',
+            'stok_tersedia' => 'i',
+            'kondisi_alat' => 's',
+            'gambar_alat' => 's' // gambar_alat sekarang di sini
+        ];
+
+        foreach ($allowed_fields_to_update as $field_key => $type_char) {
+            // Hanya tambahkan ke query jika field tersebut ada di array $data yang dikirim
+            if (array_key_exists($field_key, $data)) {
+                $fields_to_set_sql[] = "`" . $field_key . "` = ?";
+                $params_for_bind[] = $data[$field_key]; // Nilai dari $data, bisa jadi null untuk gambar_alat
+                $types_for_bind .= $type_char;
             }
-            $gambar_to_set_in_db = null;
-        } elseif (!empty($new_image_filename) && $new_image_filename !== $old_image_filename) {
-            if (!empty($old_image_filename) && file_exists(self::$upload_dir_alat . $old_image_filename)) {
-                if (!@unlink(self::$upload_dir_alat . $old_image_filename)) {
-                    error_log(get_called_class() . "::update() - Gagal hapus file gambar lama (ganti baru): " . self::$upload_dir_alat . $old_image_filename);
-                }
-            }
-            $gambar_to_set_in_db = $new_image_filename;
         }
 
-        $sql = "UPDATE " . self::$table_name . " SET
-                nama_item = ?, kategori_alat = ?, deskripsi = ?, harga_sewa = ?, 
-                durasi_harga_sewa = ?, satuan_durasi_harga = ?, stok_tersedia = ?, 
-                gambar_alat = ?, kondisi_alat = ?, updated_at = NOW()
-                WHERE id = ?";
-        $stmt = mysqli_prepare(self::$db, $sql);
+        if (empty($fields_to_set_sql)) {
+            // Tidak ada field yang diubah dan dikirim oleh controller
+            return true;
+        }
 
+        $fields_to_set_sql[] = "`updated_at` = NOW()";
+
+        $sql_update = "UPDATE `" . self::$table_name . "` SET " . implode(', ', $fields_to_set_sql) . " WHERE `id` = ?";
+        $params_for_bind[] = $id;
+        $types_for_bind .= "i";
+
+        $stmt = mysqli_prepare(self::$db, $sql_update);
         if (!$stmt) {
-            error_log(get_called_class() . "::update() - MySQLi Prepare Error: " . mysqli_error(self::$db));
+            self::$last_error = "MySQLi Prepare Error (update): " . mysqli_error(self::$db);
+            error_log(get_called_class() . "::update() - " . self::$last_error . " | SQL: " . $sql_update);
             return false;
         }
 
-        mysqli_stmt_bind_param(
-            $stmt,
-            "sssdisissi",
-            $nama_item,
-            $kategori_alat,
-            $deskripsi,
-            $harga_sewa,
-            $durasi_harga_sewa,
-            $satuan_durasi_harga,
-            $stok_tersedia,
-            $gambar_to_set_in_db,
-            $kondisi_alat,
-            $id
-        );
+        mysqli_stmt_bind_param($stmt, $types_for_bind, ...$params_for_bind);
 
         if (mysqli_stmt_execute($stmt)) {
-            $affected_rows = mysqli_stmt_affected_rows($stmt);
             mysqli_stmt_close($stmt);
-            return $affected_rows >= 0;
+            return true;
         } else {
-            error_log(get_called_class() . "::update() - MySQLi Execute Error: " . mysqli_stmt_error($stmt));
+            self::$last_error = "MySQLi Execute Error (update): " . mysqli_stmt_error($stmt);
+            error_log(get_called_class() . "::update() - " . self::$last_error);
             mysqli_stmt_close($stmt);
             return false;
         }
     }
-
-    /**
-     * Menghapus alat sewa dan file gambar terkait.
-     * Mencegah penghapusan jika alat masih terkait dengan pemesanan sewa.
-     * @param int $id ID alat.
-     * @return bool True jika berhasil.
-     */
     public static function delete($id)
     {
         if (!self::checkDependencies()) return false;
