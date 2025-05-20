@@ -11,7 +11,7 @@ if (!@require_once __DIR__ . '/config/config.php') {
   exit("<div style='font-family:Arial,sans-serif;border:1px solid red;padding:15px;margin:20px;background-color:#ffebee;color:#c62828;'><strong>Kesalahan Server Kritis</strong><br>" . htmlspecialchars($error_message_display, ENT_QUOTES, 'UTF-8') . "</div>");
 }
 
-// 2. Ambil data artikel terbaru (Logika sama seperti sebelumnya, diasumsikan sudah benar)
+// 2. Ambil data artikel terbaru (Logika sama seperti sebelumnya)
 $artikel_terbaru = [];
 $error_artikel = null;
 if (class_exists('Artikel') && method_exists('Artikel', 'getLatest')) {
@@ -40,7 +40,7 @@ if (class_exists('Artikel') && method_exists('Artikel', 'getLatest')) {
   error_log("INDEX_PAGE_CRITICAL - Kelas Artikel atau metode getLatest tidak ditemukan.");
 }
 
-// Ambil data destinasi populer dari Model Wisata
+// Ambil data destinasi populer (Logika sama seperti sebelumnya)
 $destinasi_populer = [];
 $error_destinasi_populer = null;
 if (class_exists('WisataController') && method_exists('WisataController', 'getAllForAdmin')) {
@@ -75,26 +75,22 @@ if (class_exists('WisataController') && method_exists('WisataController', 'getAl
 
 $page_title = "Beranda - " . (defined('NAMA_SITUS') ? e(NAMA_SITUS) : "Lembah Cilengkrang");
 $is_homepage = true;
-$theme_color_primary_hex = defined('THEME_COLOR_PRIMARY') ? THEME_COLOR_PRIMARY : "#28a745";
+// PERUBAHAN WARNA TEMA UTAMA DI SINI AGAR SESUAI DENGAN JUDUL ARTIKEL
+$theme_color_primary_hex = defined('THEME_COLOR_PRIMARY') ? THEME_COLOR_PRIMARY : "#50C878"; // Emerald Green Cerah (atau sesuaikan dengan hex Anda)
 
-// Definisikan path dasar untuk gambar Wisata DENGAN BENAR (konsisten)
+// Path dasar untuk gambar (sama seperti sebelumnya)
 $base_uploads_wisata_path_server_idx = defined('UPLOADS_WISATA_PATH')
   ? rtrim(UPLOADS_WISATA_PATH, '/\\')
   : rtrim(ROOT_PATH, '/\\') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'wisata';
-
 $base_uploads_wisata_url_web_idx = defined('UPLOADS_WISATA_URL')
   ? rtrim(UPLOADS_WISATA_URL, '/')
   : (defined('BASE_URL') ? rtrim(BASE_URL, '/') . '/public/uploads/wisata' : './public/uploads/wisata');
-
-// Definisikan path dasar untuk gambar Artikel
 $base_uploads_artikel_path_server_idx = defined('UPLOADS_ARTIKEL_PATH')
   ? rtrim(UPLOADS_ARTIKEL_PATH, '/\\')
   : rtrim(ROOT_PATH, '/\\') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'artikel';
-
 $base_uploads_artikel_url_web_idx = defined('UPLOADS_ARTIKEL_URL')
   ? rtrim(UPLOADS_ARTIKEL_URL, '/')
   : (defined('BASE_URL') ? rtrim(BASE_URL, '/') . '/public/uploads/artikel' : './public/uploads/artikel');
-
 
 // 3. Sertakan header publik
 if (!@include_once ROOT_PATH . '/template/header.php') {
@@ -118,7 +114,8 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
       <p class="lead my-4 col-lg-10 mx-auto text-shadow-soft">
         <?= e(defined('PENGANTAR_SINGKAT_SITUS') ? PENGANTAR_SINGKAT_SITUS : "Lembah Cilengkrang terletak di Pajambon, Kramatmulya, Kuningan, Jawa Barat, sekitar 30km dari pusat kota Kuningan. Destinasi ini menawarkan keindahan air terjun menawan, relaksasi di pemandian air panas alami, dan kesegaran udara pegunungan.") ?>
       </p>
-      <a href="<?= e(BASE_URL . 'wisata/semua_destinasi.php') ?>" class="btn btn-primary btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn">
+      <!-- Tombol Pelajari Lebih Lanjut juga menggunakan warna tema -->
+      <a href="<?= e(BASE_URL . 'wisata/semua_destinasi.php') ?>" class="btn btn-lg me-sm-2 mb-3 mb-sm-0 hero-btn" style="background-color: <?= $theme_color_primary_hex ?>; border-color: <?= $theme_color_primary_hex ?>; color: white;">
         <i class="fas fa-info-circle me-2"></i>Pelajari Lebih Lanjut
       </a>
       <a href="<?= e(BASE_URL . 'user/pemesanan_tiket.php') ?>" class="btn btn-light btn-lg hero-btn">
@@ -171,34 +168,29 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
       <div class="container">
         <div class="text-center mb-5">
           <span class="text-uppercase fw-bold small" style="color: <?= $theme_color_primary_hex ?>;">Jelajahi Lebih</span>
-          <h2 class="section-title mt-2">Destinasi Populer Kami</h2>
+          <h2 class="section-title mt-2" style="color: <?= $theme_color_primary_hex ?>;">Destinasi Populer Kami</h2>
         </div>
         <div class="row g-4 text-center">
           <?php
+          // ... (logika foreach destinasi populer sama) ...
           $delay_animasi = 0;
           foreach ($destinasi_populer as $dest) :
             $nama_dest = e($dest['nama'] ?? 'Destinasi');
             $desk_singkat_dest = e(excerpt($dest['deskripsi'] ?? '', 100));
             $detail_url_dest = BASE_URL . 'wisata/detail_destinasi.php?id=' . ($dest['id'] ?? 0);
 
-            // --- PERBAIKAN LOGIKA GAMBAR DESTINASI ---
             $gambar_file_dest_db = $dest['gambar'] ?? null;
-            $gambar_dest_url_final = (defined('ASSETS_URL') ? ASSETS_URL : BASE_URL . 'public/') . 'img/placeholder_wisata.png'; // Default placeholder
+            $gambar_dest_url_final = (defined('ASSETS_URL') ? ASSETS_URL : BASE_URL . 'public/') . 'img/placeholder_wisata.png';
             $path_gambar_server_dest_aktual = null;
 
             if (!empty($gambar_file_dest_db)) {
               $nama_file_bersih_dest = basename($gambar_file_dest_db);
-              // Gunakan variabel path dasar yang sudah didefinisikan di atas
               $path_gambar_server_dest_aktual = $base_uploads_wisata_path_server_idx . DIRECTORY_SEPARATOR . $nama_file_bersih_dest;
 
               if (file_exists($path_gambar_server_dest_aktual) && is_file($path_gambar_server_dest_aktual)) {
-                // Gunakan variabel URL dasar yang sudah didefinisikan di atas
                 $gambar_dest_url_final = $base_uploads_wisata_url_web_idx . '/' . rawurlencode($nama_file_bersih_dest);
-              } else {
-                // error_log("INDEX_DESTINASI_DEBUG: Gambar '{$nama_file_bersih_dest}' (ID: {$dest['id']}) tidak ditemukan di server. Path dicek: {$path_gambar_server_dest_aktual}");
               }
             }
-            // --- AKHIR PERBAIKAN LOGIKA GAMBAR DESTINASI ---
           ?>
             <div class="col-lg-4 col-md-6 animate-on-scroll" data-animation-delay="<?= $delay_animasi ?>ms">
               <div class="card destination-card shadow-sm h-100 hover-shadow-lg transition-fast">
@@ -206,10 +198,10 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
                   <img src="<?= e($gambar_dest_url_final) ?><?= strpos($gambar_dest_url_final, '?') === false ? '?t=' . time() : '&t=' . time() ?>" loading="lazy" alt="<?= $nama_dest ?>" class="card-img-top" style="height: 220px; object-fit: cover;">
                 </a>
                 <div class="card-body d-flex flex-column">
-                  <h5 class="card-title"><?= $nama_dest ?></h5>
+                  <h5 class="card-title" style="color: <?= $theme_color_primary_hex ?>;"><?= $nama_dest ?></h5>
                   <p class="card-text text-muted small flex-grow-1"><?= $desk_singkat_dest ?></p>
                   <div class="mt-auto">
-                    <a href="<?= e($detail_url_dest) ?>" class="btn btn-sm btn-outline-primary">Selengkapnya <i class="fas fa-angle-right ms-1"></i></a>
+                    <a href="<?= e($detail_url_dest) ?>" class="btn btn-sm" style="color: <?= $theme_color_primary_hex ?>; border-color: <?= $theme_color_primary_hex ?>;">Selengkapnya <i class="fas fa-angle-right ms-1"></i></a>
                   </div>
                 </div>
               </div>
@@ -222,7 +214,7 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
         if ($total_destinasi_keseluruhan > count($destinasi_populer)):
         ?>
           <div class="text-center mt-5">
-            <a href="<?= e(BASE_URL . 'wisata/semua_destinasi.php') ?>" class="btn btn-primary btn-lg">Lihat Semua Destinasi <i class="fas fa-arrow-right ms-2"></i></a>
+            <a href="<?= e(BASE_URL . 'wisata/semua_destinasi.php') ?>" class="btn btn-lg text-white" style="background-color: <?= $theme_color_primary_hex ?>; border-color: <?= $theme_color_primary_hex ?>;">Lihat Semua Destinasi <i class="fas fa-arrow-right ms-2"></i></a>
           </div>
         <?php endif; ?>
       </div>
@@ -241,33 +233,28 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
       <div class="container">
         <div class="text-center mb-5">
           <span class="text-uppercase fw-bold small" style="color: <?= $theme_color_primary_hex ?>;">Info & Berita</span>
-          <h2 class="section-title mt-2">Artikel & Tips Terbaru</h2>
+          <h2 class="section-title mt-2" style="color: <?= $theme_color_primary_hex ?>;">Artikel & Tips Terbaru</h2>
         </div>
         <div class="row g-4">
           <?php
+          // ... (logika foreach artikel terbaru sama) ...
           $delay_animasi_artikel = 0;
           foreach ($artikel_terbaru as $artikel):
             $judul_artikel = e($artikel['judul'] ?? 'Judul Artikel');
             $link_artikel = BASE_URL . 'user/artikel_detail.php?id=' . ($artikel['id'] ?? 0);
 
-            // --- PERBAIKAN LOGIKA GAMBAR ARTIKEL ---
             $gambar_file_artikel_db = $artikel['gambar'] ?? null;
-            $gambar_artikel_final = (defined('ASSETS_URL') ? ASSETS_URL : BASE_URL . 'public/') . 'img/placeholder_artikel.png'; // Default placeholder
+            $gambar_artikel_final = (defined('ASSETS_URL') ? ASSETS_URL : BASE_URL . 'public/') . 'img/placeholder_artikel.png';
             $path_gambar_server_artikel_aktual = null;
 
             if (!empty($gambar_file_artikel_db)) {
               $nama_file_bersih_artikel = basename($gambar_file_artikel_db);
-              // Gunakan variabel path dasar yang sudah didefinisikan di atas
               $path_gambar_server_artikel_aktual = $base_uploads_artikel_path_server_idx . DIRECTORY_SEPARATOR . $nama_file_bersih_artikel;
 
               if (file_exists($path_gambar_server_artikel_aktual) && is_file($path_gambar_server_artikel_aktual)) {
-                // Gunakan variabel URL dasar yang sudah didefinisikan di atas
                 $gambar_artikel_final = $base_uploads_artikel_url_web_idx . '/' . rawurlencode($nama_file_bersih_artikel);
-              } else {
-                // error_log("INDEX_ARTIKEL_DEBUG: Gambar '{$nama_file_bersih_artikel}' (ID: {$artikel['id']}) tidak ditemukan di server. Path dicek: {$path_gambar_server_artikel_aktual}");
               }
             }
-            // --- AKHIR PERBAIKAN LOGIKA GAMBAR ARTIKEL ---
           ?>
             <div class="col-md-6 col-lg-4 animate-on-scroll" data-animation-delay="<?= $delay_animasi_artikel ?>ms">
               <div class="card article-card-home h-100 shadow-sm hover-shadow-lg transition-fast">
@@ -276,7 +263,7 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
                 </a>
                 <div class="card-body d-flex flex-column">
                   <h5 class="card-title">
-                    <a href="<?= e($link_artikel) ?>" class="text-decoration-none stretched-link-card-custom">
+                    <a href="<?= e($link_artikel) ?>" class="text-decoration-none stretched-link-card-custom" style="color: <?= $theme_color_primary_hex ?>;">
                       <?= $judul_artikel ?>
                     </a>
                   </h5>
@@ -285,7 +272,7 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
                   </p>
                   <p class="card-text flex-grow-1"><?= e(excerpt(strip_tags($artikel['isi'] ?? ''), 100)) ?></p>
                   <div class="mt-auto">
-                    <a href="<?= e($link_artikel) ?>" class="btn btn-sm btn-outline-secondary align-self-start">
+                    <a href="<?= e($link_artikel) ?>" class="btn btn-sm align-self-start" style="color: <?= $theme_color_primary_hex ?>; border-color: <?= $theme_color_primary_hex ?>;">
                       Baca Selengkapnya <i class="fas fa-long-arrow-alt-right ms-1"></i>
                     </a>
                   </div>
@@ -300,7 +287,7 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
         if ($total_artikel_keseluruhan > count($artikel_terbaru)):
         ?>
           <div class="text-center mt-5">
-            <a href="<?= e(BASE_URL . 'user/artikel.php') ?>" class="btn btn-outline-primary btn-lg">Lihat Semua Artikel</a>
+            <a href="<?= e(BASE_URL . 'user/artikel.php') ?>" class="btn btn-lg text-white" style="background-color: <?= $theme_color_primary_hex ?>; border-color: <?= $theme_color_primary_hex ?>;">Lihat Semua Artikel</a>
           </div>
         <?php endif; ?>
       </div>
@@ -317,7 +304,7 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
     <div class="container">
       <div class="text-center mb-5">
         <span class="text-uppercase fw-bold small" style="color: <?= $theme_color_primary_hex ?>;">Ulasan Pengunjung</span>
-        <h2 class="section-title mt-2">Apa Kata Mereka?</h2>
+        <h2 class="section-title mt-2" style="color: <?= $theme_color_primary_hex ?>;">Apa Kata Mereka?</h2>
       </div>
       <div class="row justify-content-center">
         <div class="col-lg-9">
@@ -329,7 +316,7 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
             </div>
             <div class="carousel-inner rounded shadow-lg">
               <?php
-              // ... (logika testimoni sama seperti sebelumnya, pastikan path avatar benar) ...
+              // ... (logika testimoni sama) ...
               $testimonies = [];
               if (class_exists('Feedback') && method_exists('Feedback', 'getAll')) {
                 $allFeedbacks = [];
@@ -351,7 +338,6 @@ if (!@include_once ROOT_PATH . '/template/header.php') {
               foreach ($testimonies as $index => $testi) :
                 $avatar_fallback_url = (defined('ASSETS_URL') ? ASSETS_URL : BASE_URL . 'public/') . 'img/avatar_placeholder.png';
                 $avatar_display_url = $avatar_fallback_url;
-                // Sesuaikan path untuk foto_profil jika itu dari uploads/profil/
                 $nama_file_avatar = $testi['foto_profil'] ?? ($testi['avatar'] ?? null);
                 if (!empty($nama_file_avatar)) {
                   $path_cek_avatar_upload = (defined('UPLOADS_PROFIL_PATH') ? UPLOADS_PROFIL_PATH : ROOT_PATH . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'profil' . DIRECTORY_SEPARATOR) . basename($nama_file_avatar);

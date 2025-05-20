@@ -18,44 +18,37 @@ if (!function_exists('e')) {
 }
 
 if (!function_exists('redirect')) {
-    function redirect($path)
+    function redirect(string $path, ?string $base_or_prefix_url = null)
     {
-        $path_str = (string)$path;
         $location = '';
-        // Hapus timestamp logging dari fungsi inti redirect, bisa dilakukan oleh pemanggil jika perlu
-        // error_log("REDIRECT HELPER: Menerima path awal = " . $path_str);
-
-        if (preg_match('#^https?://#i', $path_str)) {
-            $location = $path_str;
+        if (preg_match('#^https?://#i', $path)) {
+            $location = $path;
+        } elseif ($base_or_prefix_url !== null) {
+            $location = rtrim($base_or_prefix_url, '/') . '/' . ltrim($path, '/');
         } else {
             if (!defined('BASE_URL')) {
-                error_log("REDIRECT FATAL ERROR: Konstanta BASE_URL tidak terdefinisi. Path relatif: " . e($path_str));
+                error_log("REDIRECT FATAL ERROR: Konstanta BASE_URL tidak terdefinisi. Path relatif: " . e($path));
                 http_response_code(500);
-                exit("Kesalahan Konfigurasi Kritis: URL dasar aplikasi tidak terdefinisi.");
+                exit("Kesalahan Konfigurasi Kritis: URL dasar aplikasi tidak terdefinisi untuk redirect.");
             }
-            $base_url_val = BASE_URL;
-            $location = rtrim($base_url_val, '/') . '/' . ltrim($path_str, '/');
-            $location = preg_replace('#(?<!:)/{2,}#', '/', $location);
+            $location = rtrim(BASE_URL, '/') . '/' . ltrim($path, '/');
         }
-
-        // error_log("REDIRECT HELPER: Akan redirect ke Lokasi Final = " . $location);
+        $location = preg_replace('#(?<!:)/{2,}#', '/', $location);
 
         if (!headers_sent($file_header, $line_header)) {
             header('Location: ' . $location);
-            // error_log("REDIRECT SUCCESS: Header Location terkirim ke: " . $location);
             exit;
         } else {
             error_log("REDIRECT PERINGATAN: Headers sudah terkirim. Output dimulai di {$file_header} pada baris {$line_header}. Fallback JS ke '{$location}'.");
             echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Redirecting...</title>";
             echo "<script type='text/javascript'>window.location.href = '" . addslashes($location) . "';</script>";
             echo "<noscript><meta http-equiv='refresh' content='0;url=" . e($location) . "'></noscript>";
-            echo "</head><body><p>Sedang mengarahkan... Jika Anda tidak diarahkan secara otomatis dalam beberapa detik, silakan <a href=\"" . e($location) . "\">klik di sini</a>.</p></body></html>";
+            echo "</head><body><p>Sedang mengarahkan... Jika tidak otomatis, <a href=\"" . e($location) . "\">klik di sini</a>.</p></body></html>";
             exit;
         }
     }
 }
 
-// ... (fungsi lain seperti formatRupiah, formatTanggalIndonesia, dll. tetap sama) ...
 if (!function_exists('redirect_to_previous_or_default')) {
     function redirect_to_previous_or_default($default_path)
     {
@@ -64,12 +57,10 @@ if (!function_exists('redirect_to_previous_or_default')) {
             $base_url_host = parse_url(BASE_URL, PHP_URL_HOST);
             $referer_host = parse_url($referer, PHP_URL_HOST);
             if (strtolower($base_url_host ?? '') === strtolower($referer_host ?? '')) {
-                redirect($referer); // redirect() sudah ada exit
-                // exit; // Tidak perlu exit ganda
+                redirect($referer);
             }
         }
-        redirect($default_path); // redirect() sudah ada exit
-        // exit; // Tidak perlu exit ganda
+        redirect($default_path);
     }
 }
 
@@ -130,34 +121,38 @@ if (!function_exists('formatTanggalIndonesia')) {
 }
 
 if (!function_exists('is_post')) {
-    function is_post()
+    function is_post(): bool
     {
         return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
     }
 }
 if (!function_exists('is_get')) {
-    function is_get()
+    function is_get(): bool
     {
         return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET';
     }
 }
 if (!function_exists('input')) {
-    function input($key, $default = null, $method = null)
+    function input(string $key, $default = null, ?string $method = null)
     {
         $source = null;
         $request_method_server = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
-        $method_lower = $method !== null ? strtolower((string)$method) : null;
-        if ($method_lower === 'post' || ($method === null && $request_method_server === 'POST')) $source = $_POST;
-        elseif ($method_lower === 'get' || ($method === null && $request_method_server === 'GET')) $source = $_GET;
-        else return $default;
+        $method_lower = $method !== null ? strtolower($method) : null;
+        if ($method_lower === 'post' || ($method === null && $request_method_server === 'POST')) {
+            $source = $_POST;
+        } elseif ($method_lower === 'get' || ($method === null && $request_method_server === 'GET')) {
+            $source = $_GET;
+        } else {
+            return $default;
+        }
         return isset($source[$key]) ? (is_string($source[$key]) ? trim($source[$key]) : $source[$key]) : $default;
     }
 }
 if (!function_exists('excerpt')) {
-    function excerpt($text, $limit = 100, $ellipsis = '...')
+    function excerpt(string $text, int $limit = 100, string $ellipsis = '...'): string
     {
-        if ($text === null || trim((string)$text) === '') return '';
-        $text_clean = strip_tags((string)$text);
+        if (trim($text) === '') return '';
+        $text_clean = strip_tags($text);
         if (mb_strlen($text_clean, 'UTF-8') > $limit) {
             $text_cut = mb_substr($text_clean, 0, $limit, 'UTF-8');
             $last_space = mb_strrpos($text_cut, ' ', 0, 'UTF-8');
@@ -168,125 +163,76 @@ if (!function_exists('excerpt')) {
     }
 }
 if (!function_exists('is_valid_email')) {
-    function is_valid_email($email)
+    function is_valid_email(string $email): bool
     {
-        return filter_var((string)$email, FILTER_VALIDATE_EMAIL) !== false;
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 }
 
-
-// --- FUNGSI CSRF TOKEN YANG DIREKOMENDASIKAN ---
-if (!function_exists('get_session_csrf_token_name')) {
-    /**
-     * Mendapatkan nama kunci session yang digunakan untuk menyimpan CSRF token.
-     * Ini untuk memastikan konsistensi.
-     */
-    function get_session_csrf_token_name()
+// --- FUNGSI CSRF TOKEN YANG DISEMPURNAKAN --- (Sama seperti sebelumnya)
+if (!function_exists('get_csrf_session_key')) {
+    function get_csrf_session_key(): string
     {
-        return 'csrf_main_token'; // Gunakan satu nama kunci session yang konsisten
+        return 'csrf_main_token_val';
     }
 }
-
 if (!function_exists('generate_csrf_token')) {
-    /**
-     * Membuat atau mengambil CSRF token dari session.
-     * Token akan disimpan di $_SESSION[get_session_csrf_token_name()].
-     * @return string CSRF token.
-     */
-    function generate_csrf_token()
+    function generate_csrf_token(): string
     {
         if (session_status() == PHP_SESSION_NONE) {
-            error_log("KRITIKAL generate_csrf_token(): Session belum dimulai. Mencoba memulai...");
-            if (!headers_sent($file, $line)) {
+            if (!headers_sent($f, $l)) {
                 session_start();
             } else {
-                error_log("GAGAL memulai session di generate_csrf_token() karena headers sudah terkirim dari {$file}:{$line}");
-                return 'csrf_error_session_not_started'; // Mengembalikan string error
+                error_log("GAGAL session_start di generate_csrf_token() dari {$f}:{$l}");
+                return 'csrf_error_session';
             }
         }
-        $token_session_key = get_session_csrf_token_name();
-        if (empty($_SESSION[$token_session_key])) {
+        $k = get_csrf_session_key();
+        if (empty($_SESSION[$k])) {
             try {
-                $_SESSION[$token_session_key] = bin2hex(random_bytes(32));
+                $_SESSION[$k] = bin2hex(random_bytes(32));
             } catch (Exception $e) {
-                // Fallback jika random_bytes gagal (sangat jarang)
-                $_SESSION[$token_session_key] = md5(uniqid(microtime(true) . mt_rand(), true));
-                error_log("Peringatan: random_bytes() gagal untuk CSRF token: " . $e->getMessage() . ". Menggunakan fallback md5.");
+                $_SESSION[$k] = md5(uniqid(microtime(true) . mt_rand(), true) . 'xs');
+                error_log("CSRF rand_bytes() gagal: " . $e->getMessage());
             }
         }
-        return $_SESSION[$token_session_key];
+        return $_SESSION[$k];
     }
 }
-
 if (!function_exists('generate_csrf_token_input')) {
-    /**
-     * Menghasilkan input hidden HTML untuk CSRF token.
-     * @param string $input_field_name Nama untuk field input hidden (default: 'csrf_token').
-     * @return string String HTML untuk input hidden.
-     */
-    function generate_csrf_token_input($input_field_name = 'csrf_token')
+    function generate_csrf_token_input(string $input_field_name = 'csrf_token'): string
     {
-        $token_value = generate_csrf_token();
-        if ($token_value === 'csrf_error_session_not_started') {
-            // Jika ada error saat generate token, jangan buat input atau buat dengan value error
-            return '<!-- CSRF Token Generation Error -->';
-        }
-        return '<input type="hidden" name="' . e($input_field_name) . '" value="' . e($token_value) . '">';
+        $t = generate_csrf_token();
+        if (strpos($t, 'csrf_error') === 0) return '<!-- CSRF Gen Error -->';
+        return '<input type="hidden" name="' . e($input_field_name) . '" value="' . e($t) . '">';
     }
 }
-
 if (!function_exists('verify_csrf_token')) {
-    /**
-     * Memverifikasi CSRF token yang dikirim dari form/request terhadap token di session.
-     * @param string $token_input_name Nama field input di mana token dikirim (default: 'csrf_token').
-     * @param bool $unset_after_verify Jika true, token di session akan dihapus setelah verifikasi berhasil.
-     * @param string|null $request_method_override 'POST' atau 'GET'. Jika null, akan coba deteksi otomatis.
-     * @return bool True jika token valid, false jika tidak.
-     */
-    function verify_csrf_token($token_input_name = 'csrf_token', $unset_after_verify = true, $request_method_override = null)
+    function verify_csrf_token(string $token_input_name = 'csrf_token', bool $unset_after_verify = true, ?string $request_method_override = null): bool
     {
         if (session_status() == PHP_SESSION_NONE) {
-            error_log("CSRF Verify: Sesi belum dimulai saat verifikasi.");
+            error_log("CSRF Verify: Sesi belum ada.");
             return false;
         }
-
-        $token_session_key = get_session_csrf_token_name();
-        $session_csrf_token = $_SESSION[$token_session_key] ?? null;
-
-        $request_token_value = null;
-        $method_to_check = $request_method_override ?? strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
-
-        if ($method_to_check === 'POST') {
-            $request_token_value = $_POST[$token_input_name] ?? null;
-        } elseif ($method_to_check === 'GET') {
-            $request_token_value = $_GET[$token_input_name] ?? null;
-        } else {
-            error_log("CSRF Verify: Metode request tidak didukung atau tidak diketahui: " . $method_to_check);
+        $k = get_csrf_session_key();
+        $s_t = $_SESSION[$k] ?? null;
+        $r_t = null;
+        $m = $request_method_override ?? strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        if ($m === 'POST') $r_t = $_POST[$token_input_name] ?? null;
+        elseif ($m === 'GET') $r_t = $_GET[$token_input_name] ?? null;
+        else {
+            error_log("CSRF Verify: Metode request tidak didukung: " . $m);
             return false;
         }
-
-        if (empty($session_csrf_token) || empty($request_token_value)) {
-            error_log("CSRF Verify: Token sesi ('" . ($session_csrf_token ? '***' : 'KOSONG') . // Jangan log token sesi penuh
-                "') atau request ('" . ($request_token_value ? '***' : 'KOSONG') . // Jangan log token request penuh
-                "') kosong/hilang. Nama input dicek: {$token_input_name}, Metode: {$method_to_check}");
+        if (empty($s_t) || empty($r_t)) {
+            error_log("CSRF Verify: Token sesi/request hilang. Input='{$token_input_name}', Metode='{$m}'. Sesi:" . ($s_t ? 'ADA' : 'KOSONG') . ", Req:" . ($r_t ? 'ADA' : 'KOSONG'));
+            if ($unset_after_verify && isset($_SESSION[$k])) unset($_SESSION[$k]);
             return false;
         }
-
-        $is_valid = hash_equals($session_csrf_token, $request_token_value);
-
-        if (!$is_valid) {
-            error_log("CSRF Verify: Token Mismatch! Sesi: [HASH_SESS_TOKEN_HIDDEN], Request (dari input '{$token_input_name}'): [HASH_REQ_TOKEN_HIDDEN]");
-        }
-
-        // PENTING: Selalu unset token setelah diverifikasi (baik valid maupun tidak) untuk mencegah replay attack
-        // jika ini adalah token sekali pakai. Jika Anda ingin token bertahan lebih lama per sesi,
-        // maka jangan unset di sini, tapi Anda perlu mekanisme regenerasi yang berbeda.
-        // Untuk kebanyakan form POST, unset setelah verifikasi adalah praktik yang baik.
-        if ($unset_after_verify) {
-            unset($_SESSION[$token_session_key]);
-        }
-
-        return $is_valid;
+        $v = hash_equals($s_t, $r_t);
+        if (!$v) error_log("CSRF Verify: Mismatch. Input='{$token_input_name}', Metode='{$m}'.");
+        if ($unset_after_verify) unset($_SESSION[$k]);
+        return $v;
     }
 }
 
@@ -414,5 +360,64 @@ if (!function_exists('time_elapsed_string')) {
             error_log("Error di time_elapsed_string: " . $e->getMessage() . " untuk datetime: " . htmlspecialchars((string)$datetime));
             return 'invalid date';
         }
+    }
+}
+if (!function_exists('adjustBrightness')) {
+    /**
+     * Menyesuaikan kecerahan warna hex.
+     * @param string $hex Kode warna hex (misal: #RRGGBB atau RRGGBB).
+     * @param int $steps Jumlah penyesuaian (-255 hingga 255). Negatif untuk lebih gelap, positif untuk lebih terang.
+     * @return string Kode warna hex baru.
+     */
+    function adjustBrightness(string $hex, int $steps): string
+    {
+        $steps = max(-255, min(255, $steps));
+        $hex = str_replace('#', '', $hex);
+
+        if (strlen($hex) == 3) {
+            $hex = str_repeat(substr($hex, 0, 1), 2) .
+                str_repeat(substr($hex, 1, 1), 2) .
+                str_repeat(substr($hex, 2, 1), 2);
+        }
+        if (strlen($hex) !== 6) { // Pastikan panjangnya 6 setelah konversi
+            return '#000000'; // Fallback jika format hex salah
+        }
+
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+
+        $r = max(0, min(255, $r + $steps));
+        $g = max(0, min(255, $g + $steps));
+        $b = max(0, min(255, $b + $steps));
+
+        return '#' . str_pad(dechex($r), 2, '0', STR_PAD_LEFT) .
+            str_pad(dechex($g), 2, '0', STR_PAD_LEFT) .
+            str_pad(dechex($b), 2, '0', STR_PAD_LEFT);
+    }
+}
+
+if (!function_exists('get_site_settings')) {
+    /**
+     * Mengambil nilai pengaturan situs dari variabel global $pengaturan_situs_global.
+     * Variabel $pengaturan_situs_global harus sudah di-set di config.php.
+     * @param string|null $key Kunci spesifik pengaturan yang ingin diambil. Jika null, kembalikan semua pengaturan.
+     * @param mixed $default Nilai default jika kunci tidak ditemukan.
+     * @return mixed Nilai pengaturan, array semua pengaturan, atau nilai default.
+     */
+    function get_site_settings(?string $key = null, $default = null)
+    {
+        global $pengaturan_situs_global; // Mengakses variabel global
+
+        if (!isset($pengaturan_situs_global) || !is_array($pengaturan_situs_global)) {
+            // Jika $pengaturan_situs_global tidak ada atau bukan array (seharusnya tidak terjadi jika config.php benar)
+            error_log("Peringatan di get_site_settings(): Variabel global \$pengaturan_situs_global tidak tersedia atau bukan array.");
+            return $key === null ? [] : $default; // Kembalikan array kosong atau default
+        }
+
+        if ($key === null) {
+            return $pengaturan_situs_global; // Kembalikan semua pengaturan
+        }
+        return $pengaturan_situs_global[$key] ?? $default;
     }
 }
