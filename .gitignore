@@ -1,0 +1,51 @@
+
+# Logs
+*.log
+logs/
+!logs/.gitkeep
+
+# Cache dan session
+*.cache
+*.tmp
+*.swp
+*.bak
+*.pid
+*.seed
+*.pid.lock
+
+# Sistem Operasi
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# IDE/editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Composer & PHP dependencies
+/vendor/
+/composer.lock
+
+# File environment atau konfigurasi lokal
+.env
+.env.local
+.env.*
+
+# Direktori XAMPP (jika ada path absolut disertakan)
+C:/xampp/
+
+# Node (jika ada frontend modern)
+node_modules/
+
+# File upload temporer (misalnya untuk development)
+uploads/
+storage/
+*.zip
+*.tar.gz
+
+# File khusus proyek kamu
+logs/php_error_dev.log
